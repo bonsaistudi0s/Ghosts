@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[40,)"
+license="All rights reserved"
+[[mods]]
+modId="ghosts"
+version="1.0.0"
+displayName="Ghosts"
+displayURL="https://wanmine.net/"
+logoFile="logo.png"
+credits="Diamantino Op"
+authors="WanMine"
+description='''
+Adds two entities in the game
+'''
+
+[[dependencies.ghosts]]
+    modId="forge"
+    mandatory=true
+    versionRange="[40,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.ghosts]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.18.2,1.19)"
+    ordering="NONE"
+    side="BOTH"
