@@ -2,33 +2,39 @@ package com.wanmine.ghosts.entities;
 
 import com.wanmine.ghosts.entities.goals.GhostsWanderGoal;
 import com.wanmine.ghosts.entities.variants.GhostVariant;
-import com.wanmine.ghosts.registries.ModEntityTypes;
 import com.wanmine.ghosts.registries.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.players.OldUsersConverter;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
-import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.SitWhenOrderedToGoal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.AbstractGolem;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AnvilMenu;
-import net.minecraft.world.inventory.GrindstoneMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -41,7 +47,6 @@ import net.minecraft.world.level.block.CauldronBlock;
 import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.block.FlowerPotBlock;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
@@ -56,7 +61,6 @@ import software.bernie.geckolib3.core.manager.AnimationFactory;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
-import java.util.UUID;
 
 public class GhostEntity extends TamableAnimal implements IAnimatable {
     private final AnimationFactory factory = new AnimationFactory(this);
@@ -116,8 +120,14 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
                 .build();
     }
 
+    @Override
     public boolean causeFallDamage(float p_148989_, float p_148990_, @NotNull DamageSource p_148991_) {
         return false;
+    }
+
+    @Override
+    public boolean fireImmune() {
+        return true;
     }
 
     @Nullable
@@ -229,11 +239,11 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
                     this.tame(player);
                     this.navigation.stop();
                     this.setOrderedToSit(true);
-                    this.level.broadcastEntityEvent(this, (byte)7);
+                    this.level.broadcastEntityEvent(this, (byte) 7);
                     Objects.requireNonNull(this.getAttribute(Attributes.FLYING_SPEED)).setBaseValue(0.3f);
                     Objects.requireNonNull(this.getAttribute(Attributes.MOVEMENT_SPEED)).setBaseValue(0.3f);
                 } else {
-                    this.level.broadcastEntityEvent(this, (byte)6);
+                    this.level.broadcastEntityEvent(this, (byte) 6);
                 }
 
                 return InteractionResult.SUCCESS;
@@ -310,8 +320,7 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
                     setCdUnenchant(82);
 
                     shouldUnenchant = true;
-                }
-                else {
+                } else {
                     setHoldItem(removeEnchants(getHoldItem()));
 
                     ItemEntity myItemEntity = new ItemEntity(this.level, this.getX(), this.getY() + 0.5D, this.getZ(), getHoldItem());
@@ -379,7 +388,7 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
         int l = 0;
         Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(p_39637_);
 
-        for(Map.Entry<Enchantment, Integer> entry : map.entrySet()) {
+        for (Map.Entry<Enchantment, Integer> entry : map.entrySet()) {
             Enchantment enchantment = entry.getKey();
             Integer integer = entry.getValue();
             if (!enchantment.isCurse()) {
@@ -426,7 +435,8 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor levelAccessor, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor levelAccessor, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType mobSpawnType,
+            @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
         int rand = new Random().nextInt(20) + 1;
 
         int rand1 = new Random().nextInt(20) + 1;
@@ -437,8 +447,7 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
                 setVariant(GhostVariant.MUSHROOM_80);
             else
                 setVariant(GhostVariant.MUSHROOM_40);
-        }
-        else {
+        } else {
 
             if (rand1 == 1)
                 setVariant(GhostVariant.NORMAL_80);
@@ -494,9 +503,9 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
 
     @Override
     public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController<>(this, "ghost_animation_controller_body", 0, EasingType.Linear, this::bodyAC));
-        data.addAnimationController(new AnimationController<>(this, "ghost_animation_controller_arms", 0, this::armsAC));
-        data.addAnimationController(new AnimationController<>(this, "ghost_animation_controller_blink", 0, this::blinkAC));
+        data.addAnimationController(new AnimationController<>(this, "ghost_animation_controller_body", 1, EasingType.Linear, this::bodyAC));
+        data.addAnimationController(new AnimationController<>(this, "ghost_animation_controller_arms", 1, this::armsAC));
+        data.addAnimationController(new AnimationController<>(this, "ghost_animation_controller_blink", 1, this::blinkAC));
     }
 
     @Override

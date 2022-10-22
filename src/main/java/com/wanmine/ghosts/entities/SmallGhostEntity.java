@@ -4,34 +4,47 @@ import com.wanmine.ghosts.entities.goals.GhostsWanderGoal;
 import com.wanmine.ghosts.entities.variants.SmallGhostVariant;
 import com.wanmine.ghosts.registries.ModSounds;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.*;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
-import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.util.AirRandomPos;
 import net.minecraft.world.entity.animal.AbstractGolem;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +56,9 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 
 public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
     private final AnimationFactory factory = new AnimationFactory(this);
@@ -54,11 +69,12 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
     private static final EntityDataAccessor<Boolean> IS_SLEEPING = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<ItemStack> HOLD_ITEM = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.ITEM_STACK);
 
-    private int treeCd = 0;
+    private int treeCd;
 
     public SmallGhostEntity(EntityType<? extends TamableAnimal> entity, Level world) {
         super(entity, world);
         this.moveControl = new FlyingMoveControl(this, 10, true);
+        this.treeCd = this.random.nextInt(60, 120);
         this.setTame(false);
         this.setPathfindingMalus(BlockPathTypes.POWDER_SNOW, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.DANGER_POWDER_SNOW, -1.0F);
@@ -187,73 +203,103 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
     }
 
     @Override
+    public void push(Entity entity) {
+        if (!this.getIsSleeping()) {
+            super.push(entity);
+        }
+    }
+
+    @Override
+    protected void doPush(Entity entity) {
+        if (!this.getIsSleeping()) {
+            super.doPush(entity);
+        }
+    }
+
+    @Override
+    public boolean fireImmune() {
+        return true;
+    }
+
+    @Override
     public void tick() {
         super.tick();
 
-        if (!level.isClientSide()) {
-            if (getCdFullHide() > 0) {
-                setCdFullHide(getCdFullHide() - 1);
+        if (level.isClientSide)
+            return; // Everything after this is server-only
+
+        if (getCdFullHide() > 0) {
+            setCdFullHide(getCdFullHide() - 1);
+        }
+
+        SmallGhostVariant variant = getVariant();
+        if (variant == SmallGhostVariant.PLANT_40 || variant == SmallGhostVariant.PLANT_80) {
+            BlockState belowBlockState = level.getBlockState(this.blockPosition().below());
+            if (!level.isDay() && (belowBlockState.is(Blocks.GRASS_BLOCK) || belowBlockState.is(Blocks.DIRT))) {
+                if (!getIsSleeping())
+                    setCdFullHide(36);
+
+                setIsSleeping(true);
+            } else {
+                setIsSleeping(false);
             }
+        }
 
-            if (!(getVariant() == SmallGhostVariant.NORMAL_40 || getVariant() == SmallGhostVariant.NORMAL_80)) {
-                if (!level.isDay() && level.getBlockState(this.blockPosition().below()).getBlock() != Blocks.AIR && (level.getBlockState(this.blockPosition().below()).getBlock() == Blocks.GRASS_BLOCK || level.getBlockState(this.blockPosition().below()).getBlock() == Blocks.DIRT)) {
-                    if (!getIsSleeping())
-                        setCdFullHide(36);
+        ItemStack heldStack = getHoldItem();
+        if (heldStack != ItemStack.EMPTY) {
+            BlockState belowBlockState = this.level.getBlockState(this.blockPosition().below());
+            if ((belowBlockState.is(Blocks.DIRT) || belowBlockState.is(Blocks.GRASS_BLOCK)) && this.level.getBlockState(this.blockPosition()).isAir()) {
+                if (this.treeCd == 0) {
+                    if (heldStack.getItem() instanceof BlockItem blockItem) {
+                        BlockHitResult pHitResult = new BlockHitResult(this.position(), Direction.DOWN, this.blockPosition(), false);
+                        blockItem.place(new BlockPlaceContext(this.level, null, InteractionHand.MAIN_HAND, heldStack, pHitResult));
+                    }
 
-                    setIsSleeping(true);
+                    setHoldItem(ItemStack.EMPTY);
+                    this.treeCd = this.random.nextInt(60, 120);
                 } else {
-                    setIsSleeping(false);
+                    this.treeCd--;
                 }
             }
         }
 
-        if (treeCd == 0) {
-            if (getHoldItem() != ItemStack.EMPTY) {
-                if (level.getBlockState(this.blockPosition().below()).getBlock() == Blocks.DIRT || level.getBlockState(this.blockPosition().below()).getBlock() == Blocks.GRASS_BLOCK) {
-                    if (level.getBlockState(this.blockPosition()).getBlock() == Blocks.AIR) {
-                        switch (Objects.requireNonNull(getHoldItem().getItem().getRegistryName()).getPath()) {
-                            default -> level.setBlock(this.blockPosition(), Blocks.OAK_SAPLING.defaultBlockState(), 0);
-                            case "birch_sapling" -> level.setBlock(this.blockPosition(), Blocks.BIRCH_SAPLING.defaultBlockState(), 0);
-                            case "jungle_sapling" -> level.setBlock(this.blockPosition(), Blocks.JUNGLE_SAPLING.defaultBlockState(), 0);
-                            case "dark_oak_sapling" -> level.setBlock(this.blockPosition(), Blocks.DARK_OAK_SAPLING.defaultBlockState(), 0);
-                            case "acacia_sapling" -> level.setBlock(this.blockPosition(), Blocks.ACACIA_SAPLING.defaultBlockState(), 0);
-                        }
+        tryPickupItems();
+    }
 
-                        setHoldItem(ItemStack.EMPTY);
+    private void tryPickupItems() {
+        if (this.level.isClientSide || this.tickCount % 20 != 0 || !getHoldItem().isEmpty())
+            return;
 
-                        treeCd = random.nextInt(60, 120);
-                    }
+        List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(this.blockPosition().offset(-10, -10, -10), this.blockPosition().offset(10, 10, 10)));
+
+        if (items.isEmpty() || getHoldItem().getCount() >= 64)
+            return;
+
+        items.forEach(itemEntity -> {
+            ItemStack itemStack = itemEntity.getItem();
+            if (!itemStack.is(ItemTags.SAPLINGS))
+                return;
+
+            double distSqr = this.blockPosition().distToCenterSqr(itemEntity.blockPosition().getX(), itemEntity.blockPosition().getY(), itemEntity.blockPosition().getZ());
+            if (distSqr <= 1) {
+                ItemStack pickupCopy = itemStack.copy();
+
+                if (itemStack.getCount() > 1) {
+                    itemStack.shrink(1);
+                    pickupCopy.setCount(1);
+                    this.take(itemEntity, 1);
+                } else {
+                    itemEntity.discard();
                 }
+
+                setHoldItem(pickupCopy);
+            } else {
+                Path path = this.navigation.createPath(itemEntity.blockPosition(), 1);
+
+                if (path != null)
+                    this.navigation.moveTo(path, 2.0D);
             }
-        } else
-            treeCd--;
-
-        List<ItemEntity> itemEntity = level.getEntitiesOfClass(ItemEntity.class, new AABB(this.blockPosition().offset(-10, -10, -10), this.blockPosition().offset(10, 10, 10)));
-
-        if (!itemEntity.isEmpty() && getHoldItem().getCount() < 64) {
-            itemEntity.iterator().forEachRemaining((entity) -> {
-                if ((entity.getItem().getItem() == Items.OAK_SAPLING || entity.getItem().getItem() == Items.SPRUCE_SAPLING || entity.getItem().getItem() == Items.DARK_OAK_SAPLING || entity.getItem().getItem() == Items.BIRCH_SAPLING || entity.getItem().getItem() == Items.ACACIA_SAPLING || entity.getItem().getItem() == Items.JUNGLE_SAPLING) && getHoldItem() == ItemStack.EMPTY && getHoldItem().isEmpty()) {
-                    Path path = this.navigation.createPath(entity.blockPosition(), 1);
-
-                    if (path != null)
-                        this.navigation.moveTo(path, 2.0D);
-
-                    if (this.blockPosition().distToCenterSqr(entity.blockPosition().getX(), entity.blockPosition().getY(), entity.blockPosition().getZ()) <= 1 && this.blockPosition().distToCenterSqr(entity.blockPosition().getX(), entity.blockPosition().getY(), entity.blockPosition().getZ()) >= -1) {
-                        ItemStack stack = entity.getItem().copy();
-
-                        if (entity.getItem().getCount() > 1) {
-                            entity.getItem().setCount(entity.getItem().getCount() - 1);
-
-                            stack.setCount(1);
-                        } else {
-                            entity.discard();
-                        }
-
-                        setHoldItem(stack.copy());
-                    }
-                }
-            });
-        }
+        });
     }
 
     @Override
@@ -314,7 +360,8 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor levelAccessor, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor levelAccessor, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType mobSpawnType,
+            @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
         int rand = new Random().nextInt(20) + 1;
 
         if (rand == 1) {
@@ -324,8 +371,7 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
                 setVariant(SmallGhostVariant.NORMAL_80);
             else
                 setVariant(SmallGhostVariant.NORMAL_40);
-        }
-        else {
+        } else {
             int rand1 = new Random().nextInt(20) + 1;
 
             if (rand1 == 1)
@@ -378,8 +424,8 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
 
     @Override
     public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController<>(this, "small_ghost_animation_controller_body", 0, this::bodyAC));
-        data.addAnimationController(new AnimationController<>(this, "small_ghost_animation_controller_arms", 0, this::armsAC));
+        data.addAnimationController(new AnimationController<>(this, "small_ghost_animation_controller_body", 1, this::bodyAC));
+        data.addAnimationController(new AnimationController<>(this, "small_ghost_animation_controller_arms", 1, this::armsAC));
     }
 
     @Override
