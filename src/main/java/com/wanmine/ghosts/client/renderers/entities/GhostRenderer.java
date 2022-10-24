@@ -1,6 +1,8 @@
 package com.wanmine.ghosts.client.renderers.entities;
 
 import com.google.common.collect.Maps;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import com.wanmine.ghosts.Ghosts;
 import com.wanmine.ghosts.client.models.entities.GhostModel;
 import com.wanmine.ghosts.client.renderers.layers.GhostGlowLayer;
@@ -11,6 +13,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import software.bernie.geckolib3.geo.render.built.GeoBone;
 
 import java.util.Map;
 
@@ -31,6 +34,11 @@ public class GhostRenderer extends BaseGhostRenderer<GhostEntity> {
     @Override
     protected ItemStack getHeldItemStack() {
         return this.ghostEntity.getHoldItem();
+    }
+
+    @Override
+    protected void setupHeldItemRender(PoseStack poseStack, GeoBone bone) {
+        poseStack.mulPose(Vector3f.YP.rotationDegrees(90));
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.wanmine.ghosts.entities.goals.GhostsWanderGoal;
 import com.wanmine.ghosts.entities.variants.GhostVariant;
 import com.wanmine.ghosts.registries.ModSounds;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -43,9 +44,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.CauldronBlock;
-import net.minecraft.world.level.block.FlowerBlock;
-import net.minecraft.world.level.block.FlowerPotBlock;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,7 +64,6 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     private final AnimationFactory factory = new AnimationFactory(this);
 
     private static final EntityDataAccessor<Integer> DATA_ID_TYPE_VARIANT = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Boolean> IS_STAYING = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<ItemStack> HOLD_ITEM = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.ITEM_STACK);
     private static final EntityDataAccessor<Integer> CD_UNENCHANT = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
 
@@ -96,11 +93,11 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
 
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Player.class, 6.0F));
-        this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
-        this.goalSelector.addGoal(9, new GhostsWanderGoal(this, 1.0D));
-        this.goalSelector.addGoal(6, new FollowOwnerGoal(this, 1.0D, 4, 2, false));
         this.goalSelector.addGoal(2, new SitWhenOrderedToGoal(this));
+        this.goalSelector.addGoal(6, new FollowOwnerGoal(this, 1.0D, 15.0F, 2.0F, false));
+        this.goalSelector.addGoal(9, new GhostsWanderGoal(this, 1.0D));
+        this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
+        this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Player.class, 6.0F));
     }
 
     protected @NotNull PathNavigation createNavigation(@NotNull Level p_29417_) {
@@ -139,21 +136,12 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(IS_STAYING, false);
         this.entityData.define(DATA_ID_TYPE_VARIANT, 0);
         this.entityData.define(CD_UNENCHANT, 0);
         this.entityData.define(HOLD_ITEM, ItemStack.EMPTY);
         this.entityData.define(SHOULD_RESET_CD, false);
         this.entityData.define(BLINK_CD, 0);
         this.entityData.define(BLINK_ANIM_CD, 0);
-    }
-
-    public void setIsStaying(boolean isStaying) {
-        this.entityData.set(IS_STAYING, isStaying);
-    }
-
-    public boolean getIsStaying() {
-        return this.entityData.get(IS_STAYING);
     }
 
     public void setHoldItem(ItemStack holdItem) {
@@ -216,7 +204,6 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     public void addAdditionalSaveData(@NotNull CompoundTag compoundTag) {
         super.addAdditionalSaveData(compoundTag);
         compoundTag.putInt("Variant", getVariant().getId());
-        compoundTag.putBoolean("IsStaying", getIsStaying());
         compoundTag.putInt("CdUnenchant", getCdUnenchant());
         if (getHoldItem() != ItemStack.EMPTY)
             compoundTag.put("InvSlot", getHoldItem().save(new CompoundTag()));
@@ -237,8 +224,8 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
 
                 if (this.random.nextInt(3) == 0 && !net.minecraftforge.event.ForgeEventFactory.onAnimalTame(this, player)) {
                     this.tame(player);
+                    this.setPersistenceRequired();
                     this.navigation.stop();
-                    this.setOrderedToSit(true);
                     this.level.broadcastEntityEvent(this, (byte) 7);
                     Objects.requireNonNull(this.getAttribute(Attributes.FLYING_SPEED)).setBaseValue(0.3f);
                     Objects.requireNonNull(this.getAttribute(Attributes.MOVEMENT_SPEED)).setBaseValue(0.3f);
@@ -264,11 +251,9 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
                 setHoldItem(ItemStack.EMPTY);
 
                 return InteractionResult.SUCCESS;
-            } else if (itemstack.is(ItemStack.EMPTY.getItem()) && !player.isShiftKeyDown() && this.isTame() && this.isOwnedBy(player)) {
-                this.setOrderedToSit(!getIsStaying());
+            } else if (!player.isShiftKeyDown() && this.isTame() && this.isOwnedBy(player)) {
+                this.setOrderedToSit(!this.isOrderedToSit());
                 this.navigation.stop();
-
-                setIsStaying(!getIsStaying());
 
                 return InteractionResult.SUCCESS;
             }
@@ -311,19 +296,20 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
         if (getCdUnenchant() > 0)
             setCdUnenchant(getCdUnenchant() - 1);
 
-        if (cdTorch > 0)
+        ItemStack heldItemStack = getHoldItem();
+        if (heldItemStack.is(Items.TORCH) && cdTorch > 0)
             cdTorch--;
 
-        if (getHoldItem().isEnchanted()) {
+        if (heldItemStack.isEnchanted()) {
             if (getCdUnenchant() == 0) {
                 if (!shouldUnenchant) {
                     setCdUnenchant(82);
 
                     shouldUnenchant = true;
                 } else {
-                    setHoldItem(removeEnchants(getHoldItem()));
+                    setHoldItem(removeEnchants(heldItemStack));
 
-                    ItemEntity myItemEntity = new ItemEntity(this.level, this.getX(), this.getY() + 0.5D, this.getZ(), getHoldItem());
+                    ItemEntity myItemEntity = new ItemEntity(this.level, this.getX(), this.getY() + 0.5D, this.getZ(), heldItemStack);
                     this.level.addFreshEntity(myItemEntity);
 
                     setHoldItem(ItemStack.EMPTY);
@@ -331,33 +317,35 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
                     shouldUnenchant = false;
                 }
             }
-        } else if (getHoldItem().getItem() == Items.TORCH && cdTorch == 0) {
-            boolean shouldStop = false;
+        } else if (heldItemStack.is(Items.TORCH) && cdTorch == 0) {
+            for (BlockPos pos : BlockPos.spiralAround(this.blockPosition(), 1, Direction.EAST, Direction.SOUTH)) {
+                int below = 0;
+                while (this.level.getBlockState(pos).isAir()) {
+                    pos = pos.below();
+                    below++;
+                    if (below == 5)
+                        break;
+                }
 
-            for (int x = -1; x <= 1; x++) {
-                for (int y = -1; y <= 1; y++) {
-                    for (int z = -1; z <= 1; z++) {
-                        BlockPos pos = this.blockPosition().offset(x, y, z);
+                if (below == 5)
+                    continue;
 
-                        if (level.getBrightness(LightLayer.BLOCK, pos) < 4) {
-                            ItemStack stack = getHoldItem();
+                pos = pos.above();
+                if (level.getBrightness(LightLayer.BLOCK, pos) >= 4)
+                    continue;
 
-                            if (!level.getBlockState(pos.below()).isAir() && !(level.getBlockState(pos.below()).getBlock() == Blocks.TORCH) && !(level.getBlockState(pos.below()).getBlock() == Blocks.GRASS) && !(level.getBlockState(pos.below()).getBlock().getClass() == FlowerBlock.class) && !(level.getBlockState(pos.below()).getBlock() == Blocks.WATER) && !(level.getBlockState(pos.below()).getBlock() == Blocks.LAVA) && !(level.getBlockState(pos.below()).getBlock().getClass() == FlowerPotBlock.class) && !(level.getBlockState(pos.below()).getBlock().getClass() == CauldronBlock.class)) {
-                                if (level.getBlockState(pos).isAir() && !shouldStop) {
-                                    level.setBlock(pos, Blocks.TORCH.defaultBlockState(), 0);
+                BlockPos belowPos = pos.below();
+                if (level.getBlockState(belowPos).isFaceSturdy(level, belowPos, Direction.UP) && level.getBlockState(pos).isAir()) {
+                    level.setBlock(pos, Blocks.TORCH.defaultBlockState(), 0);
 
-                                    if (stack.getCount() == 1)
-                                        setHoldItem(ItemStack.EMPTY);
-                                    else {
-                                        stack.setCount(stack.getCount() - 1);
-                                        setHoldItem(stack.copy());
-                                    }
-
-                                    shouldStop = true;
-                                }
-                            }
-                        }
+                    if (heldItemStack.getCount() == 1) {
+                        setHoldItem(ItemStack.EMPTY);
+                    } else {
+                        heldItemStack.setCount(heldItemStack.getCount() - 1);
+                        setHoldItem(heldItemStack.copy());
                     }
+
+                    break;
                 }
             }
 
@@ -404,9 +392,6 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
         super.readAdditionalSaveData(compoundTag);
         if (compoundTag.contains("Variant")) {
             this.setVariant(compoundTag.getInt("Variant"));
-        }
-        if (compoundTag.contains("IsStaying")) {
-            this.setIsStaying(compoundTag.getBoolean("IsStaying"));
         }
         if (compoundTag.contains("CdUnenchant")) {
             this.setCdUnenchant(compoundTag.getInt("CdUnenchant"));

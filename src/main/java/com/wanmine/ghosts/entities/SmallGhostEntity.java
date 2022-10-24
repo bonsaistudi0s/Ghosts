@@ -91,9 +91,9 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
 
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
+        this.goalSelector.addGoal(9, new GhostsWanderGoal(this, 1.0D));
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
-        this.goalSelector.addGoal(9, new GhostsWanderGoal(this, 1.0D));
     }
 
     protected @NotNull PathNavigation createNavigation(@NotNull Level p_29417_) {
@@ -267,7 +267,7 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
     }
 
     private void tryPickupItems() {
-        if (this.level.isClientSide || this.tickCount % 20 != 0 || !getHoldItem().isEmpty())
+        if (this.level.isClientSide || this.tickCount % 20 != 0 || !getHoldItem().isEmpty() || this.getIsSleeping())
             return;
 
         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(this.blockPosition().offset(-10, -10, -10), this.blockPosition().offset(10, 10, 10)));

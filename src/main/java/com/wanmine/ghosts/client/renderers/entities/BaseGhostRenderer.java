@@ -3,7 +3,6 @@ package com.wanmine.ghosts.client.renderers.entities;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
-import com.wanmine.ghosts.client.renderers.layers.GhostGlowLayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -22,16 +21,18 @@ import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 public abstract class BaseGhostRenderer<T extends LivingEntity & IAnimatable> extends GeoEntityRenderer<T> {
     protected T ghostEntity;
     protected RenderType renderType;
+    protected int cachedPackedLight;
 
     protected BaseGhostRenderer(EntityRendererProvider.Context context, AnimatedGeoModel<T> modelProvider) {
         super(context, modelProvider);
     }
 
     @Override
-    public void renderEarly(T animatable, PoseStack stackIn, float ticks, MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn, int packedOverlayIn,
+    public void renderEarly(T animatable, PoseStack stackIn, float ticks, MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLight, int packedOverlayIn,
             float red, float green, float blue, float partialTicks) {
         this.ghostEntity = animatable;
-        super.renderEarly(animatable, stackIn, ticks, renderTypeBuffer, vertexBuilder, packedLightIn, packedOverlayIn, red, green, blue, partialTicks);
+        this.cachedPackedLight = packedLight;
+        super.renderEarly(animatable, stackIn, ticks, renderTypeBuffer, vertexBuilder, packedLight, packedOverlayIn, red, green, blue, partialTicks);
     }
 
     protected abstract ItemStack getHeldItemStack();
@@ -44,11 +45,12 @@ public abstract class BaseGhostRenderer<T extends LivingEntity & IAnimatable> ex
         if (heldItemStack != null && !heldItemStack.isEmpty() && boneName.equals("right_hand")) {
             poseStack.pushPose();
             this.moveAndRotateMatrixToMatchBone(poseStack, bone);
+            this.setupHeldItemRender(poseStack, bone);
             // poseStack.translate((bone.getPositionX() * 0.1f) - (0.2f * 0.1f), (bone.getPositionY() * 0.1f) + (0.8f * 0.1f), (bone.getPositionZ() * 0.1f) + (3f * 0.1f) - 0.3f);
             poseStack.scale(0.6F, 0.6F, 0.6F);
             Minecraft.getInstance().gameRenderer.itemInHandRenderer.renderItem(this.ghostEntity, heldItemStack,
                     ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, false, poseStack, this.rtb,
-                    packedLight);
+                    this.cachedPackedLight);
 
             poseStack.popPose();
             vertexConsumer = this.rtb.getBuffer(this.renderType);
@@ -57,7 +59,13 @@ public abstract class BaseGhostRenderer<T extends LivingEntity & IAnimatable> ex
         if (boneName.equals("glow"))
             return;
 
-        super.renderRecursively(bone, poseStack, vertexConsumer, LightTexture.FULL_BRIGHT, packedOverlayIn, red, green, blue, alpha);
+        if (boneName.equals("main")) {
+            packedLight = LightTexture.FULL_BRIGHT;
+        } else if (boneName.equals("plant")) {
+            packedLight = this.cachedPackedLight;
+        }
+
+        super.renderRecursively(bone, poseStack, vertexConsumer, packedLight, packedOverlayIn, red, green, blue, alpha);
     }
 
     @Override
@@ -67,13 +75,15 @@ public abstract class BaseGhostRenderer<T extends LivingEntity & IAnimatable> ex
         return renderType;
     }
 
-    protected void moveAndRotateMatrixToMatchBone(PoseStack stack, GeoBone bone) {
-        stack.translate(bone.getPivotX() / 16, bone.getPivotY() / 16, bone.getPivotZ() / 16);
+    protected void moveAndRotateMatrixToMatchBone(PoseStack poseStack, GeoBone bone) {
+        poseStack.translate(bone.getPivotX() / 16, bone.getPivotY() / 16, bone.getPivotZ() / 16);
         float xRot = bone.getRotationX() * (180 / (float) Math.PI);
         float yRot = bone.getRotationY() * (180 / (float) Math.PI);
         float zRot = bone.getRotationZ() * (180 / (float) Math.PI);
-        stack.mulPose(Vector3f.XP.rotationDegrees(xRot - 90));
-        stack.mulPose(Vector3f.YP.rotationDegrees(yRot - 90));
-        stack.mulPose(Vector3f.ZP.rotationDegrees(zRot));
+        poseStack.mulPose(Vector3f.XP.rotationDegrees(xRot - 90));
+        poseStack.mulPose(Vector3f.YP.rotationDegrees(yRot - 90));
+        poseStack.mulPose(Vector3f.ZP.rotationDegrees(zRot));
     }
+
+    protected void setupHeldItemRender(PoseStack poseStack, GeoBone bone) {}
 }
