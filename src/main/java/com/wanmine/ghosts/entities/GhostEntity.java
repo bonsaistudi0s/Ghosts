@@ -422,42 +422,26 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     @Override
     public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor levelAccessor, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType mobSpawnType,
             @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
-        int rand = new Random().nextInt(20) + 1;
-
-        int rand1 = new Random().nextInt(20) + 1;
-
-        if (rand == 1) {
-
-            if (rand1 == 1)
-                setVariant(GhostVariant.MUSHROOM_80);
-            else
-                setVariant(GhostVariant.MUSHROOM_40);
-        } else {
-
-            if (rand1 == 1)
-                setVariant(GhostVariant.NORMAL_80);
-            else
-                setVariant(GhostVariant.NORMAL_40);
-        }
+        setVariant(levelAccessor.getRandom().nextBoolean() ? GhostVariant.MUSHROOM : GhostVariant.NORMAL);
 
         return super.finalizeSpawn(levelAccessor, difficulty, mobSpawnType, spawnGroupData, compoundTag);
     }
 
     private <E extends IAnimatable> PlayState bodyAC(AnimationEvent<E> event) {
         if (event.isMoving()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.ghost.ghost_move", true));
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_move", true));
 
             return PlayState.CONTINUE;
         }
 
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.ghost.ghost_idle", true));
+        event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_idle", true));
 
         return PlayState.CONTINUE;
     }
 
     private <E extends IAnimatable> PlayState blinkAC(AnimationEvent<E> event) {
         if (getBlinkCd() == 0) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.ghost.ghost_blink"));
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_blink"));
         }
 
         return PlayState.CONTINUE;
@@ -467,21 +451,21 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
         if (event.isMoving()) {
             if (getHoldItem() != ItemStack.EMPTY) {
                 if (shouldUnenchant)
-                    event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.ghost.ghost_unenchant"));
+                    event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_unenchant"));
                 else
-                    event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.ghost.ghost_arms_hold", true));
+                    event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_arms_hold", true));
             } else
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.ghost.ghost_move_arms", true));
+                event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_move_arms", true));
             return PlayState.CONTINUE;
         }
 
         if (getHoldItem() != ItemStack.EMPTY) {
             if (shouldUnenchant)
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.ghost.ghost_unenchant"));
+                event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_unenchant"));
             else
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.ghost.ghost_arms_hold", true));
+                event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_arms_hold", true));
         } else
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.ghost.ghost_idle_arms", true));
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_idle_arms", true));
 
         return PlayState.CONTINUE;
     }

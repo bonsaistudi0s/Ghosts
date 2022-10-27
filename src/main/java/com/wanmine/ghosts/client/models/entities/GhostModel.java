@@ -15,7 +15,7 @@ public class GhostModel extends AnimatedGeoModel<GhostEntity> {
 
     @Override
     public ResourceLocation getTextureLocation(GhostEntity object) {
-        return GhostRenderer.LOCATION_BY_VARIANT.get(object.getVariant());
+        return GhostRenderer.TEXTURE_LOCATION;
     }
 
     @Override

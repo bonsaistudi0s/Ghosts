@@ -1,15 +1,10 @@
 package com.wanmine.ghosts.entities.variants;
 
-import java.util.Arrays;
-import java.util.Comparator;
-
 public enum GhostVariant {
-    NORMAL_40(0),
-    NORMAL_80(1),
-    MUSHROOM_40(2),
-    MUSHROOM_80(3);
+    NORMAL(0),
+    MUSHROOM(2);
 
-    private static final GhostVariant[] BY_ID = Arrays.stream(values()).sorted(Comparator.comparingInt(GhostVariant::getId)).toArray(GhostVariant[]::new);
+    private static final GhostVariant[] BY_ID = new GhostVariant[]{NORMAL, NORMAL, MUSHROOM, MUSHROOM};
     private final int id;
 
     GhostVariant(int id) {

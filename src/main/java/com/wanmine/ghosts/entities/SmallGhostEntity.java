@@ -1,6 +1,7 @@
 package com.wanmine.ghosts.entities;
 
 import com.wanmine.ghosts.entities.goals.GhostsWanderGoal;
+import com.wanmine.ghosts.entities.variants.GhostVariant;
 import com.wanmine.ghosts.entities.variants.SmallGhostVariant;
 import com.wanmine.ghosts.registries.ModSounds;
 import net.minecraft.core.BlockPos;
@@ -233,7 +234,7 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
         }
 
         SmallGhostVariant variant = getVariant();
-        if (variant == SmallGhostVariant.PLANT_40 || variant == SmallGhostVariant.PLANT_80) {
+        if (variant == SmallGhostVariant.PLANT) {
             BlockState belowBlockState = level.getBlockState(this.blockPosition().below());
             if (!level.isDay() && (belowBlockState.is(Blocks.GRASS_BLOCK) || belowBlockState.is(Blocks.DIRT))) {
                 if (!getIsSleeping())
@@ -362,23 +363,7 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
     @Override
     public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor levelAccessor, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType mobSpawnType,
             @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
-        int rand = new Random().nextInt(20) + 1;
-
-        if (rand == 1) {
-            int rand1 = new Random().nextInt(20) + 1;
-
-            if (rand1 == 1)
-                setVariant(SmallGhostVariant.NORMAL_80);
-            else
-                setVariant(SmallGhostVariant.NORMAL_40);
-        } else {
-            int rand1 = new Random().nextInt(20) + 1;
-
-            if (rand1 == 1)
-                setVariant(SmallGhostVariant.PLANT_80);
-            else
-                setVariant(SmallGhostVariant.PLANT_40);
-        }
+        setVariant(levelAccessor.getRandom().nextBoolean() ? SmallGhostVariant.PLANT : SmallGhostVariant.NORMAL);
 
         return super.finalizeSpawn(levelAccessor, difficulty, mobSpawnType, spawnGroupData, compoundTag);
     }

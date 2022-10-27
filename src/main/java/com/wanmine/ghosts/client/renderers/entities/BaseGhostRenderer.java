@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -42,14 +43,29 @@ public abstract class BaseGhostRenderer<T extends LivingEntity & IAnimatable> ex
         ItemStack heldItemStack = this.getHeldItemStack();
         String boneName = bone.getName();
 
-        if (heldItemStack != null && !heldItemStack.isEmpty() && boneName.equals("right_hand")) {
+        if (heldItemStack != null && !heldItemStack.isEmpty() && boneName.equals("item")) {
             poseStack.pushPose();
             this.moveAndRotateMatrixToMatchBone(poseStack, bone);
+            GeoBone parent = bone.parent;
+            // Unrotate parents
+            while (parent != null) {
+                float xRot = parent.getRotationX() * (180 / (float) Math.PI);
+                float yRot = parent.getRotationY() * (180 / (float) Math.PI);
+                float zRot = parent.getRotationZ() * (180 / (float) Math.PI);
+                poseStack.mulPose(Vector3f.XN.rotationDegrees(xRot));
+                poseStack.mulPose(Vector3f.YN.rotationDegrees(yRot));
+                poseStack.mulPose(Vector3f.ZN.rotationDegrees(zRot));
+                parent = parent.parent;
+            }
+            ItemInHandRenderer itemInHandRenderer = Minecraft.getInstance().getItemInHandRenderer();
+            // poseStack.mulPose(Vector3f.XN.rotationDegrees(90));
+            // if (!Minecraft.getInstance().getItemRenderer().getModel(heldItemStack, this.ghostEntity.level, this.ghostEntity, this.ghostEntity.getId()).isGui3d())
+            //     poseStack.mulPose(Vector3f.ZP.rotationDegrees(90));
             this.setupHeldItemRender(poseStack, bone);
             // poseStack.translate((bone.getPositionX() * 0.1f) - (0.2f * 0.1f), (bone.getPositionY() * 0.1f) + (0.8f * 0.1f), (bone.getPositionZ() * 0.1f) + (3f * 0.1f) - 0.3f);
             poseStack.scale(0.6F, 0.6F, 0.6F);
-            Minecraft.getInstance().gameRenderer.itemInHandRenderer.renderItem(this.ghostEntity, heldItemStack,
-                    ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, false, poseStack, this.rtb,
+            itemInHandRenderer.renderItem(this.ghostEntity, heldItemStack,
+                    ItemTransforms.TransformType.GROUND, false, poseStack, this.rtb,
                     this.cachedPackedLight);
 
             poseStack.popPose();
@@ -77,12 +93,12 @@ public abstract class BaseGhostRenderer<T extends LivingEntity & IAnimatable> ex
 
     protected void moveAndRotateMatrixToMatchBone(PoseStack poseStack, GeoBone bone) {
         poseStack.translate(bone.getPivotX() / 16, bone.getPivotY() / 16, bone.getPivotZ() / 16);
-        float xRot = bone.getRotationX() * (180 / (float) Math.PI);
-        float yRot = bone.getRotationY() * (180 / (float) Math.PI);
-        float zRot = bone.getRotationZ() * (180 / (float) Math.PI);
-        poseStack.mulPose(Vector3f.XP.rotationDegrees(xRot - 90));
-        poseStack.mulPose(Vector3f.YP.rotationDegrees(yRot - 90));
-        poseStack.mulPose(Vector3f.ZP.rotationDegrees(zRot));
+        // float xRot = bone.getRotationX() * (180 / (float) Math.PI);
+        // float yRot = bone.getRotationY() * (180 / (float) Math.PI);
+        // float zRot = bone.getRotationZ() * (180 / (float) Math.PI);
+        // poseStack.mulPose(Vector3f.XP.rotationDegrees(xRot - 90));
+        // poseStack.mulPose(Vector3f.YP.rotationDegrees(yRot - 90));
+        // poseStack.mulPose(Vector3f.ZP.rotationDegrees(zRot));
     }
 
     protected void setupHeldItemRender(PoseStack poseStack, GeoBone bone) {}

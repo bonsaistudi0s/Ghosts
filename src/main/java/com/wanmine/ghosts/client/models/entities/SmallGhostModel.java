@@ -15,7 +15,7 @@ public class SmallGhostModel extends AnimatedGeoModel<SmallGhostEntity> {
 
     @Override
     public ResourceLocation getTextureLocation(SmallGhostEntity object) {
-        return SmallGhostRenderer.LOCATION_BY_VARIANT.get(object.getVariant());
+        return SmallGhostRenderer.TEXTURE_LOCATION;
     }
 
     @Override
