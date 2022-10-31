@@ -111,8 +111,8 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     public static AttributeSupplier setAttributes() {
         return AbstractGolem.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 20)
-                .add(Attributes.FLYING_SPEED, 0.15f)
-                .add(Attributes.MOVEMENT_SPEED, 0.15F)
+                .add(Attributes.FLYING_SPEED, 0.3F)
+                .add(Attributes.MOVEMENT_SPEED, 0.3F)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D)
                 .build();
     }
@@ -227,8 +227,6 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
                     this.setPersistenceRequired();
                     this.navigation.stop();
                     this.level.broadcastEntityEvent(this, (byte) 7);
-                    Objects.requireNonNull(this.getAttribute(Attributes.FLYING_SPEED)).setBaseValue(0.3f);
-                    Objects.requireNonNull(this.getAttribute(Attributes.MOVEMENT_SPEED)).setBaseValue(0.3f);
                 } else {
                     this.level.broadcastEntityEvent(this, (byte) 6);
                 }

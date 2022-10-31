@@ -1,9 +1,9 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
-		"animation.small_ghost.ghost_move": {
+		"ghost_move": {
 			"loop": true,
-			"animation_length": 0.96,
+			"animation_length": 1,
 			"bones": {
 				"main": {
 					"rotation": {
@@ -101,22 +101,28 @@
 						}
 					}
 				},
-				"item": {
+				"item_2": {
 					"rotation": {
 						"0.0": {
-							"vector": [0, 0, 0]
+							"vector": [5, 0, 0]
 						},
-						"0.48": {
-							"vector": [10, 0, 0]
+						"0.24": {
+							"vector": [10, 0, 0],
+							"easing": "easeOutSine"
 						},
-						"0.96": {
-							"vector": [0, 0, 0]
+						"0.72": {
+							"vector": [0, 0, 0],
+							"easing": "easeInOutSine"
+						},
+						"1.0": {
+							"vector": [5, 0, 0],
+							"easing": "easeInSine"
 						}
 					}
 				}
 			}
 		},
-		"animation.small_ghost.ghost_idle_arms": {
+		"ghost_idle_arms": {
 			"loop": true,
 			"animation_length": 0.96,
 			"bones": {
@@ -160,7 +166,7 @@
 				}
 			}
 		},
-		"animation.small_ghost.ghost_idle": {
+		"ghost_idle": {
 			"loop": true,
 			"animation_length": 0.96,
 			"bones": {
@@ -257,7 +263,7 @@
 				}
 			}
 		},
-		"animation.small_ghost.mini_ghost_arms_hold": {
+		"mini_ghost_arms_hold": {
 			"loop": true,
 			"animation_length": 0.96,
 			"bones": {
@@ -329,8 +335,8 @@
 				}
 			}
 		},
-		"animation.small_ghost.ghost_bury": {
-			"loop": "hold_on_last_frame",
+		"ghost_bury": {
+			"loop": true,
 			"animation_length": 1.8,
 			"bones": {
 				"main": {
@@ -520,7 +526,7 @@
 				}
 			}
 		},
-		"animation.small_ghost.mini_ghost_buried": {
+		"mini_ghost_buried": {
 			"loop": true,
 			"animation_length": 1.96,
 			"bones": {
@@ -554,7 +560,7 @@
 				}
 			}
 		},
-		"animation.small_ghost.ghost_move_arms": {
+		"ghost_move_arms": {
 			"loop": true,
 			"animation_length": 0.96,
 			"bones": {

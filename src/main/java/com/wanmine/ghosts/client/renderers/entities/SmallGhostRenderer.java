@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
+import software.bernie.geckolib3.util.RenderUtils;
 
 public class SmallGhostRenderer extends BaseGhostRenderer<SmallGhostEntity> {
     public static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation(Ghosts.MODID, "textures/entity/small_ghost.png");
@@ -23,6 +24,13 @@ public class SmallGhostRenderer extends BaseGhostRenderer<SmallGhostEntity> {
     @Override
     protected ItemStack getHeldItemStack() {
         return this.ghostEntity.getHoldItem();
+    }
+
+    @Override
+    protected void moveAndRotateMatrixToMatchBone(PoseStack poseStack, GeoBone bone) {
+        poseStack.translate(-bone.getPositionX() / 16, bone.getPositionY() / 16, bone.getPositionZ() / 16);
+        RenderUtils.rotate(bone, poseStack);
+        super.moveAndRotateMatrixToMatchBone(poseStack, bone);
     }
 
     @Override

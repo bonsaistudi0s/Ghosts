@@ -370,22 +370,22 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
 
     private <E extends IAnimatable> PlayState bodyAC(AnimationEvent<E> event) {
         if (event.isMoving() && !getIsSleeping()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.small_ghost.ghost_move", true));
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_move", true));
 
             return PlayState.CONTINUE;
         }
 
         if (getIsSleeping()) {
             if (getCdFullHide() > 0)
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.small_ghost.ghost_bury"));
+                event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_bury"));
             else
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.small_ghost.mini_ghost_buried"));
+                event.getController().setAnimation(new AnimationBuilder().addAnimation("mini_ghost_buried"));
 
             return PlayState.CONTINUE;
         }
 
         if (!getIsSleeping() && !event.isMoving())
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.small_ghost.ghost_idle", true));
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_idle", true));
 
         return PlayState.CONTINUE;
     }
@@ -393,16 +393,16 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
     private <E extends IAnimatable> PlayState armsAC(AnimationEvent<E> event) {
         if (event.isMoving()) {
             if (getHoldItem() != ItemStack.EMPTY) {
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.small_ghost.mini_ghost_arms_hold", true));
+                event.getController().setAnimation(new AnimationBuilder().addAnimation("mini_ghost_arms_hold", true));
             } else
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.small_ghost.ghost_move_arms", true));
+                event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_move_arms", true));
             return PlayState.CONTINUE;
         }
 
         if (getHoldItem() != ItemStack.EMPTY) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.small_ghost.mini_ghost_arms_hold", true));
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("mini_ghost_arms_hold", true));
         } else
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.small_ghost.ghost_idle_arms", true));
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_idle_arms", true));
 
         return PlayState.CONTINUE;
     }

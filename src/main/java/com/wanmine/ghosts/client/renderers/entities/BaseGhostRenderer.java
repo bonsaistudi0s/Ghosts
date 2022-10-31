@@ -2,7 +2,6 @@ package com.wanmine.ghosts.client.renderers.entities;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.LightTexture;
@@ -18,6 +17,7 @@ import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
+import software.bernie.geckolib3.util.RenderUtils;
 
 public abstract class BaseGhostRenderer<T extends LivingEntity & IAnimatable> extends GeoEntityRenderer<T> {
     protected T ghostEntity;
@@ -46,17 +46,6 @@ public abstract class BaseGhostRenderer<T extends LivingEntity & IAnimatable> ex
         if (heldItemStack != null && !heldItemStack.isEmpty() && boneName.equals("item")) {
             poseStack.pushPose();
             this.moveAndRotateMatrixToMatchBone(poseStack, bone);
-            GeoBone parent = bone.parent;
-            // Unrotate parents
-            while (parent != null) {
-                float xRot = parent.getRotationX() * (180 / (float) Math.PI);
-                float yRot = parent.getRotationY() * (180 / (float) Math.PI);
-                float zRot = parent.getRotationZ() * (180 / (float) Math.PI);
-                poseStack.mulPose(Vector3f.XN.rotationDegrees(xRot));
-                poseStack.mulPose(Vector3f.YN.rotationDegrees(yRot));
-                poseStack.mulPose(Vector3f.ZN.rotationDegrees(zRot));
-                parent = parent.parent;
-            }
             ItemInHandRenderer itemInHandRenderer = Minecraft.getInstance().getItemInHandRenderer();
             // poseStack.mulPose(Vector3f.XN.rotationDegrees(90));
             // if (!Minecraft.getInstance().getItemRenderer().getModel(heldItemStack, this.ghostEntity.level, this.ghostEntity, this.ghostEntity.getId()).isGui3d())
