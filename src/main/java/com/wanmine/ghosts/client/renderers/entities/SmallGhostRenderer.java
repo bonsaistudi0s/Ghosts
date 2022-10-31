@@ -35,7 +35,7 @@ public class SmallGhostRenderer extends BaseGhostRenderer<SmallGhostEntity> {
 
     @Override
     public void renderRecursively(GeoBone bone, PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        if ("plant".equals(bone.getName()) && this.ghostEntity.getVariant() != SmallGhostVariant.NORMAL)
+        if ("plant".equals(bone.getName()) && this.ghostEntity.getVariant() != SmallGhostVariant.PLANT)
             return;
 
         super.renderRecursively(bone, poseStack, vertexConsumer, packedLight, packedOverlayIn, red, green, blue, alpha);

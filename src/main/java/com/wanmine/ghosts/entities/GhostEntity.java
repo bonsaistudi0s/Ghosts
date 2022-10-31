@@ -58,7 +58,6 @@ import software.bernie.geckolib3.core.manager.AnimationFactory;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 
 public class GhostEntity extends TamableAnimal implements IAnimatable {
     private final AnimationFactory factory = new AnimationFactory(this);
@@ -271,22 +270,23 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     public void tick() {
         super.tick();
 
-        if (!level.isClientSide()) {
-            if (getBlinkCd() > 0) {
-                setBlinkCd(getBlinkCd() - 1);
-            } else {
-                if (getBlinkAnimCd() > 0)
-                    setBlinkAnimCd(getBlinkAnimCd() - 1);
-                else {
-                    if (getShouldResetCd()) {
-                        setShouldResetCd(false);
+        if (level.isClientSide)
+            return;
 
-                        setBlinkCd(this.random.nextInt(80, 120));
-                    } else {
-                        setShouldResetCd(true);
+        if (getBlinkCd() > 0) {
+            setBlinkCd(getBlinkCd() - 1);
+        } else {
+            if (getBlinkAnimCd() > 0)
+                setBlinkAnimCd(getBlinkAnimCd() - 1);
+            else {
+                if (getShouldResetCd()) {
+                    setShouldResetCd(false);
 
-                        setBlinkAnimCd(6);
-                    }
+                    setBlinkCd(this.random.nextInt(80, 120));
+                } else {
+                    setShouldResetCd(true);
+
+                    setBlinkAnimCd(6);
                 }
             }
         }
@@ -305,10 +305,7 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
 
                     shouldUnenchant = true;
                 } else {
-                    setHoldItem(removeEnchants(heldItemStack));
-
-                    ItemEntity myItemEntity = new ItemEntity(this.level, this.getX(), this.getY() + 0.5D, this.getZ(), heldItemStack);
-                    this.level.addFreshEntity(myItemEntity);
+                    this.spawnAtLocation(removeEnchants(heldItemStack), 0.5F);
 
                     setHoldItem(ItemStack.EMPTY);
 
