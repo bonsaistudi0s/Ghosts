@@ -7,10 +7,12 @@ import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public class GhostModel extends AnimatedGeoModel<GhostEntity> {
+    private static final ResourceLocation GEO_LOCATION = new ResourceLocation(Ghosts.MODID, "geo/ghost.geo.json");
+    private static final ResourceLocation ANIMATION_LOCATION = new ResourceLocation(Ghosts.MODID, "animations/ghost.animation.json");
 
     @Override
     public ResourceLocation getModelLocation(GhostEntity object) {
-        return new ResourceLocation(Ghosts.MODID, "geo/ghost.geo.json");
+        return GEO_LOCATION;
     }
 
     @Override
@@ -20,6 +22,6 @@ public class GhostModel extends AnimatedGeoModel<GhostEntity> {
 
     @Override
     public ResourceLocation getAnimationFileLocation(GhostEntity animatable) {
-        return new ResourceLocation(Ghosts.MODID, "animations/ghost.animation.json");
+        return ANIMATION_LOCATION;
     }
 }

@@ -43,18 +43,6 @@ public class ForgeEventBusEvents {
                     }
                 }
             }
-        } else if (living instanceof GhostEntity ghost) {
-            if (ghost.getHoldItem() != ItemStack.EMPTY) {
-                ItemEntity ent = new ItemEntity(world, ghost.getX(), ghost.getY(), ghost.getZ(), ghost.getHoldItem());
-
-                world.addFreshEntity(ent);
-            }
-        } else if (living instanceof SmallGhostEntity ghost) {
-            if (ghost.getHoldItem() != ItemStack.EMPTY) {
-                ItemEntity ent = new ItemEntity(world, ghost.getX(), ghost.getY(), ghost.getZ(), ghost.getHoldItem());
-
-                world.addFreshEntity(ent);
-            }
         }
     }
 

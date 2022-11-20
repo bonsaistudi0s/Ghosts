@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -36,16 +37,14 @@ public abstract class BaseGhostRenderer<T extends LivingEntity & IAnimatable> ex
         super.renderEarly(animatable, stackIn, ticks, renderTypeBuffer, vertexBuilder, packedLight, packedOverlayIn, red, green, blue, partialTicks);
     }
 
-    protected abstract ItemStack getHeldItemStack();
-
     @Override
     public void renderRecursively(GeoBone bone, PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        ItemStack heldItemStack = this.getHeldItemStack();
+        ItemStack heldItemStack = this.ghostEntity.getItemBySlot(EquipmentSlot.MAINHAND);
         String boneName = bone.getName();
 
         if (heldItemStack != null && !heldItemStack.isEmpty() && boneName.equals("item")) {
             poseStack.pushPose();
-            this.moveAndRotateMatrixToMatchBone(poseStack, bone);
+            this.moveAndRotateToBone(poseStack, bone);
             ItemInHandRenderer itemInHandRenderer = Minecraft.getInstance().getItemInHandRenderer();
             // poseStack.mulPose(Vector3f.XN.rotationDegrees(90));
             // if (!Minecraft.getInstance().getItemRenderer().getModel(heldItemStack, this.ghostEntity.level, this.ghostEntity, this.ghostEntity.getId()).isGui3d())
@@ -80,14 +79,10 @@ public abstract class BaseGhostRenderer<T extends LivingEntity & IAnimatable> ex
         return renderType;
     }
 
-    protected void moveAndRotateMatrixToMatchBone(PoseStack poseStack, GeoBone bone) {
+    protected void moveAndRotateToBone(PoseStack poseStack, GeoBone bone) {
+        poseStack.translate(-bone.getPositionX() / 16, bone.getPositionY() / 16, bone.getPositionZ() / 16);
+        RenderUtils.rotate(bone, poseStack);
         poseStack.translate(bone.getPivotX() / 16, bone.getPivotY() / 16, bone.getPivotZ() / 16);
-        // float xRot = bone.getRotationX() * (180 / (float) Math.PI);
-        // float yRot = bone.getRotationY() * (180 / (float) Math.PI);
-        // float zRot = bone.getRotationZ() * (180 / (float) Math.PI);
-        // poseStack.mulPose(Vector3f.XP.rotationDegrees(xRot - 90));
-        // poseStack.mulPose(Vector3f.YP.rotationDegrees(yRot - 90));
-        // poseStack.mulPose(Vector3f.ZP.rotationDegrees(zRot));
     }
 
     protected void setupHeldItemRender(PoseStack poseStack, GeoBone bone) {}

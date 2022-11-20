@@ -9,7 +9,6 @@ import com.wanmine.ghosts.entities.GhostEntity;
 import com.wanmine.ghosts.entities.variants.GhostVariant;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 
 public class GhostRenderer extends BaseGhostRenderer<GhostEntity> {
@@ -20,27 +19,22 @@ public class GhostRenderer extends BaseGhostRenderer<GhostEntity> {
         // this.addLayer(new GhostGlowLayer<>(this));
     }
 
-    @Override
-    protected ItemStack getHeldItemStack() {
-        return this.ghostEntity.getHoldItem();
-    }
-
-    @Override
-    protected void setupHeldItemRender(PoseStack poseStack, GeoBone bone) {
-        // poseStack.mulPose(Vector3f.YP.rotationDegrees(90));
-
-        GeoBone parent = bone.parent;
-        // Unrotate parents
-        while (parent != null) {
-            float xRot = parent.getRotationX() * (180 / (float) Math.PI);
-            float yRot = parent.getRotationY() * (180 / (float) Math.PI);
-            float zRot = parent.getRotationZ() * (180 / (float) Math.PI);
-            poseStack.mulPose(Vector3f.XN.rotationDegrees(xRot));
-            poseStack.mulPose(Vector3f.YN.rotationDegrees(yRot));
-            poseStack.mulPose(Vector3f.ZN.rotationDegrees(zRot));
-            parent = parent.parent;
-        }
-    }
+    // @Override
+    // protected void setupHeldItemRender(PoseStack poseStack, GeoBone bone) {
+    //     // poseStack.mulPose(Vector3f.YP.rotationDegrees(90));
+    //
+    //     GeoBone parent = bone.parent;
+    //     // Unrotate parents
+    //     while (parent != null) {
+    //         float xRot = parent.getRotationX() * (180 / (float) Math.PI);
+    //         float yRot = parent.getRotationY() * (180 / (float) Math.PI);
+    //         float zRot = parent.getRotationZ() * (180 / (float) Math.PI);
+    //         poseStack.mulPose(Vector3f.XN.rotationDegrees(xRot));
+    //         poseStack.mulPose(Vector3f.YN.rotationDegrees(yRot));
+    //         poseStack.mulPose(Vector3f.ZN.rotationDegrees(zRot));
+    //         parent = parent.parent;
+    //     }
+    // }
 
     @Override
     public void renderRecursively(GeoBone bone, PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlayIn, float red, float green, float blue, float alpha) {

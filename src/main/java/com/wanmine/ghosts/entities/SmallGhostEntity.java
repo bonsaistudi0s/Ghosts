@@ -1,24 +1,24 @@
 package com.wanmine.ghosts.entities;
 
+import com.wanmine.ghosts.entities.goals.GhostPlaceGoal;
 import com.wanmine.ghosts.entities.goals.GhostsWanderGoal;
-import com.wanmine.ghosts.entities.variants.GhostVariant;
 import com.wanmine.ghosts.entities.variants.SmallGhostVariant;
 import com.wanmine.ghosts.registries.ModSounds;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
@@ -35,9 +35,8 @@ import net.minecraft.world.entity.ai.util.AirRandomPos;
 import net.minecraft.world.entity.animal.AbstractGolem;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -45,7 +44,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -59,7 +57,6 @@ import software.bernie.geckolib3.core.manager.AnimationFactory;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 
 public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
     private final AnimationFactory factory = new AnimationFactory(this);
@@ -68,14 +65,10 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
     private static final EntityDataAccessor<Integer> CD_FULL_HIDE = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> IS_STAYING = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_SLEEPING = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<ItemStack> HOLD_ITEM = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.ITEM_STACK);
-
-    private int treeCd;
 
     public SmallGhostEntity(EntityType<? extends TamableAnimal> entity, Level world) {
         super(entity, world);
         this.moveControl = new FlyingMoveControl(this, 10, true);
-        this.treeCd = this.random.nextInt(60, 120);
         this.setTame(false);
         this.setPathfindingMalus(BlockPathTypes.POWDER_SNOW, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.DANGER_POWDER_SNOW, -1.0F);
@@ -92,6 +85,7 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
 
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
+        this.goalSelector.addGoal(2, new GhostPlaceGoal(this, Ingredient.of(ItemTags.SAPLINGS), BlockTags.DIRT, 10, 10));
         this.goalSelector.addGoal(9, new GhostsWanderGoal(this, 1.0D));
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
@@ -131,7 +125,6 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
         this.entityData.define(IS_SLEEPING, false);
         this.entityData.define(DATA_ID_TYPE_VARIANT, 0);
         this.entityData.define(CD_FULL_HIDE, 0);
-        this.entityData.define(HOLD_ITEM, ItemStack.EMPTY);
     }
 
     public void setIsStaying(boolean isStaying) {
@@ -143,11 +136,11 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
     }
 
     public void setHoldItem(ItemStack holdItem) {
-        this.entityData.set(HOLD_ITEM, holdItem.copy());
+        this.setItemSlotAndDropWhenKilled(EquipmentSlot.MAINHAND, holdItem);
     }
 
     public ItemStack getHoldItem() {
-        return this.entityData.get(HOLD_ITEM).copy();
+        return this.getItemBySlot(EquipmentSlot.MAINHAND);
     }
 
     public void setIsSleeping(boolean isSleeping) {
@@ -189,8 +182,6 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
         compoundTag.putInt("CdFullHide", getCdFullHide());
         compoundTag.putBoolean("IsStaying", getIsStaying());
         compoundTag.putBoolean("IsHiding", getIsSleeping());
-        if (getHoldItem() != ItemStack.EMPTY)
-            compoundTag.put("InvSlot", getHoldItem().save(new CompoundTag()));
     }
 
     @Override
@@ -243,24 +234,6 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
                 setIsSleeping(true);
             } else {
                 setIsSleeping(false);
-            }
-        }
-
-        ItemStack heldStack = getHoldItem();
-        if (heldStack != ItemStack.EMPTY) {
-            BlockState belowBlockState = this.level.getBlockState(this.blockPosition().below());
-            if ((belowBlockState.is(Blocks.DIRT) || belowBlockState.is(Blocks.GRASS_BLOCK)) && this.level.getBlockState(this.blockPosition()).isAir()) {
-                if (this.treeCd == 0) {
-                    if (heldStack.getItem() instanceof BlockItem blockItem) {
-                        BlockHitResult pHitResult = new BlockHitResult(this.position(), Direction.DOWN, this.blockPosition(), false);
-                        blockItem.place(new BlockPlaceContext(this.level, null, InteractionHand.MAIN_HAND, heldStack, pHitResult));
-                    }
-
-                    setHoldItem(ItemStack.EMPTY);
-                    this.treeCd = this.random.nextInt(60, 120);
-                } else {
-                    this.treeCd--;
-                }
             }
         }
 
@@ -337,9 +310,6 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
         if (compoundTag.contains("IsSleeping")) {
             this.setIsSleeping(compoundTag.getBoolean("IsSleeping"));
         }
-        if (compoundTag.contains("InvSlot")) {
-            this.setHoldItem(ItemStack.of((CompoundTag) Objects.requireNonNull(compoundTag.get("InvSlot"))));
-        }
     }
 
     @Nullable
@@ -391,18 +361,11 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
     }
 
     private <E extends IAnimatable> PlayState armsAC(AnimationEvent<E> event) {
-        if (event.isMoving()) {
-            if (getHoldItem() != ItemStack.EMPTY) {
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("mini_ghost_arms_hold", true));
-            } else
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_move_arms", true));
-            return PlayState.CONTINUE;
-        }
-
-        if (getHoldItem() != ItemStack.EMPTY) {
+        if (!getHoldItem().isEmpty()) {
             event.getController().setAnimation(new AnimationBuilder().addAnimation("mini_ghost_arms_hold", true));
-        } else
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_idle_arms", true));
+        } else {
+            event.getController().setAnimation(new AnimationBuilder().addAnimation(event.isMoving() ? "ghost_move_arms" : "ghost_idle_arms", true));
+        }
 
         return PlayState.CONTINUE;
     }
