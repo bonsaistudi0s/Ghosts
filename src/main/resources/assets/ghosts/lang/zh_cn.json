@@ -1,0 +1,14 @@
+{
+  "item.ghosts.ghost_spawn_egg": "幽灵刷怪蛋",
+  "entity.ghosts.ghost": "幽灵",
+
+  "item.ghosts.small_ghost_spawn_egg": "小幽灵刷怪蛋",
+  "entity.ghosts.small_ghost": "小幽灵",
+
+  "ghosts.ghost_ambient": "幽灵：嬉笑",
+  "ghosts.ghost_death": "幽灵：死亡",
+  "ghosts.ghost_hurt": "幽灵：受伤",
+  "ghosts.mini_ghost_ambient": "小幽灵：嬉笑",
+  "ghosts.mini_ghost_death": "小幽灵：死亡",
+  "ghosts.mini_ghost_hurt": "小幽灵：受伤"
+}
