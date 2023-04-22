@@ -59,7 +59,6 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
 import java.util.Map;
-import java.util.Objects;
 
 public class GhostEntity extends TamableAnimal implements IAnimatable {
     private final AnimationFactory factory = new AnimationFactory(this);
@@ -70,6 +69,7 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     private static final EntityDataAccessor<Boolean> SHOULD_RESET_CD = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> BLINK_CD = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> BLINK_ANIM_CD = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> SHOULD_UNENCHANT = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.BOOLEAN);
 
     public GhostEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
@@ -145,6 +145,7 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
         this.entityData.define(SHOULD_RESET_CD, false);
         this.entityData.define(BLINK_CD, 0);
         this.entityData.define(BLINK_ANIM_CD, 0);
+        this.entityData.define(SHOULD_UNENCHANT, false);
     }
 
     public void setHoldItem(ItemStack holdItem) {
@@ -201,6 +202,14 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
 
     public boolean getShouldResetCd() {
         return this.entityData.get(SHOULD_RESET_CD);
+    }
+
+    private void setShouldUnenchant(boolean shouldUnenchant) {
+        this.entityData.set(SHOULD_UNENCHANT, shouldUnenchant);
+    }
+
+    private boolean shouldUnechant() {
+        return this.entityData.get(SHOULD_UNENCHANT);
     }
 
     @Override
@@ -265,8 +274,6 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
         return 1 + this.level.random.nextInt(2, 4);
     }
 
-    private boolean shouldUnenchant = false;
-
     @Override
     public void tick() {
         super.tick();
@@ -299,16 +306,16 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
 
         if (heldItemStack.isEnchanted()) {
             if (getCdUnenchant() == 0) {
-                if (!shouldUnenchant) {
+                if (!this.shouldUnechant()) {
                     setCdUnenchant(82);
 
-                    shouldUnenchant = true;
+                    this.setShouldUnenchant(true);
                 } else {
                     this.spawnAtLocation(removeEnchants(heldItemStack), 0.5F);
 
                     setHoldItem(ItemStack.EMPTY);
 
-                    shouldUnenchant = false;
+                    this.setShouldUnenchant(false);
                 }
             }
         }
@@ -407,7 +414,7 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
 
     private <E extends IAnimatable> PlayState armsAC(AnimationEvent<E> event) {
         if (!getHoldItem().isEmpty()) {
-            if (shouldUnenchant)
+            if (this.shouldUnechant())
                 event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_unenchant"));
             else
                 event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_arms_hold", true));
