@@ -64,12 +64,11 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     private final AnimationFactory factory = new AnimationFactory(this);
 
     private static final EntityDataAccessor<Integer> DATA_ID_TYPE_VARIANT = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> CD_UNENCHANT = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
-
     private static final EntityDataAccessor<Boolean> SHOULD_RESET_CD = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> BLINK_CD = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> BLINK_ANIM_CD = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> SHOULD_UNENCHANT = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.BOOLEAN);
+    private int cdUnenchant = 0;
 
     public GhostEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
@@ -141,7 +140,6 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_ID_TYPE_VARIANT, 0);
-        this.entityData.define(CD_UNENCHANT, 0);
         this.entityData.define(SHOULD_RESET_CD, false);
         this.entityData.define(BLINK_CD, 0);
         this.entityData.define(BLINK_ANIM_CD, 0);
@@ -149,6 +147,14 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     }
 
     public void setHoldItem(ItemStack holdItem) {
+        if (this.shouldUnechant()) {
+            this.setShouldUnenchant(false);
+            this.setCdUnenchant(0);
+        }
+        if (holdItem.isEnchanted()) {
+            this.setShouldUnenchant(true);
+            this.setCdUnenchant(82);
+        }
         this.setItemSlotAndDropWhenKilled(EquipmentSlot.MAINHAND, holdItem);
     }
 
@@ -157,11 +163,11 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     }
 
     public int getCdUnenchant() {
-        return this.entityData.get(CD_UNENCHANT);
+        return this.cdUnenchant;
     }
 
     public void setCdUnenchant(int cd) {
-        this.entityData.set(CD_UNENCHANT, cd);
+        this.cdUnenchant = cd;
     }
 
     public int getTypeVariant() {
@@ -307,9 +313,7 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
         if (heldItemStack.isEnchanted()) {
             if (getCdUnenchant() == 0) {
                 if (!this.shouldUnechant()) {
-                    setCdUnenchant(82);
-
-                    this.setShouldUnenchant(true);
+                    startUnenchantAnim();
                 } else {
                     this.spawnAtLocation(removeEnchants(heldItemStack), 0.5F);
 
@@ -319,6 +323,12 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
                 }
             }
         }
+    }
+
+    private void startUnenchantAnim() {
+        this.setCdUnenchant(82);
+
+        this.setShouldUnenchant(true);
     }
 
     private ItemStack removeEnchants(ItemStack item) {
