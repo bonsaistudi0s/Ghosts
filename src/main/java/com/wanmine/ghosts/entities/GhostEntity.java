@@ -225,30 +225,36 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
         compound.putInt("CdUnenchant", getCdUnenchant());
     }
 
-    public @NotNull InteractionResult mobInteract(@NotNull Player player, @NotNull InteractionHand hand) {
+    @NotNull
+    public InteractionResult mobInteract(@NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
 
-        if (this.level.isClientSide) {
-            boolean flag = this.isOwnedBy(player) && this.isTame();
+        if (this.level.isClientSide)
+            return this.isOwnedBy(player) && this.isTame() || itemstack.is(Items.GLOW_BERRIES) && !this.isTame() ? InteractionResult.CONSUME : InteractionResult.PASS;
 
-            return flag ? InteractionResult.CONSUME : InteractionResult.PASS;
-        } else {
-            if (itemstack.is(Items.GLOW_BERRIES) && !this.isTame()) {
-                if (!player.getAbilities().instabuild) {
-                    itemstack.shrink(1);
-                }
+        if (itemstack.is(Items.GLOW_BERRIES) && !this.isTame()) {
+            if (!player.getAbilities().instabuild) {
+                itemstack.shrink(1);
+            }
 
-                if (this.random.nextInt(3) == 0 && !net.minecraftforge.event.ForgeEventFactory.onAnimalTame(this, player)) {
-                    this.tame(player);
-                    this.setPersistenceRequired();
-                    this.navigation.stop();
-                    this.level.broadcastEntityEvent(this, (byte) 7);
-                } else {
-                    this.level.broadcastEntityEvent(this, (byte) 6);
-                }
+            if (this.random.nextInt(3) == 0 && !net.minecraftforge.event.ForgeEventFactory.onAnimalTame(this, player)) {
+                this.tame(player);
+                this.setPersistenceRequired();
+                this.navigation.stop();
+                this.level.broadcastEntityEvent(this, (byte) 7);
+            } else {
+                this.level.broadcastEntityEvent(this, (byte) 6);
+            }
 
-                return InteractionResult.SUCCESS;
-            } else if (!itemstack.is(Items.GLOW_BERRIES) && this.isTame() && this.isOwnedBy(player) && getHoldItem().isEmpty() && !itemstack.isEmpty()) {
+            return InteractionResult.SUCCESS;
+        } else if (itemstack.is(Items.GLOW_BERRIES) && this.isTame() && this.getHealth() < this.getMaxHealth()) {
+            this.heal(4.0F);
+
+            if (!player.getAbilities().instabuild)
+                itemstack.shrink(1);
+
+            return InteractionResult.SUCCESS;
+        } else if (!itemstack.is(Items.GLOW_BERRIES) && this.isTame() && this.isOwnedBy(player) && getHoldItem().isEmpty() && !itemstack.isEmpty()) {
                 ItemStack stack = itemstack.copy();
 
                 setHoldItem(stack);
@@ -257,19 +263,18 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
                     itemstack.shrink(itemstack.getCount());
                 }
 
-                return InteractionResult.SUCCESS;
-            } else if (itemstack.isEmpty() && this.isTame() && player.isShiftKeyDown() && this.isOwnedBy(player) && !getHoldItem().isEmpty()) {
-                this.spawnAtLocation(this.getHoldItem(), 0.5F);
+            return InteractionResult.SUCCESS;
+        } else if (itemstack.isEmpty() && this.isTame() && player.isShiftKeyDown() && this.isOwnedBy(player) && !getHoldItem().isEmpty()) {
+            this.spawnAtLocation(this.getHoldItem(), 0.5F);
 
-                setHoldItem(ItemStack.EMPTY);
+            setHoldItem(ItemStack.EMPTY);
 
-                return InteractionResult.SUCCESS;
-            } else if (!player.isShiftKeyDown() && this.isTame() && this.isOwnedBy(player)) {
-                this.setOrderedToSit(!this.isOrderedToSit());
-                this.navigation.stop();
+            return InteractionResult.SUCCESS;
+        } else if (!player.isShiftKeyDown() && this.isTame() && this.isOwnedBy(player)) {
+            this.setOrderedToSit(!this.isOrderedToSit());
+            this.navigation.stop();
 
-                return InteractionResult.SUCCESS;
-            }
+            return InteractionResult.SUCCESS;
         }
 
         return InteractionResult.PASS;
