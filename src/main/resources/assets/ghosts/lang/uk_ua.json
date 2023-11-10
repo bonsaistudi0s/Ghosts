@@ -1,0 +1,14 @@
+{
+  "item.ghosts.ghost_spawn_egg": "Яйце виклику привида",
+  "entity.ghosts.ghost": "Привид",
+
+  "item.ghosts.small_ghost_spawn_egg": "Яйце виклику маленького привида",
+  "entity.ghosts.small_ghost": "Маленький привид",
+
+  "ghosts.ghost_ambient": "Привид гудить",
+  "ghosts.ghost_death": "Привид гине",
+  "ghosts.ghost_hurt": "Привида поранено",
+  "ghosts.mini_ghost_ambient": "Маленький привид гудить",
+  "ghosts.mini_ghost_death": "Маленький привид гине",
+  "ghosts.mini_ghost_hurt": "Маленького привида поранено"
+}
