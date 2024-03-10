@@ -1,0 +1,14 @@
+{
+  "item.ghosts.ghost_spawn_egg": "Invocar Fantasma",
+  "entity.ghosts.ghost": "Fantasma",
+
+  "item.ghosts.small_ghost_spawn_egg": "Invocar Fantasma Pequeno",
+  "entity.ghosts.small_ghost": "Fantasma Pequeno",
+
+  "ghosts.ghost_ambient": "Zumbido de Fantasma",
+  "ghosts.ghost_death": "Fantasma morre",
+  "ghosts.ghost_hurt": "Fantasma machucado",
+  "ghosts.mini_ghost_ambient": "Zumbido de Fantasma Pequeno",
+  "ghosts.mini_ghost_death": "Fantasma Pequeno morre",
+  "ghosts.mini_ghost_hurt": "Fantasma Pequeno machucado"
+}
