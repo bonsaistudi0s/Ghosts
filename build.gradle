@@ -12,7 +12,7 @@ archivesBaseName = 'ghosts'
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    mappings channel: 'parchment', version: '2022.11.06-1.19.2'
+    mappings channel: 'parchment', version: '2023.09.03-1.20.1'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -94,9 +94,9 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.2-43.2.0'
+    minecraft 'net.minecraftforge:forge:1.20.1-47.3.0'
 
-    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.19:3.1.40')
+    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.20.1:4.4.7')
 
     //runtimeOnly fg.deobf(fileTree(include: ['*.jar'], dir: 'libs'))
 }

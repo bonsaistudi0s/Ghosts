@@ -61,7 +61,7 @@ public class GhostPlaceGoal extends MoveToBlockGoal {
             this.placedBlock = true;
             ItemStack heldStack = this.mob.getItemBySlot(EquipmentSlot.MAINHAND);
             if (heldStack.getItem() instanceof BlockItem blockItem) {
-                blockItem.place(new DirectionalPlaceContext(this.mob.level, this.mob.blockPosition(), Direction.DOWN, heldStack, Direction.UP));
+                blockItem.place(new DirectionalPlaceContext(this.mob.level(), this.mob.blockPosition(), Direction.DOWN, heldStack, Direction.UP));
             }
         }
     }

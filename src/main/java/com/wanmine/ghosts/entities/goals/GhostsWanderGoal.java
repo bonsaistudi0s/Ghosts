@@ -25,7 +25,7 @@ public class GhostsWanderGoal extends WaterAvoidingRandomStrollGoal {
         super(animal, speedModifier, 0.01F);
         this.animal = animal;
         this.interval = 3 * 20;
-        this.level = animal.level;
+        this.level = animal.level();
     }
 
     @Override
@@ -68,7 +68,7 @@ public class GhostsWanderGoal extends WaterAvoidingRandomStrollGoal {
         for (BlockPos blockpos1 : BlockPos.betweenClosed(Mth.floor(this.mob.getX() - 3.0D), Mth.floor(this.mob.getY() - 6.0D), Mth.floor(this.mob.getZ() - 3.0D), Mth.floor(this.mob.getX() + 3.0D),
                 Mth.floor(this.mob.getY() + 6.0D), Mth.floor(this.mob.getZ() + 3.0D))) {
             if (!blockpos.equals(blockpos1)) {
-                BlockState blockstate = this.mob.level.getBlockState(pos1.setWithOffset(blockpos1, Direction.DOWN));
+                BlockState blockstate = this.mob.level().getBlockState(pos1.setWithOffset(blockpos1, Direction.DOWN));
                 boolean flag = !blockstate.is(Blocks.LAVA) || !blockstate.is(Blocks.WATER) || !blockstate.is(Blocks.FIRE) || checkLight(blockpos1);
                 if (flag && isEmptyBlock(blockpos1) && isEmptyBlock(pos.setWithOffset(blockpos1, Direction.UP))) {
                     return Vec3.atBottomCenterOf(blockpos1);
