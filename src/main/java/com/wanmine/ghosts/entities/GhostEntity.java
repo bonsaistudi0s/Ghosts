@@ -281,7 +281,7 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     }
 
     @Override
-    protected int getExperienceReward(Player p_27590_) {
+    public int getExperienceReward() {
         return 1 + this.level.random.nextInt(2, 4);
     }
 

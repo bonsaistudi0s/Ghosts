@@ -1,6 +1,7 @@
 package com.wanmine.ghosts.registries;
 
 import com.wanmine.ghosts.Ghosts;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -9,7 +10,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class ModSounds {
-    public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, Ghosts.MODID);
+    public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registry.SOUND_EVENT_REGISTRY, Ghosts.MODID);
 
     public static final RegistryObject<SoundEvent> GHOST_AMBIENT = SOUNDS.register("ghost_ambient", () -> new SoundEvent(new ResourceLocation(Ghosts.MODID, "ghost_ambient")));
     public static final RegistryObject<SoundEvent> GHOST_DEATH = SOUNDS.register("ghost_death", () -> new SoundEvent(new ResourceLocation(Ghosts.MODID, "ghost_death")));

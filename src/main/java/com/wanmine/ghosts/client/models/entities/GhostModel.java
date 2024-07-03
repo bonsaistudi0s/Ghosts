@@ -11,17 +11,17 @@ public class GhostModel extends AnimatedGeoModel<GhostEntity> {
     private static final ResourceLocation ANIMATION_LOCATION = new ResourceLocation(Ghosts.MODID, "animations/ghost.animation.json");
 
     @Override
-    public ResourceLocation getModelLocation(GhostEntity object) {
+    public ResourceLocation getModelResource(GhostEntity object) {
         return GEO_LOCATION;
     }
 
     @Override
-    public ResourceLocation getTextureLocation(GhostEntity object) {
+    public ResourceLocation getTextureResource(GhostEntity object) {
         return GhostRenderer.TEXTURE_LOCATION;
     }
 
     @Override
-    public ResourceLocation getAnimationFileLocation(GhostEntity animatable) {
+    public ResourceLocation getAnimationResource(GhostEntity animatable) {
         return ANIMATION_LOCATION;
     }
 }
