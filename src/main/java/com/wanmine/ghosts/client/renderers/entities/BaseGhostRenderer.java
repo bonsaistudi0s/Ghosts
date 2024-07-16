@@ -48,11 +48,11 @@ public abstract class BaseGhostRenderer<T extends LivingEntity & GeoAnimatable> 
             // poseStack.mulPose(Vector3f.XN.rotationDegrees(90));
             // if (!Minecraft.getInstance().getItemRenderer().getModel(heldItemStack, this.ghostEntity.level, this.ghostEntity, this.ghostEntity.getId()).isGui3d())
             //     poseStack.mulPose(Vector3f.ZP.rotationDegrees(90));
-            this.setupHeldItemRender(poseStack, bone);
             // poseStack.translate((bone.getPositionX() * 0.1f) - (0.2f * 0.1f), (bone.getPositionY() * 0.1f) + (0.8f * 0.1f), (bone.getPositionZ() * 0.1f) + (3f * 0.1f) - 0.3f);
             poseStack.scale(0.6F, 0.6F, 0.6F);
 
-            Minecraft.getInstance().getItemRenderer().renderStatic(heldItemStack, ItemDisplayContext.GROUND, cachedPackedLight, packedOverlay, poseStack, bufferSource, animatable.level(), 0);
+            Minecraft.getInstance().getItemRenderer().renderStatic(animatable, heldItemStack, ItemDisplayContext.GROUND, false, poseStack, bufferSource, animatable.level(), packedLight, packedOverlay, 0);
+            // Minecraft.getInstance().getItemRenderer().renderStatic(heldItemStack, ItemDisplayContext.GROUND, cachedPackedLight, packedOverlay, poseStack, bufferSource, animatable.level(), 0);
 
             poseStack.popPose();
             //vertexConsumer = bufferSource.getBuffer(this.renderType);
@@ -82,5 +82,4 @@ public abstract class BaseGhostRenderer<T extends LivingEntity & GeoAnimatable> 
         poseStack.translate(bone.getPivotX() / 16, bone.getPivotY() / 16, bone.getPivotZ() / 16);
     }
 
-    protected void setupHeldItemRender(PoseStack poseStack, GeoBone bone) {}
 }

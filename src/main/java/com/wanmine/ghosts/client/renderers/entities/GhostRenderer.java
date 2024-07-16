@@ -20,24 +20,6 @@ public class GhostRenderer extends BaseGhostRenderer<GhostEntity> {
         // this.addLayer(new GhostGlowLayer<>(this));
     }
 
-    // @Override
-    // protected void setupHeldItemRender(PoseStack poseStack, GeoBone bone) {
-    //     // poseStack.mulPose(Vector3f.YP.rotationDegrees(90));
-    //
-    //     GeoBone parent = bone.parent;
-    //     // Unrotate parents
-    //     while (parent != null) {
-    //         float xRot = parent.getRotationX() * (180 / (float) Math.PI);
-    //         float yRot = parent.getRotationY() * (180 / (float) Math.PI);
-    //         float zRot = parent.getRotationZ() * (180 / (float) Math.PI);
-    //         poseStack.mulPose(Vector3f.XN.rotationDegrees(xRot));
-    //         poseStack.mulPose(Vector3f.YN.rotationDegrees(yRot));
-    //         poseStack.mulPose(Vector3f.ZN.rotationDegrees(zRot));
-    //         parent = parent.parent;
-    //     }
-    // }
-
-
     @Override
     public void renderRecursively(PoseStack poseStack, GhostEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         if ("plant".equals(bone.getName()) && this.ghostEntity.getVariant() != GhostVariant.MUSHROOM)
