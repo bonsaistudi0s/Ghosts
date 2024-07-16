@@ -31,7 +31,7 @@ public class ModEventBusEvents {
     }
 
     @SubscribeEvent
-    public void onCreativeModeTabs(BuildCreativeModeTabContentsEvent event) {
+    public static void onCreativeModeTabs(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
             event.accept(ModItems.GHOST_SPAWN_EGG);
             event.accept(ModItems.SMALL_GHOST_SPAWN_EGG);
