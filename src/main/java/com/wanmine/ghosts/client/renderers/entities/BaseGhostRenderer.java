@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -51,11 +52,10 @@ public abstract class BaseGhostRenderer<T extends LivingEntity & GeoAnimatable> 
             // poseStack.translate((bone.getPositionX() * 0.1f) - (0.2f * 0.1f), (bone.getPositionY() * 0.1f) + (0.8f * 0.1f), (bone.getPositionZ() * 0.1f) + (3f * 0.1f) - 0.3f);
             poseStack.scale(0.6F, 0.6F, 0.6F);
 
-            Minecraft.getInstance().getItemRenderer().renderStatic(animatable, heldItemStack, ItemDisplayContext.GROUND, false, poseStack, bufferSource, animatable.level(), packedLight, packedOverlay, 0);
-            // Minecraft.getInstance().getItemRenderer().renderStatic(heldItemStack, ItemDisplayContext.GROUND, cachedPackedLight, packedOverlay, poseStack, bufferSource, animatable.level(), 0);
+            Minecraft.getInstance().getItemRenderer().renderStatic(heldItemStack, ItemDisplayContext.GROUND, cachedPackedLight, packedOverlay, poseStack, bufferSource, animatable.level(), 0);
 
             poseStack.popPose();
-            //vertexConsumer = bufferSource.getBuffer(this.renderType);
+            buffer = bufferSource.getBuffer(this.renderType);
         }
 
         if (boneName.equals("glow"))
