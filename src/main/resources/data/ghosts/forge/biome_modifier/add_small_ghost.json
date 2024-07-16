@@ -3,7 +3,7 @@
   "biomes": "#ghosts:has_spawn/small_ghost",
   "spawners": {
     "type": "ghosts:small_ghost",
-    "weight": 8,
+    "weight": 14,
     "minCount": 1,
     "maxCount": 3
   }
