@@ -2,6 +2,7 @@ package com.wanmine.ghosts.entities;
 
 import com.wanmine.ghosts.entities.goals.GhostPlaceGoal;
 import com.wanmine.ghosts.entities.goals.GhostsWanderGoal;
+import com.wanmine.ghosts.entities.goals.StayWhenOrderedToGoal;
 import com.wanmine.ghosts.entities.variants.GhostVariant;
 import com.wanmine.ghosts.registries.ModSounds;
 import net.minecraft.core.BlockPos;
@@ -90,7 +91,7 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
 
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new SitWhenOrderedToGoal(this));
+        this.goalSelector.addGoal(2, new StayWhenOrderedToGoal(this));
         this.goalSelector.addGoal(6, new FollowOwnerGoal(this, 1.0D, 15.0F, 2.0F, false));
         this.goalSelector.addGoal(7, new GhostPlaceGoal(this, Ingredient.of(Items.TORCH), state -> true, 10, 10) {
             @Override
