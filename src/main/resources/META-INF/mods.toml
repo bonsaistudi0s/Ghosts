@@ -3,7 +3,7 @@ loaderVersion="[43,)"
 license="All rights reserved"
 [[mods]]
 modId="ghosts"
-version="1.0.0"
+version="${version}"
 displayName="Ghosts"
 displayURL="https://wanmine.net/"
 logoFile="logo.png"
