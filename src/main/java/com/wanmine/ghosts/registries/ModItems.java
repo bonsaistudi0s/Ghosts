@@ -2,6 +2,8 @@ package com.wanmine.ghosts.registries;
 
 import com.wanmine.ghosts.Ghosts;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeSpawnEggItem;
@@ -15,6 +17,8 @@ public class ModItems {
 
     public static final RegistryObject<ForgeSpawnEggItem> SMALL_GHOST_SPAWN_EGG = ITEMS.register("small_ghost_spawn_egg", () -> new ForgeSpawnEggItem(ModEntityTypes.SMALL_GHOST, 0xA5FFFF, 0x00FF00, new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
     public static final RegistryObject<ForgeSpawnEggItem> GHOST_SPAWN_EGG = ITEMS.register("ghost_spawn_egg", () -> new ForgeSpawnEggItem(ModEntityTypes.GHOST, 0xA5FFFF, 0x783D7C, new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
+
+    public static final TagKey<Item> PLACEABLES = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(Ghosts.MODID, "placeable"));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
