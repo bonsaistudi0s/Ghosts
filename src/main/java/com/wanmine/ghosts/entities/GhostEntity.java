@@ -1,9 +1,11 @@
 package com.wanmine.ghosts.entities;
 
+import com.wanmine.ghosts.entities.goals.GhostFollowOwnerGoal;
 import com.wanmine.ghosts.entities.goals.GhostPlaceGoal;
 import com.wanmine.ghosts.entities.goals.GhostsWanderGoal;
 import com.wanmine.ghosts.entities.goals.StayWhenOrderedToGoal;
 import com.wanmine.ghosts.entities.variants.GhostVariant;
+import com.wanmine.ghosts.registries.ModItems;
 import com.wanmine.ghosts.registries.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -29,10 +31,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.SitWhenOrderedToGoal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.AbstractGolem;
@@ -94,8 +94,8 @@ public class GhostEntity extends TamableAnimal implements GeoEntity {
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new StayWhenOrderedToGoal(this));
-        this.goalSelector.addGoal(6, new FollowOwnerGoal(this, 1.0D, 15.0F, 2.0F, false));
-        this.goalSelector.addGoal(7, new GhostPlaceGoal(this, Ingredient.of(Items.TORCH), state -> true, 10, 10) {
+        this.goalSelector.addGoal(6, new GhostFollowOwnerGoal(this, 8.0D, 15.0F, 2.0F));
+        this.goalSelector.addGoal(7, new GhostPlaceGoal(this, Ingredient.of(ModItems.PLACEABLES), state -> true, 10, 10) {
             @Override
             protected boolean isValidTarget(LevelReader level, BlockPos pos) {
                 return level.isEmptyBlock(pos.above()) && level.getBrightness(LightLayer.BLOCK, pos) < 4 && level.getBlockState(pos).isFaceSturdy(level, pos, Direction.UP);
@@ -276,6 +276,7 @@ public class GhostEntity extends TamableAnimal implements GeoEntity {
             return InteractionResult.SUCCESS;
         } else if (!player.isShiftKeyDown() && this.isTame() && this.isOwnedBy(player)) {
             this.setOrderedToSit(!this.isOrderedToSit());
+
             this.navigation.stop();
 
             return InteractionResult.SUCCESS;
@@ -414,11 +415,11 @@ public class GhostEntity extends TamableAnimal implements GeoEntity {
     private <E extends GeoAnimatable> PlayState bodyAC(AnimationState<E> event) {
         if (event.isMoving()) {
             event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_move"));
-
-            return PlayState.CONTINUE;
+        } else if (isInSittingPose()) {
+            event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_sitting"));
+        } else {
+            event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_idle"));
         }
-
-        event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_idle"));
 
         return PlayState.CONTINUE;
     }
@@ -437,7 +438,7 @@ public class GhostEntity extends TamableAnimal implements GeoEntity {
                 event.getController().setAnimation(RawAnimation.begin().thenPlay("ghost_unenchant"));
             else
                 event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_arms_hold"));
-        } else {
+        } else if (!isInSittingPose()) {
             event.getController().setAnimation(RawAnimation.begin().thenLoop(event.isMoving() ? "ghost_move_arms" : "ghost_idle_arms"));
         }
 
