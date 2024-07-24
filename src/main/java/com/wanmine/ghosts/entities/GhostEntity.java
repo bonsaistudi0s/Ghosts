@@ -15,7 +15,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -49,22 +48,23 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.easing.EasingType;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.EasingType;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.Map;
 
-public class GhostEntity extends TamableAnimal implements IAnimatable {
-    private final AnimationFactory factory = new AnimationFactory(this);
+public class GhostEntity extends TamableAnimal implements GeoEntity {
+    private final AnimatableInstanceCache factory = new InstancedAnimatableInstanceCache(this);
 
     private static final EntityDataAccessor<Integer> DATA_ID_TYPE_VARIANT = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> SHOULD_RESET_CD = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.BOOLEAN);
@@ -231,8 +231,9 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     @NotNull
     public InteractionResult mobInteract(@NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
+        var level = level();
 
-        if (this.level.isClientSide)
+        if (level.isClientSide)
             return this.isOwnedBy(player) && this.isTame() || itemstack.is(Items.GLOW_BERRIES) && !this.isTame() ? InteractionResult.CONSUME : InteractionResult.PASS;
 
         if (itemstack.is(Items.GLOW_BERRIES) && !this.isTame()) {
@@ -244,9 +245,9 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
                 this.tame(player);
                 this.setPersistenceRequired();
                 this.navigation.stop();
-                this.level.broadcastEntityEvent(this, (byte) 7);
+                level.broadcastEntityEvent(this, (byte) 7);
             } else {
-                this.level.broadcastEntityEvent(this, (byte) 6);
+                level.broadcastEntityEvent(this, (byte) 6);
             }
 
             return InteractionResult.SUCCESS;
@@ -286,14 +287,14 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
 
     @Override
     public int getExperienceReward() {
-        return 1 + this.level.random.nextInt(2, 4);
+        return 1 + level().random.nextInt(2, 4);
     }
 
     @Override
     public void tick() {
         super.tick();
 
-        if (level.isClientSide)
+        if (level().isClientSide)
             return;
 
         if (getBlinkCd() > 0) {
@@ -343,8 +344,8 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     private ItemStack removeEnchants(ItemStack item) {
         ItemStack itemstack = item.copy();
 
-        if (!this.getLevel().isClientSide())
-            ExperienceOrb.award((ServerLevel) this.getLevel(), this.getPosition(0), getExperienceFromItem(itemstack));
+        if (level() instanceof ServerLevel level)
+            ExperienceOrb.award(level, this.getPosition(0), getExperienceFromItem(itemstack));
 
         if (itemstack.getEnchantmentTags().size() > 0) {
             int i = random.nextInt(itemstack.getEnchantmentTags().size());
@@ -411,48 +412,48 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
         return super.finalizeSpawn(levelAccessor, difficulty, mobSpawnType, spawnGroupData, compoundTag);
     }
 
-    private <E extends IAnimatable> PlayState bodyAC(AnimationEvent<E> event) {
+    private <E extends GeoAnimatable> PlayState bodyAC(AnimationState<E> event) {
         if (event.isMoving()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_move", true));
+            event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_move"));
         } else if (isInSittingPose()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_sitting", true));
+            event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_sitting"));
         } else {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_idle", true));
+            event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_idle"));
         }
 
         return PlayState.CONTINUE;
     }
 
-    private <E extends IAnimatable> PlayState blinkAC(AnimationEvent<E> event) {
+    private <E extends GeoAnimatable> PlayState blinkAC(AnimationState<E> event) {
         if (getBlinkCd() == 0) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_blink"));
+            event.getController().setAnimation(RawAnimation.begin().thenPlay("ghost_blink"));
         }
 
         return PlayState.CONTINUE;
     }
 
-    private <E extends IAnimatable> PlayState armsAC(AnimationEvent<E> event) {
+    private <E extends GeoAnimatable> PlayState armsAC(AnimationState<E> event) {
         if (!getHoldItem().isEmpty()) {
             if (this.shouldUnechant())
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_unenchant"));
+                event.getController().setAnimation(RawAnimation.begin().thenPlay("ghost_unenchant"));
             else
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_arms_hold", true));
+                event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_arms_hold"));
         } else if (!isInSittingPose()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation(event.isMoving() ? "ghost_move_arms" : "ghost_idle_arms", true));
+            event.getController().setAnimation(RawAnimation.begin().thenLoop(event.isMoving() ? "ghost_move_arms" : "ghost_idle_arms"));
         }
 
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController<>(this, "ghost_animation_controller_body", 1, EasingType.Linear, this::bodyAC));
-        data.addAnimationController(new AnimationController<>(this, "ghost_animation_controller_arms", 1, this::armsAC));
-        data.addAnimationController(new AnimationController<>(this, "ghost_animation_controller_blink", 1, this::blinkAC));
+    public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
+        registrar.add(new AnimationController<>(this, "ghost_animation_controller_body", 1, this::bodyAC).setOverrideEasingType(EasingType.LINEAR));
+        registrar.add(new AnimationController<>(this, "ghost_animation_controller_arms", 1, this::armsAC));
+        registrar.add(new AnimationController<>(this, "ghost_animation_controller_blink", 1, this::blinkAC));
     }
 
     @Override
-    public AnimationFactory getFactory() {
-        return this.factory;
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return factory;
     }
 }

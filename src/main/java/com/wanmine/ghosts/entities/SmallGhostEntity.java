@@ -4,7 +4,6 @@ import com.wanmine.ghosts.entities.goals.GhostPlaceGoal;
 import com.wanmine.ghosts.entities.goals.GhostsWanderGoal;
 import com.wanmine.ghosts.entities.variants.SmallGhostVariant;
 import com.wanmine.ghosts.registries.ModSounds;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -47,19 +46,20 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.List;
-import java.util.Objects;
 
-public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
-    private final AnimationFactory factory = new AnimationFactory(this);
+public class SmallGhostEntity extends TamableAnimal implements GeoEntity {
+    private final AnimatableInstanceCache factory = new InstancedAnimatableInstanceCache(this);
 
     private static final EntityDataAccessor<Integer> DATA_ID_TYPE_VARIANT = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> CD_FULL_HIDE = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.INT);
@@ -186,7 +186,7 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
 
     @Override
     public int getExperienceReward() {
-        return 1 + this.level.random.nextInt(2, 4);
+        return 1 + level().random.nextInt(2, 4);
     }
 
     @Override
@@ -216,6 +216,7 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
     @Override
     public void tick() {
         super.tick();
+        var level = level();
 
         if (level.isClientSide)
             return; // Everything after this is server-only
@@ -241,7 +242,9 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
     }
 
     private void tryPickupItems() {
-        if (this.level.isClientSide || this.tickCount % 20 != 0 || !getHoldItem().isEmpty() || this.getIsSleeping())
+        var level = level();
+
+        if (level.isClientSide || this.tickCount % 20 != 0 || !getHoldItem().isEmpty() || this.getIsSleeping())
             return;
 
         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(this.blockPosition().offset(-10, -10, -10), this.blockPosition().offset(10, 10, 10)));
@@ -282,7 +285,7 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
             Vec3 vec = AirRandomPos.getPosTowards(this, 32, 32, 32, new Vec3(32, 32, 32), 32);
 
             if (vec != null) {
-                Path path = this.navigation.createPath(new BlockPos(vec.x, vec.y, vec.z), 2);
+                Path path = this.navigation.createPath(vec.x, vec.y, vec.z, 2);
 
                 if (path != null)
                     this.navigation.moveTo(path, 2.0D);
@@ -338,46 +341,47 @@ public class SmallGhostEntity extends TamableAnimal implements IAnimatable {
         return super.finalizeSpawn(levelAccessor, difficulty, mobSpawnType, spawnGroupData, compoundTag);
     }
 
-    private <E extends IAnimatable> PlayState bodyAC(AnimationEvent<E> event) {
+    private <E extends GeoAnimatable> PlayState bodyAC(AnimationState<E> event) {
         if (event.isMoving() && !getIsSleeping()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_move", true));
+            event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_move"));
 
             return PlayState.CONTINUE;
         }
 
         if (getIsSleeping()) {
             if (getCdFullHide() > 0)
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_bury"));
+                event.getController().setAnimation(RawAnimation.begin().thenPlay("ghost_bury"));
             else
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("mini_ghost_buried"));
+                event.getController().setAnimation(RawAnimation.begin().thenPlay("mini_ghost_buried"));
 
             return PlayState.CONTINUE;
         }
 
         if (!getIsSleeping() && !event.isMoving())
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_idle", true));
+            event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_idle"));
 
         return PlayState.CONTINUE;
     }
 
-    private <E extends IAnimatable> PlayState armsAC(AnimationEvent<E> event) {
+    private <E extends GeoAnimatable> PlayState armsAC(AnimationState<E> event) {
         if (!getHoldItem().isEmpty()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("mini_ghost_arms_hold", true));
+            event.getController().setAnimation(RawAnimation.begin().thenLoop("mini_ghost_arms_hold"));
         } else {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation(event.isMoving() ? "ghost_move_arms" : "ghost_idle_arms", true));
+            event.getController().setAnimation(RawAnimation.begin().thenLoop(event.isMoving() ? "ghost_move_arms" : "ghost_idle_arms"));
         }
 
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController<>(this, "small_ghost_animation_controller_body", 1, this::bodyAC));
-        data.addAnimationController(new AnimationController<>(this, "small_ghost_animation_controller_arms", 1, this::armsAC));
+    public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
+        registrar.add(new AnimationController<>(this, "small_ghost_animation_controller_body", 1, this::bodyAC));
+        registrar.add(new AnimationController<>(this, "small_ghost_animation_controller_arms", 1, this::armsAC));
     }
 
     @Override
-    public AnimationFactory getFactory() {
-        return this.factory;
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return factory;
     }
+
 }

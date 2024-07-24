@@ -4,9 +4,9 @@ import com.wanmine.ghosts.Ghosts;
 import com.wanmine.ghosts.client.renderers.entities.SmallGhostRenderer;
 import com.wanmine.ghosts.entities.SmallGhostEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class SmallGhostModel extends AnimatedGeoModel<SmallGhostEntity> {
+public class SmallGhostModel extends GeoModel<SmallGhostEntity> {
     private static final ResourceLocation GEO_LOCATION = new ResourceLocation(Ghosts.MODID, "geo/small_ghost.geo.json");
     private static final ResourceLocation ANIMATION_LOCATION = new ResourceLocation(Ghosts.MODID, "animations/small_ghost.animation.json");
 
