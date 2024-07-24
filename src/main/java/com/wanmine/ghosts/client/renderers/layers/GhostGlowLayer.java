@@ -26,7 +26,7 @@ public class GhostGlowLayer<T extends LivingEntity & IAnimatable> extends GeoLay
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, T ghost, float limbSwing, float limbSwingAmount, float partialTick,
             float ageInTicks, float netHeadYaw, float headPitch) {
         GeoModelProvider<T> modelProvider = this.renderer.getGeoModelProvider();
-        GeoModel geoModel = modelProvider.getModel(modelProvider.getModelLocation(ghost));
+        GeoModel geoModel = modelProvider.getModel(modelProvider.getModelResource(ghost));
         geoModel.getBone("glow").ifPresent(bone -> {
             RenderType renderType = this.renderer.getRenderType(ghost, partialTick, poseStack, bufferSource, null, packedLight, this.renderer.getTextureLocation(ghost));
             VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
@@ -42,7 +42,7 @@ public class GhostGlowLayer<T extends LivingEntity & IAnimatable> extends GeoLay
 
             for (GeoCube cube : bone.childCubes) {
                 poseStack.pushPose();
-                this.renderer.renderCube(cube, poseStack, vertexConsumer, packedLight, GeoEntityRenderer.getPackedOverlay(ghost, 0), 1.0F, 1.0F, 1.0F, 1.0F);
+                this.renderer.renderCube(cube, poseStack, vertexConsumer, packedLight, renderer.getOverlay(ghost, 0), 1.0F, 1.0F, 1.0F, 1.0F);
                 poseStack.popPose();
             }
 

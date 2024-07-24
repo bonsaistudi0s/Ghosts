@@ -45,16 +45,14 @@ public abstract class BaseGhostRenderer<T extends LivingEntity & IAnimatable> ex
         if (heldItemStack != null && !heldItemStack.isEmpty() && boneName.equals("item")) {
             poseStack.pushPose();
             this.moveAndRotateToBone(poseStack, bone);
-            ItemInHandRenderer itemInHandRenderer = Minecraft.getInstance().getItemInHandRenderer();
             // poseStack.mulPose(Vector3f.XN.rotationDegrees(90));
             // if (!Minecraft.getInstance().getItemRenderer().getModel(heldItemStack, this.ghostEntity.level, this.ghostEntity, this.ghostEntity.getId()).isGui3d())
             //     poseStack.mulPose(Vector3f.ZP.rotationDegrees(90));
             this.setupHeldItemRender(poseStack, bone);
             // poseStack.translate((bone.getPositionX() * 0.1f) - (0.2f * 0.1f), (bone.getPositionY() * 0.1f) + (0.8f * 0.1f), (bone.getPositionZ() * 0.1f) + (3f * 0.1f) - 0.3f);
             poseStack.scale(0.6F, 0.6F, 0.6F);
-            itemInHandRenderer.renderItem(this.ghostEntity, heldItemStack,
-                    ItemTransforms.TransformType.GROUND, false, poseStack, this.rtb,
-                    this.cachedPackedLight);
+
+            Minecraft.getInstance().getItemRenderer().renderStatic(heldItemStack, ItemTransforms.TransformType.GROUND, cachedPackedLight, packedOverlayIn, poseStack, this.rtb, 0);
 
             poseStack.popPose();
             vertexConsumer = this.rtb.getBuffer(this.renderType);

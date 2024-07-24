@@ -26,7 +26,7 @@ import java.util.*;
 public class ForgeEventBusEvents {
     @SubscribeEvent
     public void onDeath(LivingDeathEvent event) {
-        LivingEntity living = event.getEntityLiving();
+        LivingEntity living = event.getEntity();
         Level world = living.level;
 
         if (living instanceof Player player) {

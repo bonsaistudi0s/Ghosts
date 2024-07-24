@@ -12,7 +12,7 @@ archivesBaseName = 'ghosts'
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    mappings channel: 'parchment', version: '2022.09.04-1.18.2'
+    mappings channel: 'parchment', version: '2022.11.06-1.19.2'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -94,9 +94,9 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18.2-40.1.84'
+    minecraft 'net.minecraftforge:forge:1.19.2-43.2.0'
 
-    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.18:3.0.27')
+    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.19:3.1.40')
 
     //runtimeOnly fg.deobf(fileTree(include: ['*.jar'], dir: 'libs'))
 }
@@ -112,6 +112,17 @@ jar {
                 "Implementation-Vendor"   : "WanMine",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
+    }
+}
+
+processResources {
+    // this will ensure that this task is redone when the versions change.
+    inputs.property("version", version)
+
+    filesMatching('META-INF/mods.toml') {
+        expand(
+                version: version,
+        )
     }
 }
 

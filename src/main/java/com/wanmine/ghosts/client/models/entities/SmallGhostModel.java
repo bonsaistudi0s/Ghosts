@@ -11,17 +11,17 @@ public class SmallGhostModel extends AnimatedGeoModel<SmallGhostEntity> {
     private static final ResourceLocation ANIMATION_LOCATION = new ResourceLocation(Ghosts.MODID, "animations/small_ghost.animation.json");
 
     @Override
-    public ResourceLocation getModelLocation(SmallGhostEntity object) {
+    public ResourceLocation getModelResource(SmallGhostEntity object) {
         return GEO_LOCATION;
     }
 
     @Override
-    public ResourceLocation getTextureLocation(SmallGhostEntity object) {
+    public ResourceLocation getTextureResource(SmallGhostEntity object) {
         return SmallGhostRenderer.TEXTURE_LOCATION;
     }
 
     @Override
-    public ResourceLocation getAnimationFileLocation(SmallGhostEntity animatable) {
+    public ResourceLocation getAnimationResource(SmallGhostEntity animatable) {
         return ANIMATION_LOCATION;
     }
 }

@@ -1,8 +1,11 @@
 package com.wanmine.ghosts.entities;
 
+import com.wanmine.ghosts.entities.goals.GhostFollowOwnerGoal;
 import com.wanmine.ghosts.entities.goals.GhostPlaceGoal;
 import com.wanmine.ghosts.entities.goals.GhostsWanderGoal;
+import com.wanmine.ghosts.entities.goals.StayWhenOrderedToGoal;
 import com.wanmine.ghosts.entities.variants.GhostVariant;
+import com.wanmine.ghosts.registries.ModItems;
 import com.wanmine.ghosts.registries.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,6 +15,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -28,10 +32,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.SitWhenOrderedToGoal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.AbstractGolem;
@@ -47,6 +49,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
@@ -90,9 +93,9 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
 
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new SitWhenOrderedToGoal(this));
-        this.goalSelector.addGoal(6, new FollowOwnerGoal(this, 1.0D, 15.0F, 2.0F, false));
-        this.goalSelector.addGoal(7, new GhostPlaceGoal(this, Ingredient.of(Items.TORCH), state -> true, 10, 10) {
+        this.goalSelector.addGoal(2, new StayWhenOrderedToGoal(this));
+        this.goalSelector.addGoal(6, new GhostFollowOwnerGoal(this, 8.0D, 15.0F, 2.0F));
+        this.goalSelector.addGoal(7, new GhostPlaceGoal(this, Ingredient.of(ModItems.PLACEABLES), state -> true, 10, 10) {
             @Override
             protected boolean isValidTarget(LevelReader level, BlockPos pos) {
                 return level.isEmptyBlock(pos.above()) && level.getBrightness(LightLayer.BLOCK, pos) < 4 && level.getBlockState(pos).isFaceSturdy(level, pos, Direction.UP);
@@ -272,6 +275,7 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
             return InteractionResult.SUCCESS;
         } else if (!player.isShiftKeyDown() && this.isTame() && this.isOwnedBy(player)) {
             this.setOrderedToSit(!this.isOrderedToSit());
+
             this.navigation.stop();
 
             return InteractionResult.SUCCESS;
@@ -281,7 +285,7 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     }
 
     @Override
-    protected int getExperienceReward(Player p_27590_) {
+    public int getExperienceReward() {
         return 1 + this.level.random.nextInt(2, 4);
     }
 
@@ -410,11 +414,11 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
     private <E extends IAnimatable> PlayState bodyAC(AnimationEvent<E> event) {
         if (event.isMoving()) {
             event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_move", true));
-
-            return PlayState.CONTINUE;
+        } else if (isInSittingPose()) {
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_sitting", true));
+        } else {
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_idle", true));
         }
-
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_idle", true));
 
         return PlayState.CONTINUE;
     }
@@ -433,7 +437,7 @@ public class GhostEntity extends TamableAnimal implements IAnimatable {
                 event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_unenchant"));
             else
                 event.getController().setAnimation(new AnimationBuilder().addAnimation("ghost_arms_hold", true));
-        } else {
+        } else if (!isInSittingPose()) {
             event.getController().setAnimation(new AnimationBuilder().addAnimation(event.isMoving() ? "ghost_move_arms" : "ghost_idle_arms", true));
         }
 

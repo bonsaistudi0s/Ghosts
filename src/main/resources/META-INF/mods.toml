@@ -1,9 +1,9 @@
 modLoader="javafml"
-loaderVersion="[40,)"
+loaderVersion="[43,)"
 license="All rights reserved"
 [[mods]]
 modId="ghosts"
-version="1.0.0"
+version="${version}"
 displayName="Ghosts"
 displayURL="https://wanmine.net/"
 logoFile="logo.png"
@@ -16,13 +16,13 @@ Adds two entities in the game
 [[dependencies.ghosts]]
     modId="forge"
     mandatory=true
-    versionRange="[40,)"
+    versionRange="[43,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.ghosts]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.18.2,1.19)"
+    versionRange="[1.19.2,1.20)"
     ordering="NONE"
     side="BOTH"
