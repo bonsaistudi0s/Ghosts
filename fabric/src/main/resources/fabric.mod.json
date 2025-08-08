@@ -1,6 +1,6 @@
 {
     "schemaVersion": 1,
-    "id": "mod_id",
+    "id": "ghosts",
     "version": "${version}",
     "name": "${mod_name}",
     "description": "${description}",
@@ -16,7 +16,7 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-          "dev.xylonity.bonsai.ghosts.ExampleMod"
+            "dev.xylonity.bonsai.ghosts.GhostsFabric"
         ]
     },
     "mixins": [
