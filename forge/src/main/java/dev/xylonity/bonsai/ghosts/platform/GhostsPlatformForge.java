@@ -4,21 +4,26 @@ import dev.xylonity.bonsai.ghosts.Ghosts;
 import dev.xylonity.bonsai.ghosts.GhostsForge;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+@SuppressWarnings("unchecked")
 public class GhostsPlatformForge implements GhostsPlatform {
 
     @Override
     public <X extends Item> Supplier<X> registerItem(String id, Supplier<X> item) {
         return GhostsForge.ITEMS.register(id, item);
+    }
+
+    @Override
+    public <T extends Item, X extends LivingEntity> Supplier<T> registerSpawnEgg(String id, Supplier<? extends EntityType<? extends Mob>> entity, int color1, int color2, Item.Properties properties) {
+        return (Supplier<T>) registerItem(id, () -> new ForgeSpawnEggItem(entity, color1, color2, properties));
     }
 
     @Override
