@@ -2,6 +2,7 @@ package dev.xylonity.bonsai.ghosts.client.entity.render.core;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -13,7 +14,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
@@ -23,57 +23,42 @@ import javax.annotation.Nullable;
 
 public class BaseGhostRenderer<T extends LivingEntity & GeoEntity> extends GeoEntityRenderer<T> {
 
-    protected T ghostEntity;
-    protected RenderType renderType;
-    protected int cachedPackedLight;
-
     protected BaseGhostRenderer(EntityRendererProvider.Context context, GeoModel<T> modelProvider) {
         super(context, modelProvider);
     }
 
     @Override
-    public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.ghostEntity = animatable;
-        this.cachedPackedLight = packedLight;
-        super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
-    }
-
-    @Override
     public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        ItemStack heldItemStack = this.ghostEntity.getItemBySlot(EquipmentSlot.MAINHAND);
-        String boneName = bone.getName();
+        ItemStack stack = animatable.getItemBySlot(EquipmentSlot.MAINHAND);
 
-        if (!heldItemStack.isEmpty() && boneName.equals("item")) {
+        // If the item in hand isn't empty ('item' bone is a dummy anchor)
+        if (!stack.isEmpty() && bone.getName().equals("item")) {
             poseStack.pushPose();
-            this.moveAndRotateToBone(poseStack, bone);
+            this.moveToBone(poseStack, bone);
 
             poseStack.scale(0.6F, 0.6F, 0.6F);
 
-            Minecraft.getInstance().getItemRenderer().renderStatic(heldItemStack, ItemDisplayContext.GROUND, cachedPackedLight, packedOverlay, poseStack, bufferSource, animatable.level(), 0);
+            // Corrected direction (frontal)
+            poseStack.mulPose(Axis.YP.rotationDegrees(180));
+
+            // Item cast
+            Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.GROUND, packedLight, packedOverlay, poseStack, bufferSource, animatable.level(), 0);
 
             poseStack.popPose();
 
-            buffer = bufferSource.getBuffer(this.renderType);
+            // Important to reassign the buffer as renderStatic uses its own buffers and it's needed to align the consumer to the actual rendertype
+            buffer = bufferSource.getBuffer(renderType);
         }
 
-        switch (boneName) {
-            case "glow" -> {
-                return;
-            }
-            case "main" -> packedLight = LightTexture.FULL_BRIGHT;
-            case "plant" -> packedLight = this.cachedPackedLight;
-        }
-
-        super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+        super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, LightTexture.FULL_BRIGHT, packedOverlay, red, green, blue, alpha);
     }
 
     @Override
     public RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        this.renderType = RenderType.entityTranslucent(texture);
-        return renderType;
+        return RenderType.entityTranslucent(texture);
     }
 
-    protected void moveAndRotateToBone(PoseStack poseStack, GeoBone bone) {
+    protected void moveToBone(PoseStack poseStack, GeoBone bone) {
         poseStack.translate(-bone.getPosX() / 16, bone.getPosY() / 16, bone.getPosZ() / 16);
         RenderUtils.rotateMatrixAroundBone(poseStack, bone);
         poseStack.translate(bone.getPivotX() / 16, bone.getPivotY() / 16, bone.getPivotZ() / 16);

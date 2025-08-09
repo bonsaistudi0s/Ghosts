@@ -1,9 +1,7 @@
 package dev.xylonity.bonsai.ghosts.common.entity.ghost;
 
-import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.GhostFollowOwnerGoal;
-import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.GhostPlaceGoal;
-import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.GhostsWanderGoal;
-import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.StayWhenOrderedToGoal;
+import dev.xylonity.bonsai.ghosts.common.entity.MainGhostEntity;
+import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.*;
 import dev.xylonity.bonsai.ghosts.common.entity.variant.GhostVariant;
 import dev.xylonity.bonsai.ghosts.registry.GhostsSounds;
 import dev.xylonity.bonsai.ghosts.tag.GhostsTags;
@@ -37,6 +35,7 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.AbstractGolem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -47,10 +46,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.AnimationState;
@@ -61,33 +57,51 @@ import software.bernie.geckolib.core.object.PlayState;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public class GhostEntity extends TamableAnimal implements GeoEntity {
-    private final AnimatableInstanceCache factory = new InstancedAnimatableInstanceCache(this);
+public class GhostEntity extends MainGhostEntity {
 
     private static final EntityDataAccessor<Integer> DATA_ID_TYPE_VARIANT = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> SHOULD_RESET_CD = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> BLINK_CD = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> BLINK_ANIM_CD = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> SHOULD_UNENCHANT = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.BOOLEAN);
+
     private int cdUnenchant = 0;
 
     public GhostEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
-        this.moveControl = new FlyingMoveControl(this, 10, true);
-        this.setTame(false);
-        this.isSensitiveToWater();
+
         this.setPathfindingMalus(BlockPathTypes.POWDER_SNOW, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.DANGER_POWDER_SNOW, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.LAVA, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.BLOCKED, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.LEAVES, -1.0F);
+
+        this.moveControl = new FlyingMoveControl(this, 10, true);
+    }
+
+    protected PathNavigation createNavigation(Level level) {
+        FlyingPathNavigation navigator = new FlyingPathNavigation(this, level);
+
+        navigator.setCanOpenDoors(false);
+        navigator.setCanFloat(true);
+        navigator.setCanPassDoors(true);
+
+        return navigator;
+    }
+
+    public static AttributeSupplier.Builder setAttributes() {
+        return AbstractGolem.createMobAttributes()
+                .add(Attributes.MAX_HEALTH, 20)
+                .add(Attributes.FLYING_SPEED, 0.3F)
+                .add(Attributes.MOVEMENT_SPEED, 0.3F)
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
     }
 
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new StayWhenOrderedToGoal(this));
-        this.goalSelector.addGoal(6, new GhostFollowOwnerGoal(this, 8.0D, 15.0F, 2.0F, true));
+        this.goalSelector.addGoal(6, new TestingGhostFollowOwnerGoal(this, 0.6D, 3.0F, 7.0F, 0.2f));
         this.goalSelector.addGoal(7, new GhostPlaceGoal(this, Ingredient.of(GhostsTags.GHOST_PLACEABLE), state -> true, 10, 10) {
             @Override
             protected boolean isValidTarget(LevelReader level, BlockPos pos) {
@@ -99,25 +113,8 @@ public class GhostEntity extends TamableAnimal implements GeoEntity {
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Player.class, 6.0F));
     }
 
-    protected PathNavigation createNavigation(Level level) {
-        FlyingPathNavigation flyingpathnavigation = new FlyingPathNavigation(this, level);
-        flyingpathnavigation.setCanOpenDoors(false);
-        flyingpathnavigation.setCanFloat(true);
-        flyingpathnavigation.setCanPassDoors(true);
-        return flyingpathnavigation;
-    }
-
-    public static AttributeSupplier setAttributes() {
-        return AbstractGolem.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 20)
-                .add(Attributes.FLYING_SPEED, 0.3F)
-                .add(Attributes.MOVEMENT_SPEED, 0.3F)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D)
-                .build();
-    }
-
     @Override
-    public boolean causeFallDamage(float p_148989_, float p_148990_, DamageSource p_148991_) {
+    public boolean causeFallDamage(float fallDistance, float multiplier, DamageSource source) {
         return false;
     }
 
@@ -126,15 +123,10 @@ public class GhostEntity extends TamableAnimal implements GeoEntity {
         return true;
     }
 
-    @Nullable
-    @Override
-    public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
-        return null;
-    }
-
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
+
         this.entityData.define(DATA_ID_TYPE_VARIANT, 0);
         this.entityData.define(SHOULD_RESET_CD, false);
         this.entityData.define(BLINK_CD, 0);
@@ -222,54 +214,65 @@ public class GhostEntity extends TamableAnimal implements GeoEntity {
     }
 
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        ItemStack itemstack = player.getItemInHand(hand);
-        var level = level();
+        ItemStack stack = player.getItemInHand(hand);
 
-        if (level.isClientSide)
-            return this.isOwnedBy(player) && this.isTame() || itemstack.is(Items.GLOW_BERRIES) && !this.isTame() ? InteractionResult.CONSUME : InteractionResult.PASS;
+        // Main tame handler
+        if (!isTame() && stack.getItem() == Items.GLOW_BERRIES) {
 
-        if (itemstack.is(Items.GLOW_BERRIES) && !this.isTame()) {
-            if (!player.getAbilities().instabuild) {
-                itemstack.shrink(1);
-            }
+            if (!player.getAbilities().instabuild) stack.shrink(1);
 
             if (this.random.nextInt(3) == 0) {
                 this.tame(player);
+
                 this.setPersistenceRequired();
                 this.navigation.stop();
-                level.broadcastEntityEvent(this, (byte) 7);
-            } else {
-                level.broadcastEntityEvent(this, (byte) 6);
+                this.setOrderedToSit(true);
+
+                level().broadcastEntityEvent(this, (byte) 7);
+
+                return InteractionResult.SUCCESS;
             }
+            else {
+                level().broadcastEntityEvent(this, (byte) 6);
 
-            return InteractionResult.SUCCESS;
-        } else if (itemstack.is(Items.GLOW_BERRIES) && this.isTame() && this.getHealth() < this.getMaxHealth()) {
-            this.heal(4.0F);
+                return InteractionResult.FAIL;
+            }
+        }
 
-            if (!player.getAbilities().instabuild)
-                itemstack.shrink(1);
+        if (level().isClientSide) return InteractionResult.SUCCESS;
 
-            return InteractionResult.SUCCESS;
-        } else if (!itemstack.is(Items.GLOW_BERRIES) && this.isTame() && this.isOwnedBy(player) && getHoldItem().isEmpty() && !itemstack.isEmpty()) {
-                ItemStack stack = itemstack.copy();
-
-                setHoldItem(stack);
-
-                if (!player.getAbilities().instabuild) {
-                    itemstack.shrink(itemstack.getCount());
+        // Heal or cycle owner interaction state (per priority order)
+        if (isTame() && player == getOwner()) {
+            if (player.isShiftKeyDown()) {
+                // Healing
+                if (stack.getItem() == Items.GLOW_BERRIES && getHealth() < getMaxHealth()) {
+                    this.heal(4f);
                 }
+                // Armor equipped
+                else if (stack.getItem() instanceof ArmorItem helmet && helmet.getEquipmentSlot() == EquipmentSlot.HEAD && this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
+                    this.setItemSlotAndDropWhenKilled(EquipmentSlot.HEAD, stack.copy());
 
-            return InteractionResult.SUCCESS;
-        } else if (itemstack.isEmpty() && this.isTame() && player.isShiftKeyDown() && this.isOwnedBy(player) && !getHoldItem().isEmpty()) {
-            this.spawnAtLocation(this.getHoldItem(), 0.5F);
-
-            setHoldItem(ItemStack.EMPTY);
-
-            return InteractionResult.SUCCESS;
-        } else if (!player.isShiftKeyDown() && this.isTame() && this.isOwnedBy(player)) {
-            this.setOrderedToSit(!this.isOrderedToSit());
-
-            this.navigation.stop();
+                    if (!player.getAbilities().instabuild) stack.shrink(stack.getCount());
+                }
+                // Item equipped
+                else if (getHoldItem().isEmpty()) {
+                    this.setHoldItem(stack.copy());
+                    stack.setCount(0);
+                }
+                // Armor unequipped
+                else if (!this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
+                    this.spawnAtLocation(this.getItemBySlot(EquipmentSlot.HEAD), 0.5F);
+                    this.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
+                }
+                // Item unequipped
+                else if (!getHoldItem().isEmpty()) {
+                    this.spawnAtLocation(this.getHoldItem(), 0.5F);
+                    setHoldItem(ItemStack.EMPTY);
+                }
+            }
+            else {
+                cycleMainInteraction(player);
+            }
 
             return InteractionResult.SUCCESS;
         }
@@ -402,12 +405,21 @@ public class GhostEntity extends TamableAnimal implements GeoEntity {
         return super.finalizeSpawn(levelAccessor, difficulty, mobSpawnType, spawnGroupData, compoundTag);
     }
 
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
+        registrar.add(new AnimationController<>(this, "bodyController", 2, this::bodyAC).setOverrideEasingType(EasingType.LINEAR));
+        registrar.add(new AnimationController<>(this, "armsController", 2, this::armsAC));
+        registrar.add(new AnimationController<>(this, "blinkController", 2, this::blinkAC));
+    }
+
     private <E extends GeoAnimatable> PlayState bodyAC(AnimationState<E> event) {
         if (event.isMoving()) {
             event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_move"));
-        } else if (isInSittingPose()) {
+        }
+        else if (isInSittingPose()) {
             event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_sitting"));
-        } else {
+        }
+        else {
             event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_idle"));
         }
 
@@ -424,26 +436,18 @@ public class GhostEntity extends TamableAnimal implements GeoEntity {
 
     private <E extends GeoAnimatable> PlayState armsAC(AnimationState<E> event) {
         if (!getHoldItem().isEmpty()) {
-            if (this.shouldUnechant())
+            if (this.shouldUnechant()) {
                 event.getController().setAnimation(RawAnimation.begin().thenPlay("ghost_unenchant"));
-            else
+            }
+            else {
                 event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_arms_hold"));
-        } else if (!isInSittingPose()) {
+            }
+        }
+        else if (!isInSittingPose()) {
             event.getController().setAnimation(RawAnimation.begin().thenLoop(event.isMoving() ? "ghost_move_arms" : "ghost_idle_arms"));
         }
 
         return PlayState.CONTINUE;
     }
 
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
-        registrar.add(new AnimationController<>(this, "ghost_animation_controller_body", 1, this::bodyAC).setOverrideEasingType(EasingType.LINEAR));
-        registrar.add(new AnimationController<>(this, "ghost_animation_controller_arms", 1, this::armsAC));
-        registrar.add(new AnimationController<>(this, "ghost_animation_controller_blink", 1, this::blinkAC));
-    }
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return factory;
-    }
 }

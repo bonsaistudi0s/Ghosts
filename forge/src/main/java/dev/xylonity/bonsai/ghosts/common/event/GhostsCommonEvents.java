@@ -35,7 +35,8 @@ public class GhostsCommonEvents {
             for (GhostEntity ghost : ghosts) {
                 if (ghost.isOwnedBy(living)) {
                     if (ghost.getHoldItem().getItem() == Items.TOTEM_OF_UNDYING) {
-                        defaultTotemBehavior(event, player);
+                        event.setCanceled(true);
+                        defaultTotemBehavior(player);
 
                         ghost.setHoldItem(ItemStack.EMPTY);
 
@@ -48,9 +49,7 @@ public class GhostsCommonEvents {
 
     }
 
-    private void defaultTotemBehavior(LivingDeathEvent event, LivingEntity entity) {
-        event.setCanceled(true);
-
+    private void defaultTotemBehavior(LivingEntity entity) {
         entity.setHealth(1.0F);
         entity.removeAllEffects();
         entity.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 900, 1));

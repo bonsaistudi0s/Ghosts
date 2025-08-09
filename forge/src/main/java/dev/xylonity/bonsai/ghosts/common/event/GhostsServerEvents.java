@@ -20,8 +20,8 @@ public class GhostsServerEvents {
 
     @SubscribeEvent
     public static void registerEntityAttributes(EntityAttributeCreationEvent event) {
-        event.put(GhostsEntities.GHOST.get(), GhostEntity.setAttributes());
-        event.put(GhostsEntities.SMALL_GHOST.get(), SmallGhostEntity.setAttributes());
+        event.put(GhostsEntities.GHOST.get(), GhostEntity.setAttributes().build());
+        event.put(GhostsEntities.SMALL_GHOST.get(), SmallGhostEntity.setAttributes().build());
     }
 
     @SubscribeEvent

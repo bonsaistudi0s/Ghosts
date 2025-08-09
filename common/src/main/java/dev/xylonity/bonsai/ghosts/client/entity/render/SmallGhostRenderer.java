@@ -24,4 +24,5 @@ public class SmallGhostRenderer extends BaseGhostRenderer<SmallGhostEntity> {
 
         super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
     }
+
 }

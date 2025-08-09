@@ -16,4 +16,10 @@ public final class GhostsConfig {
     )
     public static String SMALL_GHOST_SPAWN = "14, 1, 3, minecraft:flower_forest, #minecraft:is_forest, #forge:is_swamp";
 
+    @ConfigEntry(
+            comment = "The maximum distance (in blocks) at which ghosts will teleport to their owner.",
+            min = 0, max = 1000
+    )
+    public static int GHOSTS_FOLLOW_OWNER_TELEPORT_DISTANCE = 10;
+
 }

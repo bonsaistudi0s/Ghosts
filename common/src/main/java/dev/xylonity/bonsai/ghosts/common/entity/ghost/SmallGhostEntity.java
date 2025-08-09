@@ -1,5 +1,6 @@
 package dev.xylonity.bonsai.ghosts.common.entity.ghost;
 
+import dev.xylonity.bonsai.ghosts.common.entity.MainGhostEntity;
 import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.GhostPlaceGoal;
 import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.GhostsWanderGoal;
 import dev.xylonity.bonsai.ghosts.common.entity.variant.SmallGhostVariant;
@@ -56,9 +57,7 @@ import software.bernie.geckolib.core.object.PlayState;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class SmallGhostEntity extends TamableAnimal implements GeoEntity {
-    private final AnimatableInstanceCache factory = new InstancedAnimatableInstanceCache(this);
-
+public class SmallGhostEntity extends MainGhostEntity {
     private static final EntityDataAccessor<Integer> DATA_ID_TYPE_VARIANT = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> CD_FULL_HIDE = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> IS_STAYING = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.BOOLEAN);
@@ -66,14 +65,15 @@ public class SmallGhostEntity extends TamableAnimal implements GeoEntity {
 
     public SmallGhostEntity(EntityType<? extends TamableAnimal> entity, Level world) {
         super(entity, world);
-        this.moveControl = new FlyingMoveControl(this, 10, true);
-        this.setTame(false);
+
         this.setPathfindingMalus(BlockPathTypes.POWDER_SNOW, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.DANGER_POWDER_SNOW, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.LAVA, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.BLOCKED, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.LEAVES, -1.0F);
+
+        this.moveControl = new FlyingMoveControl(this, 10, true);
     }
 
     protected void registerGoals() {
@@ -84,36 +84,33 @@ public class SmallGhostEntity extends TamableAnimal implements GeoEntity {
         this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
     }
 
-    protected PathNavigation createNavigation(Level p_29417_) {
-        FlyingPathNavigation flyingpathnavigation = new FlyingPathNavigation(this, p_29417_);
-        flyingpathnavigation.setCanOpenDoors(false);
-        flyingpathnavigation.setCanFloat(true);
-        flyingpathnavigation.setCanPassDoors(true);
-        return flyingpathnavigation;
+    protected PathNavigation createNavigation(Level level) {
+        FlyingPathNavigation navigator = new FlyingPathNavigation(this, level);
+
+        navigator.setCanOpenDoors(false);
+        navigator.setCanFloat(true);
+        navigator.setCanPassDoors(true);
+
+        return navigator;
     }
 
-    public static AttributeSupplier setAttributes() {
+    public static AttributeSupplier.Builder setAttributes() {
         return AbstractGolem.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 10)
                 .add(Attributes.FLYING_SPEED, 0.22f)
                 .add(Attributes.MOVEMENT_SPEED, 0.22F)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D)
-                .build();
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
     }
 
-    public boolean causeFallDamage(float p_148989_, float p_148990_, DamageSource p_148991_) {
-        return false;
-    }
-
-    @Nullable
     @Override
-    public AgeableMob getBreedOffspring(ServerLevel p_146743_, AgeableMob p_146744_) {
-        return null;
+    public boolean causeFallDamage(float fallDistance, float multiplier, DamageSource source) {
+        return false;
     }
 
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
+
         this.entityData.define(IS_STAYING, false);
         this.entityData.define(IS_SLEEPING, false);
         this.entityData.define(DATA_ID_TYPE_VARIANT, 0);
@@ -369,11 +366,6 @@ public class SmallGhostEntity extends TamableAnimal implements GeoEntity {
     public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
         registrar.add(new AnimationController<>(this, "small_ghost_animation_controller_body", 1, this::bodyAC));
         registrar.add(new AnimationController<>(this, "small_ghost_animation_controller_arms", 1, this::armsAC));
-    }
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return factory;
     }
 
 }
