@@ -32,11 +32,13 @@ public class GhostsForge {
 
         ConfigManager.init(FMLPaths.CONFIGDIR.get(), GhostsConfig.class);
 
-        GhostsSpawnBiomeModifier.BIOME_MODIFIER.register("ghosts_mob_spawns", GhostsSpawnBiomeModifier::makeCodec);
-
         ENTITIES.register(modBusEvent);
         ITEMS.register(modBusEvent);
         SOUNDS.register(modBusEvent);
+
+        GhostsSpawnBiomeModifier.BIOME_MODIFIER.register(modBusEvent);
+
+        GhostsSpawnBiomeModifier.BIOME_MODIFIER.register("ghosts_mob_spawns", GhostsSpawnBiomeModifier::makeCodec);
 
         Ghosts.init();
     }
