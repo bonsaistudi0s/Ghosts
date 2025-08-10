@@ -17,9 +17,9 @@ public class Ghosts {
     public static final GhostsPlatform PLATFORM = ServiceLoader.load(GhostsPlatform.class).findFirst().orElseThrow();
 
     public static void init() {
-        GhostsItems.init();
         GhostsEntities.init();
         GhostsSounds.init();
+        GhostsItems.init();
     }
 
 }

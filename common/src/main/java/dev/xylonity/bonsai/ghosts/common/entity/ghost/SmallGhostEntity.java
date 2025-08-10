@@ -202,9 +202,9 @@ public class SmallGhostEntity extends MainGhostEntity {
     @Override
     public void tick() {
         super.tick();
-        var level = level();
+        this.setNoGravity(true);
 
-        if (level.isClientSide) return;
+        if (level().isClientSide) return;
 
         if (getCdFullHide() > 0) {
             setCdFullHide(getCdFullHide() - 1);
@@ -212,8 +212,8 @@ public class SmallGhostEntity extends MainGhostEntity {
 
         SmallGhostVariant variant = getVariant();
         if (variant == SmallGhostVariant.PLANT) {
-            BlockState belowBlockState = level.getBlockState(this.blockPosition().below());
-            if (!level.isDay() && (belowBlockState.is(Blocks.GRASS_BLOCK) || belowBlockState.is(Blocks.DIRT))) {
+            BlockState belowBlockState = level().getBlockState(this.blockPosition().below());
+            if (!level().isDay() && (belowBlockState.is(Blocks.GRASS_BLOCK) || belowBlockState.is(Blocks.DIRT))) {
                 if (!getIsSleeping())
                     setCdFullHide(36);
 

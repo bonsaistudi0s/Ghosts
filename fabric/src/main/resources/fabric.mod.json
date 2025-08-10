@@ -17,11 +17,13 @@
     "entrypoints": {
         "main": [
             "dev.xylonity.bonsai.ghosts.GhostsFabric"
+        ],
+        "client": [
+            "dev.xylonity.bonsai.ghosts.GhostsFabric"
         ]
     },
     "mixins": [
-        "${mod_id}.mixins.json",
-        "${mod_id}.fabric.mixins.json"
+        "ghosts.mixins.json"
     ],
     "depends": {
         "fabricloader": ">=0.14",
