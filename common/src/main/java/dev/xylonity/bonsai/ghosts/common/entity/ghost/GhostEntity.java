@@ -17,13 +17,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ExperienceOrb;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.SpawnGroupData;
-import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
@@ -36,6 +30,7 @@ import net.minecraft.world.entity.animal.AbstractGolem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -249,25 +244,30 @@ public class GhostEntity extends MainGhostEntity {
                     this.heal(4f);
                 }
                 // Armor equipped
-                else if (stack.getItem() instanceof ArmorItem helmet && helmet.getEquipmentSlot() == EquipmentSlot.HEAD && this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
-                    this.setItemSlotAndDropWhenKilled(EquipmentSlot.HEAD, stack.copy());
+                else if (this.getItemBySlot(EquipmentSlot.HEAD).isEmpty() && Mob.getEquipmentSlotForItem(stack) == EquipmentSlot.HEAD) {
+                    ItemStack copy = stack.copy();
+                    copy.setCount(1);
 
-                    if (!player.getAbilities().instabuild) stack.shrink(stack.getCount());
+                    this.setItemSlotAndDropWhenKilled(EquipmentSlot.HEAD, copy);
+
+                    if (!player.getAbilities().instabuild) stack.shrink(1);
+
+                    return InteractionResult.SUCCESS;
                 }
                 // Item equipped
-                else if (getHoldItem().isEmpty()) {
+                else if (!stack.isEmpty() && getHoldItem().isEmpty()) {
                     this.setHoldItem(stack.copy());
                     stack.setCount(0);
+                }
+                // Item retrieval
+                else if (!getHoldItem().isEmpty()) {
+                    this.spawnAtLocation(this.getHoldItem(), 0.5F);
+                    setHoldItem(ItemStack.EMPTY);
                 }
                 // Armor unequipped
                 else if (!this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
                     this.spawnAtLocation(this.getItemBySlot(EquipmentSlot.HEAD), 0.5F);
                     this.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
-                }
-                // Item unequipped
-                else if (!getHoldItem().isEmpty()) {
-                    this.spawnAtLocation(this.getHoldItem(), 0.5F);
-                    setHoldItem(ItemStack.EMPTY);
                 }
             }
             else {
