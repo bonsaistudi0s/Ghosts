@@ -1,6 +1,7 @@
 package dev.xylonity.bonsai.ghosts.common.entity.ghost;
 
 import dev.xylonity.bonsai.ghosts.common.entity.MainGhostEntity;
+import dev.xylonity.bonsai.ghosts.common.entity.ai.control.GhostMoveControl;
 import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.*;
 import dev.xylonity.bonsai.ghosts.common.entity.variant.GhostVariant;
 import dev.xylonity.bonsai.ghosts.registry.GhostsSounds;
@@ -29,8 +30,6 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.AbstractGolem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AnvilMenu;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -72,7 +71,7 @@ public class GhostEntity extends MainGhostEntity {
         this.setPathfindingMalus(BlockPathTypes.BLOCKED, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.LEAVES, -1.0F);
 
-        this.moveControl = new FlyingMoveControl(this, 10, true);
+        this.moveControl = new GhostMoveControl(this);
     }
 
     protected PathNavigation createNavigation(Level level) {
@@ -96,14 +95,9 @@ public class GhostEntity extends MainGhostEntity {
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new StayWhenOrderedToGoal(this));
-        this.goalSelector.addGoal(6, new TestingGhostFollowOwnerGoal(this, 0.6D, 3.0F, 7.0F, 0.2f));
-        this.goalSelector.addGoal(7, new GhostPlaceGoal(this, Ingredient.of(GhostsTags.GHOST_PLACEABLE), state -> true, 10, 10) {
-            @Override
-            protected boolean isValidTarget(LevelReader level, BlockPos pos) {
-                return level.isEmptyBlock(pos.above()) && level.getBrightness(LightLayer.BLOCK, pos) < 4 && level.getBlockState(pos).isFaceSturdy(level, pos, Direction.UP);
-            }
-        });
-        this.goalSelector.addGoal(9, new GhostsWanderGoal(this, 1.0D));
+        this.goalSelector.addGoal(6, new GhostFollowOwnerGoal(this, 0.6D, 3.0F, 7.0F, 0.2f));
+        this.goalSelector.addGoal(7, new GhostPlaceGoal(this, Ingredient.of(GhostsTags.GHOST_PLACEABLE), state -> true, 6, 10));
+        this.goalSelector.addGoal(9, new GhostWanderGoal(this, 0.43f));
         this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Player.class, 6.0F));
     }
@@ -138,11 +132,8 @@ public class GhostEntity extends MainGhostEntity {
             this.setShouldUnenchant(true);
             this.setCdUnenchant(82);
         }
-        this.setItemSlotAndDropWhenKilled(EquipmentSlot.MAINHAND, holdItem);
-    }
 
-    public ItemStack getHoldItem() {
-        return this.getItemBySlot(EquipmentSlot.MAINHAND);
+        this.setItemSlotAndDropWhenKilled(EquipmentSlot.MAINHAND, holdItem);
     }
 
     public int getCdUnenchant() {
@@ -288,6 +279,7 @@ public class GhostEntity extends MainGhostEntity {
     @Override
     public void tick() {
         super.tick();
+        this.setNoGravity(true);
 
         if (level().isClientSide)
             return;

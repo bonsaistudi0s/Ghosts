@@ -1,21 +1,18 @@
 package dev.xylonity.bonsai.ghosts.common.entity.ghost;
 
 import dev.xylonity.bonsai.ghosts.common.entity.MainGhostEntity;
-import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.GhostPlaceGoal;
-import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.GhostsWanderGoal;
+import dev.xylonity.bonsai.ghosts.common.entity.ai.control.GhostMoveControl;
+import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.GhostWanderGoal;
 import dev.xylonity.bonsai.ghosts.common.entity.variant.SmallGhostVariant;
 import dev.xylonity.bonsai.ghosts.registry.GhostsSounds;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -24,7 +21,6 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
@@ -35,7 +31,6 @@ import net.minecraft.world.entity.animal.AbstractGolem;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -44,10 +39,7 @@ import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.AnimationState;
@@ -73,13 +65,17 @@ public class SmallGhostEntity extends MainGhostEntity {
         this.setPathfindingMalus(BlockPathTypes.BLOCKED, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.LEAVES, -1.0F);
 
-        this.moveControl = new FlyingMoveControl(this, 10, true);
+        this.moveControl = new GhostMoveControl(this);
     }
 
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new GhostPlaceGoal(this, Ingredient.of(ItemTags.SAPLINGS), BlockTags.DIRT, 10, 10));
-        this.goalSelector.addGoal(9, new GhostsWanderGoal(this, 1.0D));
+        this.goalSelector.addGoal(9, new GhostWanderGoal(this, 0.43D) {
+            @Override
+            public boolean canUse() {
+                return super.canUse() && !getIsSleeping();
+            }
+        });
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
     }
@@ -208,8 +204,7 @@ public class SmallGhostEntity extends MainGhostEntity {
         super.tick();
         var level = level();
 
-        if (level.isClientSide)
-            return; // Everything after this is server-only
+        if (level.isClientSide) return;
 
         if (getCdFullHide() > 0) {
             setCdFullHide(getCdFullHide() - 1);
@@ -270,8 +265,8 @@ public class SmallGhostEntity extends MainGhostEntity {
     }
 
     @Override
-    public boolean hurt(DamageSource p_27567_, float p_27568_) {
-        if (p_27567_.getEntity() != null) {
+    public boolean hurt(DamageSource source, float p) {
+        if (source.getEntity() != null) {
             Vec3 vec = AirRandomPos.getPosTowards(this, 32, 32, 32, new Vec3(32, 32, 32), 32);
 
             if (vec != null) {
@@ -285,7 +280,7 @@ public class SmallGhostEntity extends MainGhostEntity {
         if (this.getIsSleeping())
             return false;
         else
-            return super.hurt(p_27567_, p_27568_);
+            return super.hurt(source, p);
     }
 
     @Override

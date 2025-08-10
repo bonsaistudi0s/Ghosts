@@ -1,12 +1,16 @@
 package dev.xylonity.bonsai.ghosts.common.entity;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -46,12 +50,34 @@ public abstract class MainGhostEntity extends TamableAnimal implements GeoEntity
         this.entityData.set(MAIN_INTERACTION, interaction);
     }
 
+    @Override
+    public boolean hurt(DamageSource source, float amount) {
+        if (source.is(DamageTypes.IN_WALL)) return false;
+        return super.hurt(source, amount);
+    }
+
     public void setMainInteraction(int interaction) {
         this.entityData.set(MAIN_INTERACTION, interaction);
     }
 
     public int getMainInteraction() {
         return this.entityData.get(MAIN_INTERACTION);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        this.setMainInteraction(compound.getInt("MainInteraction"));
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        compound.putInt("MainInteraction", getMainInteraction());
+    }
+
+    public ItemStack getHoldItem() {
+        return this.getItemBySlot(EquipmentSlot.MAINHAND);
     }
 
     @Override
