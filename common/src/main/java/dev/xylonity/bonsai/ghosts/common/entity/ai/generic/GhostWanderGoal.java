@@ -8,7 +8,6 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
 import java.util.EnumSet;
 
 public class GhostWanderGoal extends Goal {
@@ -57,7 +56,6 @@ public class GhostWanderGoal extends Goal {
         return true;
     }
 
-    @Nullable
     protected Vec3 getPosition() {
         Vec3 origin = ghost.position();
         var rand = ghost.getRandom();

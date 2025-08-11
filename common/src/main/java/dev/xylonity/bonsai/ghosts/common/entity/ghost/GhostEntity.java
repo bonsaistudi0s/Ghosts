@@ -42,7 +42,6 @@ import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.animation.AnimationState;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -389,19 +388,16 @@ public class GhostEntity extends MainGhostEntity {
         }
     }
 
-    @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
         return GhostsSounds.GHOST_AMBIENT.get();
     }
 
-    @Nullable
     @Override
     protected SoundEvent getDeathSound() {
         return GhostsSounds.GHOST_DEATH.get();
     }
 
-    @Nullable
     @Override
     protected SoundEvent getHurtSound(DamageSource damageSource) {
         return GhostsSounds.GHOST_HURT.get();

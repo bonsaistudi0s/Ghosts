@@ -19,8 +19,6 @@ import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.util.RenderUtil;
 
-import javax.annotation.Nullable;
-
 public class BaseGhostRenderer<T extends LivingEntity & GeoEntity> extends GeoEntityRenderer<T> {
 
     protected BaseGhostRenderer(EntityRendererProvider.Context context, GeoModel<T> modelProvider) {
@@ -54,7 +52,7 @@ public class BaseGhostRenderer<T extends LivingEntity & GeoEntity> extends GeoEn
     }
 
     @Override
-    public RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(T animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityTranslucent(texture);
     }
 

@@ -42,7 +42,6 @@ import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.*;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class SmallGhostEntity extends MainGhostEntity {
@@ -295,19 +294,16 @@ public class SmallGhostEntity extends MainGhostEntity {
         }
     }
 
-    @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
         return GhostsSounds.SMALL_GHOST_AMBIENT.get();
     }
 
-    @Nullable
     @Override
     protected SoundEvent getDeathSound() {
         return GhostsSounds.SMALL_GHOST_DEATH.get();
     }
 
-    @Nullable
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
         return GhostsSounds.SMALL_GHOST_HURT.get();
