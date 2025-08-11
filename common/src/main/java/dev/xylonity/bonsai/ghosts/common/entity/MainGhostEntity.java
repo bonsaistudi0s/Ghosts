@@ -13,8 +13,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animatable.instance.InstancedAnimatableInstanceCache;
 
 public abstract class MainGhostEntity extends TamableAnimal implements GeoEntity {
 
@@ -28,9 +28,14 @@ public abstract class MainGhostEntity extends TamableAnimal implements GeoEntity
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(MAIN_INTERACTION, 0);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(MAIN_INTERACTION, 0);
+    }
+
+    @Override
+    public boolean isFood(ItemStack itemStack) {
+        return false;
     }
 
     public void cycleMainInteraction(Player player) {

@@ -6,14 +6,15 @@ import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.*;
 import dev.xylonity.bonsai.ghosts.common.entity.variant.GhostVariant;
 import dev.xylonity.bonsai.ghosts.registry.GhostsSounds;
 import dev.xylonity.bonsai.ghosts.tag.GhostsTags;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -21,7 +22,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
@@ -34,22 +34,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.core.animation.EasingType;
-import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.core.object.PlayState;
+import net.minecraft.world.level.pathfinder.PathType;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animation.*;
+import software.bernie.geckolib.animation.AnimationState;
 
 import javax.annotation.Nullable;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GhostEntity extends MainGhostEntity {
 
@@ -64,12 +59,12 @@ public class GhostEntity extends MainGhostEntity {
     public GhostEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
 
-        this.setPathfindingMalus(BlockPathTypes.POWDER_SNOW, -1.0F);
-        this.setPathfindingMalus(BlockPathTypes.DANGER_POWDER_SNOW, -1.0F);
-        this.setPathfindingMalus(BlockPathTypes.LAVA, -1.0F);
-        this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
-        this.setPathfindingMalus(BlockPathTypes.BLOCKED, -1.0F);
-        this.setPathfindingMalus(BlockPathTypes.LEAVES, -1.0F);
+        this.setPathfindingMalus(PathType.POWDER_SNOW, -1.0F);
+        this.setPathfindingMalus(PathType.DANGER_POWDER_SNOW, -1.0F);
+        this.setPathfindingMalus(PathType.LAVA, -1.0F);
+        this.setPathfindingMalus(PathType.WATER, -1.0F);
+        this.setPathfindingMalus(PathType.BLOCKED, -1.0F);
+        this.setPathfindingMalus(PathType.LEAVES, -1.0F);
 
         this.moveControl = new GhostMoveControl(this);
     }
@@ -113,14 +108,13 @@ public class GhostEntity extends MainGhostEntity {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-
-        this.entityData.define(DATA_ID_TYPE_VARIANT, 0);
-        this.entityData.define(SHOULD_RESET_CD, false);
-        this.entityData.define(BLINK_CD, 0);
-        this.entityData.define(BLINK_ANIM_CD, 0);
-        this.entityData.define(SHOULD_UNENCHANT, false);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_ID_TYPE_VARIANT, 0);
+        builder.define(SHOULD_RESET_CD, false);
+        builder.define(BLINK_CD, 0);
+        builder.define(BLINK_ANIM_CD, 0);
+        builder.define(SHOULD_UNENCHANT, false);
     }
 
     public void setHoldItem(ItemStack holdItem) {
@@ -235,7 +229,7 @@ public class GhostEntity extends MainGhostEntity {
                     this.heal(4f);
                 }
                 // Armor equipped
-                else if (this.getItemBySlot(EquipmentSlot.HEAD).isEmpty() && Mob.getEquipmentSlotForItem(stack) == EquipmentSlot.HEAD) {
+                else if (this.getItemBySlot(EquipmentSlot.HEAD).isEmpty() && getEquipmentSlotForItem(stack) == EquipmentSlot.HEAD) {
                     ItemStack copy = stack.copy();
                     copy.setCount(1);
 
@@ -272,7 +266,7 @@ public class GhostEntity extends MainGhostEntity {
     }
 
     @Override
-    public int getExperienceReward() {
+    protected int getBaseExperienceReward() {
         return 1 + level().random.nextInt(2, 4);
     }
 
@@ -302,8 +296,7 @@ public class GhostEntity extends MainGhostEntity {
             }
         }
 
-        if (getCdUnenchant() > 0)
-            setCdUnenchant(getCdUnenchant() - 1);
+        if (getCdUnenchant() > 0) setCdUnenchant(getCdUnenchant() - 1);
 
         ItemStack heldItemStack = getHoldItem();
 
@@ -320,6 +313,7 @@ public class GhostEntity extends MainGhostEntity {
                 }
             }
         }
+
     }
 
     private void startUnenchantAnim() {
@@ -329,37 +323,59 @@ public class GhostEntity extends MainGhostEntity {
     }
 
     private ItemStack removeEnchants(ItemStack item) {
-        ItemStack itemstack = item.copy();
+        ItemStack stack = item.copy();
 
-        if (level() instanceof ServerLevel level)
-            ExperienceOrb.award(level, this.getPosition(0), getExperienceFromItem(itemstack));
-
-        if (!itemstack.getEnchantmentTags().isEmpty()) {
-            int i = random.nextInt(itemstack.getEnchantmentTags().size());
-
-            itemstack.getEnchantmentTags().remove(i);
+        if (level() instanceof ServerLevel srv) {
+            ExperienceOrb.award(srv, this.getPosition(0), getExperienceFromItem(stack));
         }
 
-        itemstack.removeTagKey("StoredEnchantments");
+        ItemEnchantments normal = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+        ItemEnchantments stored = stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
 
-        itemstack.setRepairCost(AnvilMenu.calculateIncreasedRepairCost(itemstack.getBaseRepairCost()));
+        boolean storedComp = !stored.isEmpty();
+        ItemEnchantments target = storedComp ? stored : normal;
 
-        return itemstack.copy();
-    }
+        if (!target.isEmpty()) {
+            // A bit cryptic ngl
+            List<Holder<Enchantment>> keys = new ArrayList<>(target.keySet());
+            Holder<Enchantment> rem = keys.get(random.nextInt(keys.size()));
 
-    private int getExperienceFromItem(ItemStack p_39637_) {
-        int l = 0;
-        Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(p_39637_);
+            ItemEnchantments.Mutable mut = new ItemEnchantments.Mutable(target);
 
-        for (Map.Entry<Enchantment, Integer> entry : map.entrySet()) {
-            Enchantment enchantment = entry.getKey();
-            Integer integer = entry.getValue();
-            if (!enchantment.isCurse()) {
-                l += enchantment.getMinCost(integer);
+            mut.set(rem, 0);
+
+            ItemEnchantments imm = mut.toImmutable();
+            if (storedComp) {
+                if (imm.isEmpty()) stack.remove(DataComponents.STORED_ENCHANTMENTS);
+                else stack.set(DataComponents.STORED_ENCHANTMENTS, imm);
+            } else {
+                if (imm.isEmpty()) stack.remove(DataComponents.ENCHANTMENTS);
+                else stack.set(DataComponents.ENCHANTMENTS, imm);
             }
         }
 
-        return l;
+        stack.remove(DataComponents.STORED_ENCHANTMENTS);
+
+        stack.set(DataComponents.REPAIR_COST, AnvilMenu.calculateIncreasedRepairCost(stack.getOrDefault(DataComponents.REPAIR_COST, 0)));
+
+        return stack.copy();
+    }
+
+    private int getExperienceFromItem(ItemStack stack) {
+        return xpFrom(stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY)) + xpFrom(stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY));
+    }
+
+    private int xpFrom(ItemEnchantments ench) {
+        int xp = 0;
+        for (Holder<Enchantment> holder : ench.keySet()) {
+
+            if (holder.is(EnchantmentTags.CURSE)) continue;
+
+            int lvl = ench.getLevel(holder);
+            if (lvl > 0) xp += holder.value().getMinCost(lvl);
+        }
+
+        return xp;
     }
 
     @Override
@@ -392,9 +408,9 @@ public class GhostEntity extends MainGhostEntity {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
-        setVariant(levelAccessor.getRandom().nextBoolean() ? GhostVariant.MUSHROOM : GhostVariant.NORMAL);
-        return super.finalizeSpawn(levelAccessor, difficulty, mobSpawnType, spawnGroupData, compoundTag);
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @org.jetbrains.annotations.Nullable SpawnGroupData spawnGroupData) {
+        setVariant(level.getRandom().nextBoolean() ? GhostVariant.MUSHROOM : GhostVariant.NORMAL);
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
     }
 
     @Override

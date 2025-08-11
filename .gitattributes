@@ -11,8 +11,5 @@
 *.lzma binary
 *.zip binary
 *.pyd binary
-*.wav binary
-*.mp3 binary
-*.ogg binary
 *.cfg text eol=lf
 *.jks binary

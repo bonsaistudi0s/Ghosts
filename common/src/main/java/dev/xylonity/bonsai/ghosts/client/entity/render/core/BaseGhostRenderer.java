@@ -17,7 +17,7 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
-import software.bernie.geckolib.util.RenderUtils;
+import software.bernie.geckolib.util.RenderUtil;
 
 import javax.annotation.Nullable;
 
@@ -28,7 +28,7 @@ public class BaseGhostRenderer<T extends LivingEntity & GeoEntity> extends GeoEn
     }
 
     @Override
-    public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         ItemStack stack = animatable.getItemBySlot(EquipmentSlot.MAINHAND);
 
         // If the item in hand isn't empty ('item' bone is a dummy anchor)
@@ -50,7 +50,7 @@ public class BaseGhostRenderer<T extends LivingEntity & GeoEntity> extends GeoEn
             buffer = bufferSource.getBuffer(renderType);
         }
 
-        super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, LightTexture.FULL_BRIGHT, packedOverlay, red, green, blue, alpha);
+        super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, LightTexture.FULL_BRIGHT, packedOverlay, colour);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class BaseGhostRenderer<T extends LivingEntity & GeoEntity> extends GeoEn
 
     protected void moveToBone(PoseStack poseStack, GeoBone bone) {
         poseStack.translate(-bone.getPosX() / 16, bone.getPosY() / 16, bone.getPosZ() / 16);
-        RenderUtils.rotateMatrixAroundBone(poseStack, bone);
+        RenderUtil.rotateMatrixAroundBone(poseStack, bone);
         poseStack.translate(bone.getPivotX() / 16, bone.getPivotY() / 16, bone.getPivotZ() / 16);
     }
 

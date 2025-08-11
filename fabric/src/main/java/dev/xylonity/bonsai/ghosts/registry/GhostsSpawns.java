@@ -4,6 +4,7 @@ import dev.xylonity.bonsai.ghosts.config.GhostsConfig;
 import dev.xylonity.bonsai.ghosts.config.SpawnConfig;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -28,8 +29,8 @@ public class GhostsSpawns {
                 SMALL_GHOST_SPAWN_CONFIG.maxCount
         );
 
-        SpawnPlacements.register(GhostsEntities.GHOST.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, TamableAnimal::checkMobSpawnRules);
-        SpawnPlacements.register(GhostsEntities.SMALL_GHOST.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, TamableAnimal::checkMobSpawnRules);
+        SpawnPlacements.register(GhostsEntities.GHOST.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, TamableAnimal::checkMobSpawnRules);
+        SpawnPlacements.register(GhostsEntities.SMALL_GHOST.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, TamableAnimal::checkMobSpawnRules);
     }
 
 }

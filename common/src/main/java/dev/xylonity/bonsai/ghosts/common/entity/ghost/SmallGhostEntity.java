@@ -35,16 +35,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.Path;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animation.*;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -58,12 +54,12 @@ public class SmallGhostEntity extends MainGhostEntity {
     public SmallGhostEntity(EntityType<? extends TamableAnimal> entity, Level world) {
         super(entity, world);
 
-        this.setPathfindingMalus(BlockPathTypes.POWDER_SNOW, -1.0F);
-        this.setPathfindingMalus(BlockPathTypes.DANGER_POWDER_SNOW, -1.0F);
-        this.setPathfindingMalus(BlockPathTypes.LAVA, -1.0F);
-        this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
-        this.setPathfindingMalus(BlockPathTypes.BLOCKED, -1.0F);
-        this.setPathfindingMalus(BlockPathTypes.LEAVES, -1.0F);
+        this.setPathfindingMalus(PathType.POWDER_SNOW, -1.0F);
+        this.setPathfindingMalus(PathType.DANGER_POWDER_SNOW, -1.0F);
+        this.setPathfindingMalus(PathType.LAVA, -1.0F);
+        this.setPathfindingMalus(PathType.WATER, -1.0F);
+        this.setPathfindingMalus(PathType.BLOCKED, -1.0F);
+        this.setPathfindingMalus(PathType.LEAVES, -1.0F);
 
         this.moveControl = new GhostMoveControl(this);
     }
@@ -104,13 +100,12 @@ public class SmallGhostEntity extends MainGhostEntity {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-
-        this.entityData.define(IS_STAYING, false);
-        this.entityData.define(IS_SLEEPING, false);
-        this.entityData.define(DATA_ID_TYPE_VARIANT, 0);
-        this.entityData.define(CD_FULL_HIDE, 0);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(IS_STAYING, false);
+        builder.define(IS_SLEEPING, false);
+        builder.define(DATA_ID_TYPE_VARIANT, 0);
+        builder.define(CD_FULL_HIDE, 0);
     }
 
     public void setIsStaying(boolean isStaying) {
@@ -171,7 +166,7 @@ public class SmallGhostEntity extends MainGhostEntity {
     }
 
     @Override
-    public int getExperienceReward() {
+    protected int getBaseExperienceReward() {
         return 1 + level().random.nextInt(2, 4);
     }
 
@@ -232,7 +227,7 @@ public class SmallGhostEntity extends MainGhostEntity {
         if (level.isClientSide || this.tickCount % 20 != 0 || !getHoldItem().isEmpty() || this.getIsSleeping())
             return;
 
-        List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(this.blockPosition().offset(-10, -10, -10), this.blockPosition().offset(10, 10, 10)));
+        List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(this.blockPosition().offset(-10, -10, -10).getCenter(), this.blockPosition().offset(10, 10, 10).getCenter()));
 
         if (items.isEmpty() || getHoldItem().getCount() >= 64)
             return;
@@ -319,10 +314,9 @@ public class SmallGhostEntity extends MainGhostEntity {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
-        setVariant(levelAccessor.getRandom().nextBoolean() ? SmallGhostVariant.PLANT : SmallGhostVariant.NORMAL);
-
-        return super.finalizeSpawn(levelAccessor, difficulty, mobSpawnType, spawnGroupData, compoundTag);
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @org.jetbrains.annotations.Nullable SpawnGroupData spawnGroupData) {
+        setVariant(level.getRandom().nextBoolean() ? SmallGhostVariant.PLANT : SmallGhostVariant.NORMAL);
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
     }
 
     private <E extends GeoAnimatable> PlayState bodyAC(AnimationState<E> event) {

@@ -10,14 +10,12 @@ dependencies {
         parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
     }
 
-    modImplementation("software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}")
+    modImplementation "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
 
     shadow("com.electronwill.night-config:toml:3.6.6")
 
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
-    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
-    implementation project(":common")
 }
 
 configurations {
@@ -48,8 +46,9 @@ tasks.named('remapJar', RemapJarTask).configure { remap ->
 }
 
 loom {
-    if (project(":common").file("src/main/resources/${mod_id}.accesswidener").exists()) {
-        accessWidenerPath.set(project(":common").file("src/main/resources/${mod_id}.accesswidener"))
+    def aw = project(':common').file("src/main/resources/${mod_id}.accesswidener")
+    if (aw.exists()) {
+        accessWidenerPath.set(aw)
     }
     mixin {
         defaultRefmapName.set("${mod_id}.refmap.json")
@@ -57,15 +56,15 @@ loom {
     runs {
         client {
             client()
-            setConfigName("Fabric Client")
+            setConfigName('Fabric Client')
             ideConfigGenerated(true)
-            runDir("run")
+            runDir('runs/client')
         }
         server {
             server()
-            setConfigName("Fabric Server")
+            setConfigName('Fabric Server')
             ideConfigGenerated(true)
-            runDir("run")
+            runDir('runs/server')
         }
     }
 }

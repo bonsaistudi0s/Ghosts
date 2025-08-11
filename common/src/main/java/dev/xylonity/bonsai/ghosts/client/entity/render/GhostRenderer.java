@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.AbstractSkullBlock;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.ItemArmorGeoLayer;
-import software.bernie.geckolib.util.RenderUtils;
+import software.bernie.geckolib.util.RenderUtil;
 
 public class GhostRenderer extends BaseGhostRenderer<GhostEntity> {
 
@@ -71,11 +71,11 @@ public class GhostRenderer extends BaseGhostRenderer<GhostEntity> {
     }
 
     @Override
-    public void renderRecursively(PoseStack poseStack, GhostEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderRecursively(PoseStack poseStack, GhostEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         if ("plant".equals(bone.getName()) && animatable.getVariant() != GhostVariant.MUSHROOM)
             return;
 
-        super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+        super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
     }
 
     public static class HeadAnyItemArmorAwareLayer extends ItemArmorGeoLayer<GhostEntity> {
@@ -129,12 +129,12 @@ public class GhostRenderer extends BaseGhostRenderer<GhostEntity> {
 
             poseStack.pushPose();
 
-            RenderUtils.translateMatrixToBone(poseStack, bone);
-            RenderUtils.translateToPivotPoint(poseStack, bone);
-            RenderUtils.rotateMatrixAroundBone(poseStack, bone);
+            RenderUtil.translateMatrixToBone(poseStack, bone);
+            RenderUtil.translateToPivotPoint(poseStack, bone);
+            RenderUtil.rotateMatrixAroundBone(poseStack, bone);
 
-            RenderUtils.scaleMatrixForBone(poseStack, bone);
-            RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
+            RenderUtil.scaleMatrixForBone(poseStack, bone);
+            RenderUtil.translateAwayFromPivotPoint(poseStack, bone);
 
             poseStack.scale(0.5125f, 0.5125f, 0.5125f);
             poseStack.translate(0, 0.5f, 0);

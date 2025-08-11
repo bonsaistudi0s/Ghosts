@@ -7,5 +7,5 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
 public class GhostsTags {
-    public static final TagKey<Item> GHOST_PLACEABLE = TagKey.create(Registries.ITEM, new ResourceLocation(Ghosts.MOD_ID, "placeable"));
+    public static final TagKey<Item> GHOST_PLACEABLE = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(Ghosts.MOD_ID, "placeable"));
 }
