@@ -21,42 +21,51 @@
 					"pivot": [0, 0, 0],
 					"cubes": [
 						{"origin": [-3.5, 1, -3.5], "size": [7, 7, 7], "uv": [0, 0]},
-						{"origin": [-3.5, 0, -3.5], "size": [7, 1, 7], "uv": [0, 14]}
+						{"origin": [-3.5, 0, -3.5], "size": [7, 1, 7], "uv": [0, 15]}
 					]
 				},
 				{
 					"name": "right_arm",
 					"parent": "glow_1",
-					"pivot": [-3.5, 4, 0],
+					"pivot": [-3.5, 3, 0],
 					"rotation": [0, 0, -47.5],
 					"cubes": [
-						{"origin": [-5.3, 3, -1], "size": [2, 2, 2], "uv": [28, 10]}
+						{"origin": [-5.3, 2, -1], "size": [2, 2, 2], "uv": [29, 7]}
 					]
 				},
 				{
 					"name": "left_arm",
 					"parent": "glow_1",
-					"pivot": [3.5, 4, 0],
+					"pivot": [3.5, 3, 0],
 					"rotation": [0, 0, 47.5],
 					"cubes": [
-						{"origin": [3.3, 3, -1], "size": [2, 2, 2], "uv": [28, 10], "mirror": true}
+						{"origin": [3.3, 2, -1], "size": [2, 2, 2], "uv": [29, 7], "mirror": true}
 					]
 				},
 				{
 					"name": "eyes",
 					"parent": "main",
-					"pivot": [0, 4, -3.6],
+					"pivot": [0, 2.7, -3.6],
 					"cubes": [
-						{"origin": [-2.5, 3, -3.6], "size": [5, 2, 0], "uv": [21, 5]}
+						{"origin": [-2.5, 2.7, -3.6], "size": [5, 2, 0], "uv": [29, 12]}
 					]
 				},
 				{
-					"name": "plant",
+					"name": "mushroom_red",
 					"parent": "main",
 					"pivot": [0, 7.8, 0],
 					"cubes": [
-						{"origin": [-1.5, 6.8, -1.5], "size": [3, 3, 3], "uv": [0, 34]},
-						{"origin": [-2.5, 9.8, -2.5], "size": [5, 3, 5], "uv": [0, 26]}
+						{"origin": [-1.5, 6.8, -1.5], "size": [3, 3, 3], "uv": [29, 0]},
+						{"origin": [-2.5, 9.8, -2.5], "size": [5, 3, 5], "uv": [0, 24]}
+					]
+				},
+				{
+					"name": "mushroom_brown",
+					"parent": "main",
+					"pivot": [0, 7.8, 0],
+					"cubes": [
+						{"origin": [-2.5, 9.8, -2.5], "size": [5, 2, 5], "uv": [21, 24]},
+						{"origin": [-1.5, 6.8, -1.5], "size": [3, 3, 3], "uv": [29, 0]}
 					]
 				},
 				{
@@ -68,8 +77,7 @@
 				{
 					"name": "item",
 					"parent": "item_animation",
-					"pivot": [-1.1216, 3.3345, -0.66098],
-					"rotation": [0, 0, 0]
+					"pivot": [-1.1216, 3.3345, -0.66098]
 				}
 			]
 		}
