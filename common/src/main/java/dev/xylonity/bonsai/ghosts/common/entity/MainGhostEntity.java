@@ -6,12 +6,14 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
@@ -48,6 +50,26 @@ public abstract class MainGhostEntity extends TamableAnimal implements GeoEntity
         }
 
         this.entityData.set(MAIN_INTERACTION, interaction);
+    }
+
+    /**
+     * Handles internal ghost body rotation to match its movement direction
+     */
+    protected void rotateBody() {
+        Vec3 vel = this.getDeltaMovement();
+        if (vel.lengthSqr() < 1.0E-4) return;
+
+        float yaw = (float) (Mth.atan2(vel.z, vel.x) * (180f / Math.PI)) - 90F;
+        float pitch = (float) (-(Mth.atan2(vel.y, Math.sqrt(vel.x * vel.x + vel.z * vel.z)) * (180F / Math.PI)));
+
+        this.setYRot(yaw);
+        this.setYHeadRot(yaw);
+        this.yBodyRot = yaw;
+        this.yRotO = yaw;
+        this.yBodyRotO = yaw;
+
+        this.setXRot(pitch);
+        this.xRotO = pitch;
     }
 
     @Override

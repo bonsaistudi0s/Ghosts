@@ -5,12 +5,17 @@ import dev.xylonity.bonsai.ghosts.common.entity.ai.control.GhostMoveControl;
 import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.GhostWanderGoal;
 import dev.xylonity.bonsai.ghosts.common.entity.variant.SmallGhostVariant;
 import dev.xylonity.bonsai.ghosts.registry.GhostsSounds;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -36,7 +41,6 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
@@ -70,7 +74,7 @@ public class SmallGhostEntity extends MainGhostEntity {
 
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(9, new GhostWanderGoal(this, 0.43D) {
+        this.goalSelector.addGoal(9, new GhostWanderGoal(this, 0.43f) {
             @Override
             public boolean canUse() {
                 return super.canUse() && !getIsSleeping();
@@ -93,8 +97,8 @@ public class SmallGhostEntity extends MainGhostEntity {
     public static AttributeSupplier.Builder setAttributes() {
         return AbstractGolem.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 10)
-                .add(Attributes.FLYING_SPEED, 0.22f)
-                .add(Attributes.MOVEMENT_SPEED, 0.22F)
+                .add(Attributes.FLYING_SPEED, 0.3F)
+                .add(Attributes.MOVEMENT_SPEED, 0.3F)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
     }
 
@@ -206,6 +210,8 @@ public class SmallGhostEntity extends MainGhostEntity {
 
         if (level().isClientSide) return;
 
+        rotateBody();
+
         if (getCdFullHide() > 0) {
             setCdFullHide(getCdFullHide() - 1);
         }
@@ -221,6 +227,28 @@ public class SmallGhostEntity extends MainGhostEntity {
             } else {
                 setIsSleeping(false);
             }
+        }
+
+        if (this.noPhysics && this.getDeltaMovement().lengthSqr() < 1.0E-4) {
+            this.noPhysics = false;
+            this.setDeltaMovement(Vec3.ZERO);
+        }
+
+        if (getIsSleeping() && getCdFullHide() == 26) {
+            BlockPos belowPos = this.blockPosition().below();
+            BlockState belowState = level().getBlockState(belowPos);
+
+            if (!belowState.isAir() && level() instanceof ServerLevel sl) {
+                for (int i = 0; i < 10; i++) {
+                    double ox = (random.nextDouble() - 0.5) * 0.6;
+                    double oz = (random.nextDouble() - 0.5) * 0.6;
+                    double oy = random.nextDouble() * 0.15;
+                    sl.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, belowState), getX() + ox, getY() + 0.05 + oy, getZ() + oz, 1, 0, 0.02, 0, 0.0);
+                }
+
+                sl.playSound(null, getX(), getY(), getZ(), belowState.getSoundType().getBreakSound(), getSoundSource(), 0.8f, 0.9f + random.nextFloat() * 0.2f);
+            }
+
         }
 
         tryPickupItems();
@@ -256,31 +284,40 @@ public class SmallGhostEntity extends MainGhostEntity {
 
                 setHoldItem(pickupCopy);
             } else {
-                Path path = this.navigation.createPath(itemEntity.blockPosition(), 1);
-
-                if (path != null)
-                    this.navigation.moveTo(path, 2.0D);
+                moveToPos(new Vec3(itemEntity.getX(), itemEntity.getY(), itemEntity.getZ()), 0.35D, 0.1f);
             }
         });
+    }
+
+    private void moveToPos(Vec3 target, double speed, float lerp) {
+        Vec3 tetha = target.subtract(this.position());
+        if (tetha.length() < 1.0E-3) return;
+
+        this.noPhysics = true;
+
+        Vec3 vel = tetha.scale(1.0 / tetha.length()).scale(speed);
+        Vec3 v = this.getDeltaMovement();
+        this.setDeltaMovement(Mth.lerp(lerp, v.x, vel.x), Mth.lerp(lerp, v.y, vel.y), Mth.lerp(lerp, v.z, vel.z));
+
+        this.getLookControl().setLookAt(target.x, target.y, target.z);
     }
 
     @Override
     public boolean hurt(DamageSource source, float p) {
         if (source.getEntity() != null) {
             Vec3 vec = AirRandomPos.getPosTowards(this, 32, 32, 32, new Vec3(32, 32, 32), 32);
-
             if (vec != null) {
-                Path path = this.navigation.createPath(vec.x, vec.y, vec.z, 2);
-
-                if (path != null)
-                    this.navigation.moveTo(path, 2.0D);
+                moveToPos(vec, 0.55D, 0.6f);
             }
+
         }
 
-        if (this.getIsSleeping())
+        if (this.getIsSleeping()) {
             return false;
-        else
+        } else {
             return super.hurt(source, p);
+        }
+
     }
 
     @Override

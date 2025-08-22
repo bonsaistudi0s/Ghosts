@@ -299,26 +299,6 @@ public class GhostEntity extends MainGhostEntity {
         }
     }
 
-    /**
-     * Handles internal ghost body rotation to match its movement direction
-     */
-    private void rotateBody() {
-        Vec3 vel = this.getDeltaMovement();
-        if (vel.lengthSqr() < 1.0E-4) return;
-
-        float yaw = (float) (Mth.atan2(vel.z, vel.x) * (180f / Math.PI)) - 90F;
-        float pitch = (float) (-(Mth.atan2(vel.y, Math.sqrt(vel.x * vel.x + vel.z * vel.z)) * (180F / Math.PI)));
-
-        this.setYRot(yaw);
-        this.setYHeadRot(yaw);
-        this.yBodyRot = yaw;
-        this.yRotO = yaw;
-        this.yBodyRotO = yaw;
-
-        this.setXRot(pitch);
-        this.xRotO = pitch;
-    }
-
     private void startUnenchantAnim() {
         this.setCdUnenchant(82);
 
