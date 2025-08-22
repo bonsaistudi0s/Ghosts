@@ -283,20 +283,24 @@ public class GhostEntity extends MainGhostEntity {
             setCdUnenchant(getCdUnenchant() - 1);
 
         ItemStack heldItemStack = getHoldItem();
-
         if (heldItemStack.isEnchanted()) {
-            if (getCdUnenchant() == 0) {
+            if (getCdUnenchant() == 10 && this.shouldUnechant()) {
+                this.spawnAtLocation(removeEnchants(heldItemStack), 0.5F);
+                setHoldItem(ItemStack.EMPTY);
+                this.setShouldUnenchant(false);
+            }
+            else if (getCdUnenchant() == 0) {
                 if (!this.shouldUnechant()) {
                     startUnenchantAnim();
                 } else {
                     this.spawnAtLocation(removeEnchants(heldItemStack), 0.5F);
-
                     setHoldItem(ItemStack.EMPTY);
-
                     this.setShouldUnenchant(false);
                 }
             }
+
         }
+
     }
 
     private void startUnenchantAnim() {
