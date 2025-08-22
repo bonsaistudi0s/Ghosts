@@ -215,7 +215,9 @@ public class GhostEntity extends MainGhostEntity {
                     ItemStack copy = stack.copy();
                     copy.setCount(1);
                     this.setItemSlotAndDropWhenKilled(EquipmentSlot.HEAD, copy);
+
                     if (!player.getAbilities().instabuild) stack.shrink(1);
+
                     return InteractionResult.SUCCESS;
                 }
                 // Item equipped
