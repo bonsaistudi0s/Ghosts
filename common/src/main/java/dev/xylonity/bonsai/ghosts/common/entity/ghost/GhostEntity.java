@@ -3,17 +3,15 @@ package dev.xylonity.bonsai.ghosts.common.entity.ghost;
 import dev.xylonity.bonsai.ghosts.common.entity.MainGhostEntity;
 import dev.xylonity.bonsai.ghosts.common.entity.ai.control.GhostMoveControl;
 import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.*;
-import dev.xylonity.bonsai.ghosts.common.entity.variant.GhostVariant;
 import dev.xylonity.bonsai.ghosts.registry.GhostsSounds;
 import dev.xylonity.bonsai.ghosts.tag.GhostsTags;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -21,7 +19,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
@@ -36,10 +33,9 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
@@ -53,7 +49,6 @@ import java.util.Map;
 
 public class GhostEntity extends MainGhostEntity {
 
-    private static final EntityDataAccessor<Integer> DATA_ID_TYPE_VARIANT = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> SHOULD_RESET_CD = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> BLINK_CD = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> BLINK_ANIM_CD = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);
@@ -95,8 +90,8 @@ public class GhostEntity extends MainGhostEntity {
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new StayWhenOrderedToGoal(this));
-        this.goalSelector.addGoal(6, new GhostFollowOwnerGoal(this, 0.6D, 3.0F, 7.0F, 0.2f));
-        this.goalSelector.addGoal(7, new GhostPlaceGoal(this, Ingredient.of(GhostsTags.GHOST_PLACEABLE), state -> true, 6, 10));
+        this.goalSelector.addGoal(7, new GhostFollowOwnerGoal(this, 0.6D, 3.0F, 7.0F, 0.2f));
+        this.goalSelector.addGoal(6, new GhostPlaceGoal(this, Ingredient.of(GhostsTags.GHOST_PLACEABLE), state -> true, 6, 10, 0.75, 2));
         this.goalSelector.addGoal(9, new GhostWanderGoal(this, 0.43f));
         this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Player.class, 6.0F));
@@ -115,8 +110,6 @@ public class GhostEntity extends MainGhostEntity {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-
-        this.entityData.define(DATA_ID_TYPE_VARIANT, 0);
         this.entityData.define(SHOULD_RESET_CD, false);
         this.entityData.define(BLINK_CD, 0);
         this.entityData.define(BLINK_ANIM_CD, 0);
@@ -142,22 +135,6 @@ public class GhostEntity extends MainGhostEntity {
 
     public void setCdUnenchant(int cd) {
         this.cdUnenchant = cd;
-    }
-
-    public int getTypeVariant() {
-        return this.entityData.get(DATA_ID_TYPE_VARIANT);
-    }
-
-    public GhostVariant getVariant() {
-        return GhostVariant.byId(this.getTypeVariant() & 255);
-    }
-
-    public void setVariant(GhostVariant variant) {
-        this.entityData.set(DATA_ID_TYPE_VARIANT, variant.getId() & 255);
-    }
-
-    public void setVariant(int variant) {
-        this.entityData.set(DATA_ID_TYPE_VARIANT, variant & 255);
     }
 
     public int getBlinkCd() {
@@ -195,7 +172,6 @@ public class GhostEntity extends MainGhostEntity {
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-        compound.putInt("Variant", getVariant().getId());
         compound.putInt("CdUnenchant", getCdUnenchant());
     }
 
@@ -235,14 +211,11 @@ public class GhostEntity extends MainGhostEntity {
                     this.heal(4f);
                 }
                 // Armor equipped
-                else if (this.getItemBySlot(EquipmentSlot.HEAD).isEmpty() && Mob.getEquipmentSlotForItem(stack) == EquipmentSlot.HEAD) {
+                else if (this.getItemBySlot(EquipmentSlot.HEAD).isEmpty() && (Mob.getEquipmentSlotForItem(stack) == EquipmentSlot.HEAD || stack.is(Items.BROWN_MUSHROOM) || stack.is(Items.RED_MUSHROOM))) {
                     ItemStack copy = stack.copy();
                     copy.setCount(1);
-
                     this.setItemSlotAndDropWhenKilled(EquipmentSlot.HEAD, copy);
-
                     if (!player.getAbilities().instabuild) stack.shrink(1);
-
                     return InteractionResult.SUCCESS;
                 }
                 // Item equipped
@@ -284,6 +257,8 @@ public class GhostEntity extends MainGhostEntity {
         if (level().isClientSide)
             return;
 
+        rotateBody();
+
         if (getBlinkCd() > 0) {
             setBlinkCd(getBlinkCd() - 1);
         } else {
@@ -320,6 +295,26 @@ public class GhostEntity extends MainGhostEntity {
                 }
             }
         }
+    }
+
+    /**
+     * Handles internal ghost body rotation to match its movement direction
+     */
+    private void rotateBody() {
+        Vec3 vel = this.getDeltaMovement();
+        if (vel.lengthSqr() < 1.0E-4) return;
+
+        float yaw = (float) (Mth.atan2(vel.z, vel.x) * (180f / Math.PI)) - 90F;
+        float pitch = (float) (-(Mth.atan2(vel.y, Math.sqrt(vel.x * vel.x + vel.z * vel.z)) * (180F / Math.PI)));
+
+        this.setYRot(yaw);
+        this.setYHeadRot(yaw);
+        this.yBodyRot = yaw;
+        this.yRotO = yaw;
+        this.yBodyRotO = yaw;
+
+        this.setXRot(pitch);
+        this.xRotO = pitch;
     }
 
     private void startUnenchantAnim() {
@@ -365,9 +360,6 @@ public class GhostEntity extends MainGhostEntity {
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        if (compound.contains("Variant")) {
-            this.setVariant(compound.getInt("Variant"));
-        }
         if (compound.contains("CdUnenchant")) {
             this.setCdUnenchant(compound.getInt("CdUnenchant"));
         }
@@ -393,15 +385,15 @@ public class GhostEntity extends MainGhostEntity {
 
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficulty, MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
-        setVariant(levelAccessor.getRandom().nextBoolean() ? GhostVariant.MUSHROOM : GhostVariant.NORMAL);
         return super.finalizeSpawn(levelAccessor, difficulty, mobSpawnType, spawnGroupData, compoundTag);
     }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
-        registrar.add(new AnimationController<>(this, "bodyController", 2, this::bodyAC).setOverrideEasingType(EasingType.LINEAR));
-        registrar.add(new AnimationController<>(this, "armsController", 2, this::armsAC));
+        registrar.add(new AnimationController<>(this, "bodyController", 4, this::bodyAC).setOverrideEasingType(EasingType.LINEAR));
+        registrar.add(new AnimationController<>(this, "armsController", 4, this::armsAC));
         registrar.add(new AnimationController<>(this, "blinkController", 2, this::blinkAC));
+        registrar.add(new AnimationController<>(this, "torch_place_controller", 2, state -> PlayState.STOP).triggerableAnim("torch_place", RawAnimation.begin().thenPlay("torch_place")));
     }
 
     private <E extends GeoAnimatable> PlayState bodyAC(AnimationState<E> event) {

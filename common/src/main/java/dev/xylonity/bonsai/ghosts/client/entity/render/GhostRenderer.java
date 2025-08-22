@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.xylonity.bonsai.ghosts.client.entity.model.GhostModel;
 import dev.xylonity.bonsai.ghosts.client.entity.render.core.BaseGhostRenderer;
 import dev.xylonity.bonsai.ghosts.common.entity.ghost.GhostEntity;
-import dev.xylonity.bonsai.ghosts.common.entity.variant.GhostVariant;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -14,10 +13,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoRenderer;
@@ -72,10 +68,22 @@ public class GhostRenderer extends BaseGhostRenderer<GhostEntity> {
 
     @Override
     public void renderRecursively(PoseStack poseStack, GhostEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        if ("plant".equals(bone.getName()) && animatable.getVariant() != GhostVariant.MUSHROOM)
-            return;
+        if ("mushroom_red".equals(bone.getName()) || "mushroom_brown".equals(bone.getName())) {
+            ItemStack head = animatable.getItemBySlot(EquipmentSlot.HEAD);
+
+            if ("mushroom_red".equals(bone.getName()) && !isRedMush(head)) return;
+            if ("mushroom_brown".equals(bone.getName()) && !isBrownMush(head)) return;
+        }
 
         super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+    }
+
+    private static boolean isRedMush(ItemStack s) {
+        return s.is(Items.RED_MUSHROOM);
+    }
+
+    private static boolean isBrownMush(ItemStack s) {
+        return s.is(Items.BROWN_MUSHROOM);
     }
 
     public static class HeadAnyItemArmorAwareLayer extends ItemArmorGeoLayer<GhostEntity> {
@@ -113,6 +121,7 @@ public class GhostRenderer extends BaseGhostRenderer<GhostEntity> {
 
             ItemStack stack = this.getArmorItemForBone(bone, anim);
             if (stack == null || stack.isEmpty()) return;
+            if (isRedMush(stack) || isBrownMush(stack)) return;
             if (stack.getItem() instanceof ArmorItem) return;
 
             if (stack.getItem() instanceof BlockItem block && block.getBlock() instanceof AbstractSkullBlock) {
