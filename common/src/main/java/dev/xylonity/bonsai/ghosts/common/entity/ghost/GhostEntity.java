@@ -392,7 +392,7 @@ public class GhostEntity extends MainGhostEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
-        registrar.add(new AnimationController<>(this, "bodyController", 4, this::bodyAC).setOverrideEasingType(EasingType.LINEAR));
+        registrar.add(new AnimationController<>(this, "bodyController", 4, this::bodyAC));
         registrar.add(new AnimationController<>(this, "armsController", 4, this::armsAC));
         registrar.add(new AnimationController<>(this, "blinkController", 2, this::blinkAC));
         registrar.add(new AnimationController<>(this, "torch_place_controller", 2, state -> PlayState.STOP).triggerableAnim("torch_place", RawAnimation.begin().thenPlay("torch_place")));
