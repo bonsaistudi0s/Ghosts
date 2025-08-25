@@ -400,13 +400,13 @@ public class GhostEntity extends MainGhostEntity {
 
     private <E extends GeoAnimatable> PlayState bodyAC(AnimationState<E> event) {
         if (event.isMoving()) {
-            event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_move"));
+            event.getController().setAnimation(RawAnimation.begin().thenPlay("ghost_move"));
         }
         else if (isInSittingPose()) {
-            event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_sitting"));
+            event.getController().setAnimation(RawAnimation.begin().thenPlay("ghost_sitting"));
         }
         else {
-            event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_idle"));
+            event.getController().setAnimation(RawAnimation.begin().thenPlay("ghost_idle"));
         }
 
         return PlayState.CONTINUE;
@@ -421,16 +421,21 @@ public class GhostEntity extends MainGhostEntity {
     }
 
     private <E extends GeoAnimatable> PlayState armsAC(AnimationState<E> event) {
-        if (!getHoldItem().isEmpty()) {
+        boolean hasItem = !getHoldItem().isEmpty();
+        if (hasItem) {
             if (this.shouldUnechant()) {
                 event.getController().setAnimation(RawAnimation.begin().thenPlay("ghost_unenchant"));
-            }
-            else {
+            } else {
                 event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_arms_hold"));
             }
-        }
-        else if (!isInSittingPose()) {
-            event.getController().setAnimation(RawAnimation.begin().thenLoop(event.isMoving() ? "ghost_move_arms" : "ghost_idle_arms"));
+
+        } else {
+            if (isInSittingPose()) {
+                event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_idle_arms"));
+            } else {
+                event.getController().setAnimation(RawAnimation.begin().thenLoop(event.isMoving() ? "ghost_move_arms" : "ghost_idle_arms"));
+            }
+
         }
 
         return PlayState.CONTINUE;
