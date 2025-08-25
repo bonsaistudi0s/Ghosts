@@ -2,10 +2,7 @@ package dev.xylonity.bonsai.ghosts.common.entity.ghost;
 
 import dev.xylonity.bonsai.ghosts.common.entity.MainGhostEntity;
 import dev.xylonity.bonsai.ghosts.common.entity.ai.control.GhostMoveControl;
-import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.GhostFollowOwnerGoal;
-import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.GhostPlaceGoal;
-import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.GhostWanderGoal;
-import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.StayWhenOrderedToGoal;
+import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.*;
 import dev.xylonity.bonsai.ghosts.registry.GhostsSounds;
 import dev.xylonity.bonsai.ghosts.tag.GhostsTags;
 import net.minecraft.core.Holder;
@@ -92,6 +89,7 @@ public class GhostEntity extends MainGhostEntity {
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new StayWhenOrderedToGoal(this));
+        this.goalSelector.addGoal(3, new GhostApproachHeldGlowBerriesGoal(this, 0.6D, 1.6D, 6.0D, 0.1f, 12));
         this.goalSelector.addGoal(7, new GhostFollowOwnerGoal(this, 0.6D, 3.0F, 7.0F, 0.2f));
         this.goalSelector.addGoal(6, new GhostPlaceGoal(this, Ingredient.of(GhostsTags.GHOST_PLACEABLE), state -> true, 6, 10, 0.75));
         this.goalSelector.addGoal(9, new GhostWanderGoal(this, 0.43f));
