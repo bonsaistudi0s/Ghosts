@@ -11,7 +11,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -35,12 +34,10 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.core.animation.EasingType;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
@@ -90,6 +87,7 @@ public class GhostEntity extends MainGhostEntity {
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new StayWhenOrderedToGoal(this));
+        this.goalSelector.addGoal(3, new GhostApproachHeldGlowBerriesGoal(this, 0.6D, 1.6D, 6.0D, 0.1f, 12));
         this.goalSelector.addGoal(7, new GhostFollowOwnerGoal(this, 0.6D, 3.0F, 7.0F, 0.2f));
         this.goalSelector.addGoal(6, new GhostPlaceGoal(this, Ingredient.of(GhostsTags.GHOST_PLACEABLE), state -> true, 6, 10, 0.75));
         this.goalSelector.addGoal(9, new GhostWanderGoal(this, 0.43f));
