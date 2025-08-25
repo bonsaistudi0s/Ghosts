@@ -161,7 +161,7 @@ public class SmallGhostEntity extends MainGhostEntity {
         compoundTag.putInt("Variant", getVariant().getId());
         compoundTag.putInt("CdFullHide", getCdFullHide());
         compoundTag.putBoolean("IsStaying", getIsStaying());
-        compoundTag.putBoolean("IsHiding", getIsSleeping());
+        compoundTag.putBoolean("IsSleeping", getIsSleeping());
     }
 
     @Override
@@ -199,6 +199,19 @@ public class SmallGhostEntity extends MainGhostEntity {
         this.setNoGravity(true);
 
         if (level().isClientSide) return;
+
+        if (getIsSleeping() && getCdFullHide() == 36) {
+            BlockPos targetBlock = this.blockPosition().below();
+            BlockState belowState = level().getBlockState(targetBlock);
+
+            if (!belowState.isAir() && level() instanceof ServerLevel) {
+                this.noPhysics = true;
+                this.setDeltaMovement(Vec3.ZERO);
+
+                this.setPos(getX(), targetBlock.getY() + 1.0 + 0.15 - (this.getBbHeight() / 2.0), getZ());
+            }
+
+        }
 
         rotateBody();
 
@@ -324,6 +337,8 @@ public class SmallGhostEntity extends MainGhostEntity {
         }
         if (compoundTag.contains("IsSleeping")) {
             this.setIsSleeping(compoundTag.getBoolean("IsSleeping"));
+        } else if (compoundTag.contains("IsHiding")) {
+            this.setIsSleeping(compoundTag.getBoolean("IsHiding"));
         }
     }
 
