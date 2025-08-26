@@ -10,11 +10,13 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class SmallGhostRenderer extends BaseGhostRenderer<SmallGhostEntity> {
 
     public SmallGhostRenderer(EntityRendererProvider.Context context) {
         super(context, new SmallGhostModel());
+        addRenderLayer(new AutoGlowingGeoLayer<>(this));
     }
 
     @Override
