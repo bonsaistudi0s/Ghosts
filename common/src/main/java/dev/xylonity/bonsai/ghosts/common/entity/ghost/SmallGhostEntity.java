@@ -264,43 +264,43 @@ public class SmallGhostEntity extends MainGhostEntity {
 
         }
 
-        tryPickupItems();
+        //tryPickupItems();
     }
 
-    private void tryPickupItems() {
-        var level = level();
+    //private void tryPickupItems() {
+    //    var level = level();
 
-        if (level.isClientSide || this.tickCount % 20 != 0 || !getHoldItem().isEmpty() || this.getIsSleeping())
-            return;
+    //    if (level.isClientSide || this.tickCount % 20 != 0 || !getHoldItem().isEmpty() || this.getIsSleeping())
+    //        return;
 
-        List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(this.blockPosition().offset(-10, -10, -10), this.blockPosition().offset(10, 10, 10)));
+    //    List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(this.blockPosition().offset(-10, -10, -10), this.blockPosition().offset(10, 10, 10)));
 
-        if (items.isEmpty() || getHoldItem().getCount() >= 64)
-            return;
+    //    if (items.isEmpty() || getHoldItem().getCount() >= 64)
+    //        return;
 
-        items.forEach(itemEntity -> {
-            ItemStack itemStack = itemEntity.getItem();
-            if (!itemStack.is(ItemTags.SAPLINGS))
-                return;
+    //    items.forEach(itemEntity -> {
+    //        ItemStack itemStack = itemEntity.getItem();
+    //        if (!itemStack.is(ItemTags.SAPLINGS))
+    //            return;
 
-            double distSqr = this.blockPosition().distToCenterSqr(itemEntity.blockPosition().getX(), itemEntity.blockPosition().getY(), itemEntity.blockPosition().getZ());
-            if (distSqr <= 1) {
-                ItemStack pickupCopy = itemStack.copy();
+    //        double distSqr = this.blockPosition().distToCenterSqr(itemEntity.blockPosition().getX(), itemEntity.blockPosition().getY(), itemEntity.blockPosition().getZ());
+    //        if (distSqr <= 1) {
+    //            ItemStack pickupCopy = itemStack.copy();
 
-                if (itemStack.getCount() > 1) {
-                    itemStack.shrink(1);
-                    pickupCopy.setCount(1);
-                    this.take(itemEntity, 1);
-                } else {
-                    itemEntity.discard();
-                }
+    //            if (itemStack.getCount() > 1) {
+    //                itemStack.shrink(1);
+    //                pickupCopy.setCount(1);
+    //                this.take(itemEntity, 1);
+    //            } else {
+    //                itemEntity.discard();
+    //            }
 
-                setHoldItem(pickupCopy);
-            } else {
-                moveToPos(new Vec3(itemEntity.getX(), itemEntity.getY(), itemEntity.getZ()), 0.35D, 0.1f);
-            }
-        });
-    }
+    //            setHoldItem(pickupCopy);
+    //        } else {
+    //            moveToPos(new Vec3(itemEntity.getX(), itemEntity.getY(), itemEntity.getZ()), 0.35D, 0.1f);
+    //        }
+    //    });
+    //}
 
     private void moveToPos(Vec3 target, double speed, float lerp) {
         Vec3 tetha = target.subtract(this.position());
@@ -325,12 +325,7 @@ public class SmallGhostEntity extends MainGhostEntity {
 
         }
 
-        if (this.getIsSleeping()) {
-            return false;
-        } else {
-            return super.hurt(source, p);
-        }
-
+        return super.hurt(source, p);
     }
 
     @Override
