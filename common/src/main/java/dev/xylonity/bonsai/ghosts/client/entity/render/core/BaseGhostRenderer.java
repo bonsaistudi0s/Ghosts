@@ -48,7 +48,7 @@ public class BaseGhostRenderer<T extends LivingEntity & GeoEntity> extends GeoEn
             buffer = bufferSource.getBuffer(renderType);
         }
 
-        super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, LightTexture.FULL_BRIGHT, packedOverlay, colour);
+        super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
     }
 
     @Override

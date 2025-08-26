@@ -17,6 +17,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoRenderer;
+import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 import software.bernie.geckolib.renderer.layer.ItemArmorGeoLayer;
 import software.bernie.geckolib.util.RenderUtil;
 
@@ -24,6 +25,7 @@ public class GhostRenderer extends BaseGhostRenderer<GhostEntity> {
 
     public GhostRenderer(EntityRendererProvider.Context context) {
         super(context, new GhostModel());
+        this.addRenderLayer(new AutoGlowingGeoLayer<>(this));
         this.addRenderLayer(new HeadAnyItemArmorAwareLayer(this, "glow_1"));
         this.addRenderLayer(new ItemArmorGeoLayer<>(this) {
             @Override
