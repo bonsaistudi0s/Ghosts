@@ -1,14 +1,14 @@
 package dev.xylonity.bonsai.ghosts.common.entity.ai.control;
 
-import dev.xylonity.bonsai.ghosts.common.entity.MainGhostEntity;
+import dev.xylonity.bonsai.ghosts.common.entity.AbstractGhostEntity;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.phys.Vec3;
 
 public class GhostMoveControl extends MoveControl {
-    private final MainGhostEntity ghost;
+    private final AbstractGhostEntity ghost;
 
-    public GhostMoveControl(MainGhostEntity ghost) {
+    public GhostMoveControl(AbstractGhostEntity ghost) {
         super(ghost);
         this.ghost = ghost;
     }

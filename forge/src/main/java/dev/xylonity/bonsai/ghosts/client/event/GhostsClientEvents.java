@@ -2,6 +2,7 @@ package dev.xylonity.bonsai.ghosts.client.event;
 
 import dev.xylonity.bonsai.ghosts.Ghosts;
 import dev.xylonity.bonsai.ghosts.client.entity.render.GhostRenderer;
+import dev.xylonity.bonsai.ghosts.client.entity.render.KodamaRenderer;
 import dev.xylonity.bonsai.ghosts.client.entity.render.SmallGhostRenderer;
 import dev.xylonity.bonsai.ghosts.registry.GhostsEntities;
 import net.minecraft.client.renderer.entity.EntityRenderers;
@@ -17,6 +18,7 @@ public class GhostsClientEvents {
     public static void registerEntityRenderers(FMLClientSetupEvent event) {
         EntityRenderers.register(GhostsEntities.GHOST.get(), GhostRenderer::new);
         EntityRenderers.register(GhostsEntities.SMALL_GHOST.get(), SmallGhostRenderer::new);
+        EntityRenderers.register(GhostsEntities.KODAMA.get(), KodamaRenderer::new);
     }
 
 }

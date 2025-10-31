@@ -1,6 +1,6 @@
 package dev.xylonity.bonsai.ghosts.common.entity.ghost;
 
-import dev.xylonity.bonsai.ghosts.common.entity.MainGhostEntity;
+import dev.xylonity.bonsai.ghosts.common.entity.AbstractGhostEntity;
 import dev.xylonity.bonsai.ghosts.common.entity.ai.control.GhostMoveControl;
 import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.*;
 import dev.xylonity.bonsai.ghosts.registry.GhostsSounds;
@@ -44,7 +44,7 @@ import software.bernie.geckolib.core.object.PlayState;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public class GhostEntity extends MainGhostEntity {
+public class GhostEntity extends AbstractGhostEntity {
 
     private static final EntityDataAccessor<Boolean> SHOULD_RESET_CD = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> BLINK_CD = SynchedEntityData.defineId(GhostEntity.class, EntityDataSerializers.INT);

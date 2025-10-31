@@ -5,6 +5,9 @@
   "item.ghosts.small_ghost_spawn_egg": "Spawn Small Ghost",
   "entity.ghosts.small_ghost": "Small Ghost",
 
+  "item.ghosts.kodama_spawn_egg": "Spawn Kodama",
+  "entity.ghosts.kodama": "Kodama",
+
   "ghosts.ghost_ambient": "Ghost swooshes",
   "ghosts.ghost_death": "Ghost dies",
   "ghosts.ghost_hurt": "Ghost hurts",

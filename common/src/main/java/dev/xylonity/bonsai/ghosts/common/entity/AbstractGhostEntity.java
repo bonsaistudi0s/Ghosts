@@ -18,14 +18,14 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
 
-public abstract class MainGhostEntity extends TamableAnimal implements GeoEntity {
+public abstract class AbstractGhostEntity extends TamableAnimal implements GeoEntity {
 
     private final AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
 
     // 0 sit, 1 follow, 2 idle
-    private static final EntityDataAccessor<Integer> MAIN_INTERACTION = SynchedEntityData.defineId(MainGhostEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> MAIN_INTERACTION = SynchedEntityData.defineId(AbstractGhostEntity.class, EntityDataSerializers.INT);
 
-    public MainGhostEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
+    public AbstractGhostEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
     }
 

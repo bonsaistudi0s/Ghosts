@@ -1,6 +1,6 @@
 package dev.xylonity.bonsai.ghosts.common.entity.ghost;
 
-import dev.xylonity.bonsai.ghosts.common.entity.MainGhostEntity;
+import dev.xylonity.bonsai.ghosts.common.entity.AbstractGhostEntity;
 import dev.xylonity.bonsai.ghosts.common.entity.ai.control.GhostMoveControl;
 import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.GhostWanderGoal;
 import dev.xylonity.bonsai.ghosts.common.entity.variant.SmallGhostVariant;
@@ -14,7 +14,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -33,7 +32,6 @@ import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.util.AirRandomPos;
 import net.minecraft.world.entity.animal.AbstractGolem;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -41,7 +39,6 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -51,9 +48,8 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
-public class SmallGhostEntity extends MainGhostEntity {
+public class SmallGhostEntity extends AbstractGhostEntity {
     private static final EntityDataAccessor<Integer> DATA_ID_TYPE_VARIANT = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> CD_FULL_HIDE = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> IS_STAYING = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.BOOLEAN);

@@ -1,10 +1,9 @@
 package dev.xylonity.bonsai.ghosts.common.entity.ai.generic;
 
-import dev.xylonity.bonsai.ghosts.common.entity.MainGhostEntity;
+import dev.xylonity.bonsai.ghosts.common.entity.AbstractGhostEntity;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.block.state.BlockState;
@@ -12,11 +11,10 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
-import java.util.Random;
 
 public class GhostWanderGoal extends Goal {
 
-    protected final MainGhostEntity ghost;
+    protected final AbstractGhostEntity ghost;
     protected double wantedX, wantedY, wantedZ;
     protected final double speedModifier;
     protected int interval;
@@ -26,7 +24,7 @@ public class GhostWanderGoal extends Goal {
 
     private Vec3 targetPos;
 
-    public GhostWanderGoal(MainGhostEntity ghost, double speedModifier, int interval, boolean checkNoActionTime, float lerpFactor) {
+    public GhostWanderGoal(AbstractGhostEntity ghost, double speedModifier, int interval, boolean checkNoActionTime, float lerpFactor) {
         this.ghost = ghost;
         this.speedModifier = speedModifier;
         this.interval = interval;
@@ -36,7 +34,7 @@ public class GhostWanderGoal extends Goal {
         this.setFlags(EnumSet.of(Flag.MOVE));
     }
 
-    public GhostWanderGoal(MainGhostEntity ghost, double speedModifier) {
+    public GhostWanderGoal(AbstractGhostEntity ghost, double speedModifier) {
         this(ghost, speedModifier, 120, false, 0.1f);
     }
 

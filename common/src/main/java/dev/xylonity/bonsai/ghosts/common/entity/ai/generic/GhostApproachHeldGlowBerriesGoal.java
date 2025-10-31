@@ -1,6 +1,6 @@
 package dev.xylonity.bonsai.ghosts.common.entity.ai.generic;
 
-import dev.xylonity.bonsai.ghosts.common.entity.MainGhostEntity;
+import dev.xylonity.bonsai.ghosts.common.entity.AbstractGhostEntity;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public class GhostApproachHeldGlowBerriesGoal extends Goal {
 
-    private final MainGhostEntity ghost;
+    private final AbstractGhostEntity ghost;
     private final double maxSpeed;
     private final double minDistance;
     private final double startDistance;
@@ -26,7 +26,7 @@ public class GhostApproachHeldGlowBerriesGoal extends Goal {
     private Player target;
     private boolean forcedNoPhysics = false;
 
-    public GhostApproachHeldGlowBerriesGoal(MainGhostEntity ghost, double maxSpeed, double minDistance, double startDistance, float lerpFactor, int searchRadius) {
+    public GhostApproachHeldGlowBerriesGoal(AbstractGhostEntity ghost, double maxSpeed, double minDistance, double startDistance, float lerpFactor, int searchRadius) {
         this.ghost = ghost;
         this.maxSpeed = maxSpeed;
         this.minDistance = minDistance;

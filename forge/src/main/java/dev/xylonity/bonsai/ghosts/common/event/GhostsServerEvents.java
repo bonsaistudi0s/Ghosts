@@ -3,6 +3,7 @@ package dev.xylonity.bonsai.ghosts.common.event;
 import dev.xylonity.bonsai.ghosts.Ghosts;
 import dev.xylonity.bonsai.ghosts.common.entity.ghost.GhostEntity;
 import dev.xylonity.bonsai.ghosts.common.entity.ghost.SmallGhostEntity;
+import dev.xylonity.bonsai.ghosts.common.entity.kodama.KodamaEntity;
 import dev.xylonity.bonsai.ghosts.registry.GhostsEntities;
 import dev.xylonity.bonsai.ghosts.registry.GhostsItems;
 import net.minecraft.world.entity.SpawnPlacements;
@@ -22,6 +23,7 @@ public class GhostsServerEvents {
     public static void registerEntityAttributes(EntityAttributeCreationEvent event) {
         event.put(GhostsEntities.GHOST.get(), GhostEntity.setAttributes().build());
         event.put(GhostsEntities.SMALL_GHOST.get(), SmallGhostEntity.setAttributes().build());
+        event.put(GhostsEntities.KODAMA.get(), KodamaEntity.setAttributes().build());
     }
 
     @SubscribeEvent
@@ -35,6 +37,7 @@ public class GhostsServerEvents {
         if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
             event.accept(GhostsItems.GHOST_SPAWN_EGG);
             event.accept(GhostsItems.SMALL_GHOST_SPAWN_EGG);
+            event.accept(GhostsItems.KODAMA_SPAWN_EGG);
         }
     }
 
