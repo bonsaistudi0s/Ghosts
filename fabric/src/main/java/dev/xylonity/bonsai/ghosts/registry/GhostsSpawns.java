@@ -1,5 +1,6 @@
 package dev.xylonity.bonsai.ghosts.registry;
 
+import dev.xylonity.bonsai.ghosts.common.entity.kodama.KodamaEntity;
 import dev.xylonity.bonsai.ghosts.config.GhostsConfig;
 import dev.xylonity.bonsai.ghosts.config.SpawnConfig;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
@@ -12,6 +13,7 @@ public class GhostsSpawns {
 
     private static final SpawnConfig GHOST_SPAWN_CONFIG = SpawnConfig.parse(GhostsConfig.GHOST_SPAWN);
     private static final SpawnConfig SMALL_GHOST_SPAWN_CONFIG = SpawnConfig.parse(GhostsConfig.SMALL_GHOST_SPAWN);
+    private static final SpawnConfig KODAMA_SPAWN_CONFIG = SpawnConfig.parse(GhostsConfig.KODAMA_SPAWN);
 
     public static void init() {
         BiomeModifications.addSpawn(ctx -> GHOST_SPAWN_CONFIG.matches(ctx.getBiomeRegistryEntry()), MobCategory.CREATURE,
@@ -28,8 +30,16 @@ public class GhostsSpawns {
                 SMALL_GHOST_SPAWN_CONFIG.maxCount
         );
 
+        BiomeModifications.addSpawn(ctx -> KODAMA_SPAWN_CONFIG.matches(ctx.getBiomeRegistryEntry()), MobCategory.CREATURE,
+                GhostsEntities.KODAMA.get(),
+                KODAMA_SPAWN_CONFIG.weight,
+                KODAMA_SPAWN_CONFIG.minCount,
+                KODAMA_SPAWN_CONFIG.maxCount
+        );
+
         SpawnPlacements.register(GhostsEntities.GHOST.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, TamableAnimal::checkMobSpawnRules);
         SpawnPlacements.register(GhostsEntities.SMALL_GHOST.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, TamableAnimal::checkMobSpawnRules);
+        SpawnPlacements.register(GhostsEntities.KODAMA.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, KodamaEntity::checkKodamaSpawnRules);
     }
 
 }

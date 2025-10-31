@@ -9,6 +9,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -19,8 +20,8 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.AbstractGolem;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.*;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -161,6 +162,28 @@ public class KodamaEntity extends PassiveEntity {
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("Variant", getVariant());
+    }
+
+    public static boolean checkKodamaSpawnRules(EntityType<? extends Animal> kodama, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
+        return isDarkEnoughToSpawn(level, pos, random) && checkMobSpawnRules(kodama, level, spawnType, pos, random);
+    }
+
+    public static boolean isDarkEnoughToSpawn(ServerLevelAccessor level, BlockPos pos, RandomSource random) {
+        if (level.getBrightness(LightLayer.SKY, pos) > random.nextInt(32)) {
+            return false;
+        }
+        else {
+            DimensionType dimensiontype = level.dimensionType();
+            int i = dimensiontype.monsterSpawnBlockLightLimit();
+            if (i < 15 && level.getBrightness(LightLayer.BLOCK, pos) > i) {
+                return false;
+            }
+            else {
+                int j = level.getLevel().isThundering() ? level.getMaxLocalRawBrightness(pos, 10) : level.getMaxLocalRawBrightness(pos);
+                return j <= dimensiontype.monsterSpawnLightTest().sample(random);
+            }
+        }
+
     }
 
     @Override
