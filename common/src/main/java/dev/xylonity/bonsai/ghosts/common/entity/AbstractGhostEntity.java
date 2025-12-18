@@ -1,5 +1,6 @@
 package dev.xylonity.bonsai.ghosts.common.entity;
 
+import dev.xylonity.bonsai.ghosts.util.GhostOwnerTracker;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -12,21 +13,77 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animatable.instance.InstancedAnimatableInstanceCache;
 
-public abstract class MainGhostEntity extends TamableAnimal implements GeoEntity {
+public abstract class AbstractGhostEntity extends TamableAnimal implements GeoEntity {
 
     private final AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
 
     // 0 sit, 1 follow, 2 idle
-    private static final EntityDataAccessor<Integer> MAIN_INTERACTION = SynchedEntityData.defineId(MainGhostEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> MAIN_INTERACTION = SynchedEntityData.defineId(AbstractGhostEntity.class, EntityDataSerializers.INT);
 
-    public MainGhostEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
+    private boolean chunkForced = false;
+    private long forcedChunk = Long.MIN_VALUE;
+
+    private boolean isTracked;
+
+    public AbstractGhostEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
+        this.isTracked = false;
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (!level().isClientSide) {
+            if (getOwnerUUID() != null) {
+                if (!isTracked) {
+                    GhostOwnerTracker.getInstance().addGhost(this);
+                    isTracked = true;
+                }
+
+                ensureChunkForced();
+            }
+
+        }
+
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        if (!level().isClientSide && isTracked) {
+            GhostOwnerTracker.getInstance().removeGhost(this);
+            isTracked = false;
+        }
+
+        super.remove(reason);
+    }
+
+    private void ensureChunkForced() {
+        if (level() instanceof ServerLevel serverLevel) {
+            ChunkPos chunkPosition = new ChunkPos(blockPosition());
+            long now = chunkPosition.toLong();
+
+            if (chunkForced && forcedChunk != now) {
+                ChunkPos old = new ChunkPos(forcedChunk);
+                serverLevel.setChunkForced(old.x, old.z, false);
+                chunkForced = false;
+            }
+
+            if (!chunkForced) {
+                serverLevel.setChunkForced(chunkPosition.x, chunkPosition.z, true);
+                forcedChunk = now;
+                chunkForced = true;
+            }
+
+        }
+
     }
 
     @Override

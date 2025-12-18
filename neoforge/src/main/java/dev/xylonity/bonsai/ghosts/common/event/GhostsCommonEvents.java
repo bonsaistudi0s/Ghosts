@@ -2,8 +2,11 @@ package dev.xylonity.bonsai.ghosts.common.event;
 
 import dev.xylonity.bonsai.ghosts.Ghosts;
 import dev.xylonity.bonsai.ghosts.GhostsForge;
+import dev.xylonity.bonsai.ghosts.common.entity.AbstractGhostEntity;
 import dev.xylonity.bonsai.ghosts.common.entity.ghost.GhostEntity;
+import dev.xylonity.bonsai.ghosts.util.GhostOwnerTracker;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -26,23 +29,15 @@ public class GhostsCommonEvents {
 
     @SubscribeEvent
     public static void onDeath(LivingDeathEvent event) {
-        LivingEntity living = event.getEntity();
-        Level world = living.level();
-
-        if (living instanceof Player player) {
-            List<GhostEntity> ghosts = world.getEntitiesOfClass(GhostEntity.class, new AABB(living.blockPosition().offset(-10, -10, -10).getCenter(), living.blockPosition().offset(10, 10, 10).getCenter()), EntitySelector.LIVING_ENTITY_STILL_ALIVE);
-
-            for (GhostEntity ghost : ghosts) {
-                if (ghost.isOwnedBy(living)) {
-                    if (ghost.getHoldItem().getItem() == Items.TOTEM_OF_UNDYING) {
-                        event.setCanceled(true);
-                        defaultTotemBehavior(player);
-
-                        ghost.setHoldItem(ItemStack.EMPTY);
-
-                        break;
-                    }
+        if (event.getEntity() instanceof Player player) {
+            if (player.level() instanceof ServerLevel serverLevel) {
+                AbstractGhostEntity ghost = GhostOwnerTracker.getInstance().findGhostWithTotem(serverLevel, player.getUUID());
+                if (ghost != null) {
+                    defaultTotemBehavior(player);
+                    ghost.getMainHandItem().shrink(1);
+                    event.setCanceled(true);
                 }
+
             }
 
         }
@@ -50,17 +45,12 @@ public class GhostsCommonEvents {
     }
 
     private static void defaultTotemBehavior(LivingEntity entity) {
-        entity.setHealth(1.0F);
+        entity.setHealth(1F);
         entity.removeAllEffects();
         entity.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 900, 1));
         entity.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 100, 1));
-
-        GhostsForge.PROXY.createTrackingEmitter(entity, ParticleTypes.TOTEM_OF_UNDYING, 30);
-
-        entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.TOTEM_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
-        entity.playSound(SoundEvents.TOTEM_USE, 1.0F, 1.0F);
-
-        GhostsForge.PROXY.displayItemActivation(new ItemStack(Items.TOTEM_OF_UNDYING));
+        entity.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 800, 0));
+        entity.level().broadcastEntityEvent(entity, (byte) 35);
     }
 
 }

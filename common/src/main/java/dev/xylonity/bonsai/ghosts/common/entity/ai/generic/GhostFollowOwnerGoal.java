@@ -1,6 +1,6 @@
 package dev.xylonity.bonsai.ghosts.common.entity.ai.generic;
 
-import dev.xylonity.bonsai.ghosts.common.entity.MainGhostEntity;
+import dev.xylonity.bonsai.ghosts.common.entity.AbstractGhostEntity;
 import dev.xylonity.bonsai.ghosts.config.GhostsConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -25,12 +25,12 @@ public class GhostFollowOwnerGoal extends Goal {
     private final double maxSpeedModifier;
     private final float lerpFactor;
 
-    private final MainGhostEntity ghost;
+    private final AbstractGhostEntity ghost;
     private final PathNavigation navigation;
 
     private LivingEntity owner;
 
-    public GhostFollowOwnerGoal(MainGhostEntity ghost, double maxSpeedModifier, double minDistance, double startDistance, float lerpFactor) {
+    public GhostFollowOwnerGoal(AbstractGhostEntity ghost, double maxSpeedModifier, double minDistance, double startDistance, float lerpFactor) {
         this.ghost = ghost;
         this.maxSpeedModifier = maxSpeedModifier;
         this.minDistance = minDistance;
