@@ -66,7 +66,7 @@ public class KodamaEntity extends PassiveEntity {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new PanicGoal(this, 1.5F));
         this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0F));
-        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F, 1f));
+        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F, 1f));
         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
     }
 
@@ -116,7 +116,7 @@ public class KodamaEntity extends PassiveEntity {
 
             if (!shouldPanic() && getRattlingTicks() <= 0) {
                 if (dayTime >= 13000 && dayTime <= 13200) {
-                    startRattling(0.3f);
+                    startRattling(0.1f);
                 }
                 else {
                     startRattling(0.001f);

@@ -2,6 +2,7 @@ package dev.xylonity.bonsai.ghosts.client.entity.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.xylonity.bonsai.ghosts.client.entity.layer.GhostGlowLayer;
 import dev.xylonity.bonsai.ghosts.client.entity.model.GhostModel;
 import dev.xylonity.bonsai.ghosts.client.entity.render.core.BaseGhostRenderer;
 import dev.xylonity.bonsai.ghosts.common.entity.ghost.GhostEntity;
@@ -25,7 +26,7 @@ public class GhostRenderer extends BaseGhostRenderer<GhostEntity> {
 
     public GhostRenderer(EntityRendererProvider.Context context) {
         super(context, new GhostModel());
-        this.addRenderLayer(new AutoGlowingGeoLayer<>(this));
+        this.renderLayers.addLayer(new GhostGlowLayer(this));
         this.addRenderLayer(new HeadAnyItemArmorAwareLayer(this, "glow_1"));
         this.addRenderLayer(new ItemArmorGeoLayer<>(this) {
             @Override
