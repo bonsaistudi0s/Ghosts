@@ -3,6 +3,7 @@ package dev.xylonity.bonsai.ghosts.registry;
 import dev.xylonity.bonsai.ghosts.Ghosts;
 import dev.xylonity.bonsai.ghosts.common.entity.ghost.GhostEntity;
 import dev.xylonity.bonsai.ghosts.common.entity.ghost.SmallGhostEntity;
+import dev.xylonity.bonsai.ghosts.common.entity.kodama.KodamaEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -17,6 +18,7 @@ public class GhostsEntities {
 
     public static final Supplier<EntityType<GhostEntity>> GHOST = registerEntity("ghost", GhostEntity::new, MobCategory.CREATURE, 0.6f, 0.6f, null);
     public static final Supplier<EntityType<SmallGhostEntity>> SMALL_GHOST = registerEntity("small_ghost", SmallGhostEntity::new, MobCategory.CREATURE, 0.4f, 0.4f, null);
+    public static final Supplier<EntityType<KodamaEntity>> KODAMA = registerEntity("kodama", KodamaEntity::new, MobCategory.CREATURE, 0.4f, 0.8f, null);
 
     private static <X extends Entity> Supplier<EntityType<X>> registerEntity(String name, EntityType.EntityFactory<X> entity, MobCategory category, float width, float height, List<Consumer<EntityType.Builder<X>>> properties) {
         return Ghosts.PLATFORM.registerEntity(name, entity, category, width, height, properties);

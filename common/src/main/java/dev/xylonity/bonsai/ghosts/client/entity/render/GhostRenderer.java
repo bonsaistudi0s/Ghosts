@@ -2,6 +2,7 @@ package dev.xylonity.bonsai.ghosts.client.entity.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.xylonity.bonsai.ghosts.client.entity.layer.GhostGlowLayer;
 import dev.xylonity.bonsai.ghosts.client.entity.model.GhostModel;
 import dev.xylonity.bonsai.ghosts.client.entity.render.core.BaseGhostRenderer;
 import dev.xylonity.bonsai.ghosts.common.entity.ghost.GhostEntity;
@@ -17,7 +18,6 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 import software.bernie.geckolib.renderer.layer.ItemArmorGeoLayer;
 import software.bernie.geckolib.util.RenderUtil;
 
@@ -25,7 +25,7 @@ public class GhostRenderer extends BaseGhostRenderer<GhostEntity> {
 
     public GhostRenderer(EntityRendererProvider.Context context) {
         super(context, new GhostModel());
-        this.addRenderLayer(new AutoGlowingGeoLayer<>(this));
+        this.renderLayers.addLayer(new GhostGlowLayer(this));
         this.addRenderLayer(new HeadAnyItemArmorAwareLayer(this, "glow_1"));
         this.addRenderLayer(new ItemArmorGeoLayer<>(this) {
             @Override

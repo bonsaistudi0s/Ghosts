@@ -10,7 +10,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
@@ -18,11 +21,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animatable.instance.InstancedAnimatableInstanceCache;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 public abstract class AbstractGhostEntity extends TamableAnimal implements GeoEntity {
 
-    private final AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     // 0 sit, 1 follow, 2 idle
     private static final EntityDataAccessor<Integer> MAIN_INTERACTION = SynchedEntityData.defineId(AbstractGhostEntity.class, EntityDataSerializers.INT);
@@ -53,6 +56,11 @@ public abstract class AbstractGhostEntity extends TamableAnimal implements GeoEn
 
         }
 
+    }
+
+    @Override
+    public boolean isFood(ItemStack itemStack) {
+        return false;
     }
 
     @Override
@@ -90,11 +98,6 @@ public abstract class AbstractGhostEntity extends TamableAnimal implements GeoEn
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(MAIN_INTERACTION, 0);
-    }
-
-    @Override
-    public boolean isFood(ItemStack itemStack) {
-        return false;
     }
 
     public void cycleMainInteraction(Player player) {

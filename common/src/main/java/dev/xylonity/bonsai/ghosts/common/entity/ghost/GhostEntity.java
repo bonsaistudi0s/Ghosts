@@ -32,6 +32,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.PathType;
@@ -39,8 +40,9 @@ import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.animation.AnimationState;
 
-import java.util.ArrayList;
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 
 public class GhostEntity extends AbstractGhostEntity {
 
@@ -308,54 +310,45 @@ public class GhostEntity extends AbstractGhostEntity {
     private ItemStack removeEnchants(ItemStack item) {
         ItemStack stack = item.copy();
 
-        if (level() instanceof ServerLevel srv) {
-            ExperienceOrb.award(srv, this.getPosition(0), getExperienceFromItem(stack));
+        if (level() instanceof ServerLevel serverLevel) {
+            ExperienceOrb.award(serverLevel, this.getPosition(0), getExperienceFromItem(stack));
         }
 
-        ItemEnchantments normal = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
-        ItemEnchantments stored = stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
+        ItemEnchantments itemEnchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+        if (!itemEnchantments.isEmpty()) {
+            List<Holder<Enchantment>> keys = List.copyOf(itemEnchantments.keySet());
+            Holder<Enchantment> toRemove = keys.get(this.random.nextInt(keys.size()));
 
-        boolean storedComp = !stored.isEmpty();
-        ItemEnchantments target = storedComp ? stored : normal;
-
-        if (!target.isEmpty()) {
-            // A bit cryptic ngl
-            List<Holder<Enchantment>> keys = new ArrayList<>(target.keySet());
-            Holder<Enchantment> rem = keys.get(random.nextInt(keys.size()));
-
-            ItemEnchantments.Mutable mut = new ItemEnchantments.Mutable(target);
-
-            mut.set(rem, 0);
-
-            ItemEnchantments imm = mut.toImmutable();
-            if (storedComp) {
-                if (imm.isEmpty()) stack.remove(DataComponents.STORED_ENCHANTMENTS);
-                else stack.set(DataComponents.STORED_ENCHANTMENTS, imm);
-            } else {
-                if (imm.isEmpty()) stack.remove(DataComponents.ENCHANTMENTS);
-                else stack.set(DataComponents.ENCHANTMENTS, imm);
-            }
+            ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(itemEnchantments);
+            mutable.removeIf(enchantmentHolder -> enchantmentHolder.equals(toRemove));
+            stack.set(DataComponents.ENCHANTMENTS, mutable.toImmutable());
         }
 
         stack.remove(DataComponents.STORED_ENCHANTMENTS);
 
-        stack.set(DataComponents.REPAIR_COST, AnvilMenu.calculateIncreasedRepairCost(stack.getOrDefault(DataComponents.REPAIR_COST, 0)));
+        stack.set(
+                DataComponents.REPAIR_COST,
+                AnvilMenu.calculateIncreasedRepairCost(stack.getOrDefault(DataComponents.REPAIR_COST, 0))
+        );
 
-        return stack.copy();
+        return stack;
     }
 
     private int getExperienceFromItem(ItemStack stack) {
         return xpFrom(stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY)) + xpFrom(stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY));
     }
 
-    private int xpFrom(ItemEnchantments ench) {
+    private int xpFrom(ItemEnchantments itemEnchantments) {
         int xp = 0;
-        for (Holder<Enchantment> holder : ench.keySet()) {
+        for (Holder<Enchantment> holder : itemEnchantments.keySet()) {
+            if (holder.is(EnchantmentTags.CURSE)) {
+                continue;
+            }
 
-            if (holder.is(EnchantmentTags.CURSE)) continue;
-
-            int lvl = ench.getLevel(holder);
-            if (lvl > 0) xp += holder.value().getMinCost(lvl);
+            int level = itemEnchantments.getLevel(holder);
+            if (level > 0) {
+                xp += holder.value().getMinCost(level);
+            }
         }
 
         return xp;
@@ -369,16 +362,19 @@ public class GhostEntity extends AbstractGhostEntity {
         }
     }
 
+    @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
         return GhostsSounds.GHOST_AMBIENT.get();
     }
 
+    @Nullable
     @Override
     protected SoundEvent getDeathSound() {
         return GhostsSounds.GHOST_DEATH.get();
     }
 
+    @Nullable
     @Override
     protected SoundEvent getHurtSound(DamageSource damageSource) {
         return GhostsSounds.GHOST_HURT.get();

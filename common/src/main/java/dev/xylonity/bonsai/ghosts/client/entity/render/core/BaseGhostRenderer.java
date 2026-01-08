@@ -3,8 +3,8 @@ package dev.xylonity.bonsai.ghosts.client.entity.render.core;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.xylonity.bonsai.ghosts.util.GhostsColor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -18,6 +18,8 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.util.RenderUtil;
+
+import javax.annotation.Nullable;
 
 public class BaseGhostRenderer<T extends LivingEntity & GeoEntity> extends GeoEntityRenderer<T> {
 
@@ -52,7 +54,7 @@ public class BaseGhostRenderer<T extends LivingEntity & GeoEntity> extends GeoEn
     }
 
     @Override
-    public RenderType getRenderType(T animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityTranslucent(texture);
     }
 

@@ -12,6 +12,7 @@ public class GhostsSpawns {
 
     private static final SpawnConfig GHOST_SPAWN_CONFIG = SpawnConfig.parse(GhostsConfig.GHOST_SPAWN);
     private static final SpawnConfig SMALL_GHOST_SPAWN_CONFIG = SpawnConfig.parse(GhostsConfig.SMALL_GHOST_SPAWN);
+    private static final SpawnConfig KODAMA_SPAWN_CONFIG = SpawnConfig.parse(GhostsConfig.KODAMA_SPAWN);
 
     public static void addBiomeSpawns(Holder<Biome> biomeHolder, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
         if (GHOST_SPAWN_CONFIG.matches(biomeHolder)) {
@@ -28,7 +29,13 @@ public class GhostsSpawns {
 
             builder.getMobSpawnSettings().getSpawner(MobCategory.CREATURE).add(new MobSpawnSettings.SpawnerData(GhostsEntities.SMALL_GHOST.get(), weight, min, max));
         }
+        if (KODAMA_SPAWN_CONFIG.matches(biomeHolder)) {
+            int weight = KODAMA_SPAWN_CONFIG.weight;
+            int min = KODAMA_SPAWN_CONFIG.minCount;
+            int max = KODAMA_SPAWN_CONFIG.maxCount;
 
+            builder.getMobSpawnSettings().getSpawner(MobCategory.CREATURE).add(new MobSpawnSettings.SpawnerData(GhostsEntities.KODAMA.get(), weight, min, max));
+        }
     }
 
 }

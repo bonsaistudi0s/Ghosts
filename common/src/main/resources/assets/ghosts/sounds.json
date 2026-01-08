@@ -51,5 +51,25 @@
       "ghosts:mini_ghost_hurt_3",
       "ghosts:mini_ghost_hurt_4"
     ]
+  },
+  "kodama_rattle": {
+    "sounds": [
+      "ghosts:rattle_1",
+      "ghosts:rattle_2",
+      "ghosts:rattle_3",
+      "ghosts:rattle_4"
+    ]
+  },
+  "kodama_idle": {
+    "sounds": [
+      "ghosts:idle_1",
+      "ghosts:idle_2",
+      "ghosts:idle_3",
+      "ghosts:idle_4",
+      "ghosts:idle_5",
+      "ghosts:idle_6",
+      "ghosts:idle_7",
+      "ghosts:idle_8"
+    ]
   }
 }

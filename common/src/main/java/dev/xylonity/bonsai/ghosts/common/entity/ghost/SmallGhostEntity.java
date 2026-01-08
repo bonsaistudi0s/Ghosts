@@ -35,11 +35,15 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.animation.AnimationState;
 
+import javax.annotation.Nullable;
+
 public class SmallGhostEntity extends AbstractGhostEntity {
+
     private static final EntityDataAccessor<Integer> DATA_ID_TYPE_VARIANT = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> CD_FULL_HIDE = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> IS_STAYING = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.BOOLEAN);
@@ -258,7 +262,7 @@ public class SmallGhostEntity extends AbstractGhostEntity {
     //    if (level.isClientSide || this.tickCount % 20 != 0 || !getHoldItem().isEmpty() || this.getIsSleeping())
     //        return;
 
-    //    List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(this.blockPosition().offset(-10, -10, -10).getCenter(), this.blockPosition().offset(10, 10, 10).getCenter()));
+    //    List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(this.blockPosition().offset(-10, -10, -10), this.blockPosition().offset(10, 10, 10)));
 
     //    if (items.isEmpty() || getHoldItem().getCount() >= 64)
     //        return;
@@ -332,23 +336,26 @@ public class SmallGhostEntity extends AbstractGhostEntity {
         }
     }
 
+    @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
         return GhostsSounds.SMALL_GHOST_AMBIENT.get();
     }
 
+    @Nullable
     @Override
     protected SoundEvent getDeathSound() {
         return GhostsSounds.SMALL_GHOST_DEATH.get();
     }
 
+    @Nullable
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
         return GhostsSounds.SMALL_GHOST_HURT.get();
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @org.jetbrains.annotations.Nullable SpawnGroupData spawnGroupData) {
+    public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
         setVariant(level.getRandom().nextBoolean() ? SmallGhostVariant.PLANT : SmallGhostVariant.NORMAL);
         return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
     }
