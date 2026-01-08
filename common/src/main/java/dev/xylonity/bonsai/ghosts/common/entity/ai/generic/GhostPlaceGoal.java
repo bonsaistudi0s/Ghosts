@@ -2,7 +2,7 @@ package dev.xylonity.bonsai.ghosts.common.entity.ai.generic;
 
 import dev.xylonity.bonsai.ghosts.common.entity.ghost.GhostEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -14,10 +14,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.function.Predicate;
 
 public class GhostPlaceGoal extends Goal {
+
     private final GhostEntity ghost;
     private final Ingredient placeables;
     private final Predicate<BlockState> preference;
@@ -25,19 +27,15 @@ public class GhostPlaceGoal extends Goal {
     private final int retryCooldown;
     private final double approachSpeed;
 
-    private static final double DIST_2_PLACE_TORCH = 1.0D;
-    private static final double STOP_DIST = 49;
-    private static final double APPROACH_BACKSLASH = 0.5D;
-    private static final int IGNORE_RECENT_TORCH = 100;
+    private int nextTryTick;
+    private int lastRepathTick;
+    private final double maxOwnerDrift = 6.0D * 6.0D;
 
-    private int nextTryTickk = 0;
-    private BlockPos basePos = null;
-    private Vec3 approachPos = null;
-    private int stuckTicks = 0;
-    private Vec3 lastPos = null;
+    @Nullable
+    private BlockPos targetPlacePos;
 
-    private BlockPos recentUp = null;
-    private int avoidLatest = 0;
+    @Nullable
+    private BlockPos lastPlacedPos;
 
     public GhostPlaceGoal(GhostEntity ghost, Ingredient placeables, Predicate<BlockState> pref, int lightThreshold, int retry, double speed) {
         this.ghost = ghost;
@@ -51,133 +49,151 @@ public class GhostPlaceGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        if (ghost.getMainInteraction() != 1) return false;
-        if (ghost.isInSittingPose() || ghost.isPassenger()) return false;
-        if (ghost.tickCount < nextTryTickk) return false;
+        if (ghost.level().isClientSide) {
+            return false;
+        }
+        if (ghost.getMainInteraction() != 1) {
+            return false;
+        }
+        if (ghost.isInSittingPose() || ghost.isPassenger()) {
+            return false;
+        }
+        if (ghost.tickCount < nextTryTick) {
+            return false;
+        }
 
-        ItemStack stack = ghost.getHoldItem();
-        if (stack.isEmpty() || !placeables.test(stack) || !(stack.getItem() instanceof BlockItem)) return false;
+        LivingEntity owner = ghost.getOwner();
+        if (owner == null) {
+            return false;
+        }
 
-        BlockPos base = findBlock(ghost.level());
-        if (base == null) return false;
+        ItemStack heldStack = ghost.getHoldItem();
+        if (!isPlaceableBlockItem(heldStack)) {
+            return false;
+        }
 
-        BlockPos above = base.above();
-        Level level = ghost.level();
+        if (lastPlacedPos != null) {
+            int manhattanDistance = owner.blockPosition().distManhattan(lastPlacedPos);
+            int minOwnerDistFromLast = 4;
+            if (manhattanDistance < minOwnerDistFromLast) {
+                return false;
+            }
 
-        if (!preference.test(level.getBlockState(base))) return false;
-        if (!level.getBlockState(above).canBeReplaced()) return false;
-        if (level.getMaxLocalRawBrightness(above) > minLight) return false;
-        if (!((BlockItem) stack.getItem()).getBlock().defaultBlockState().canSurvive(level, above)) return false;
+        }
 
-        basePos = base;
-        approachPos = new Vec3(basePos.getX() + 0.5D, basePos.getY() + 1.2D, basePos.getZ() + 0.5D);
-        stuckTicks = 0;
-        lastPos = ghost.position();
+        BlockItem blockItem = (BlockItem) heldStack.getItem();
+        BlockPos found = findDarkPlacePosNearOwner(ghost.level(), owner, blockItem);
+        if (found == null) {
+            return false;
+        }
+
+        targetPlacePos = found.immutable();
 
         return true;
-    }
-
-    private boolean isRecentlyPlacedInA(BlockPos up) {
-        if (recentUp == null) return false;
-        if (ghost.tickCount > avoidLatest) return false;
-
-        int dx = Math.abs(up.getX() - recentUp.getX());
-        int dy = Math.abs(up.getY() - recentUp.getY());
-        int dz = Math.abs(up.getZ() - recentUp.getZ());
-
-        return dx <= 1 && dy <= 1 && dz <= 1;
     }
 
     @Override
     public boolean canContinueToUse() {
-        if (ghost.getMainInteraction() != 1) return false;
-        if (basePos == null || approachPos == null) return false;
+        if (ghost.level().isClientSide) {
+            return false;
+        }
+        if (ghost.getMainInteraction() != 1) {
+            return false;
+        }
+        if (targetPlacePos == null) {
+            return false;
+        }
 
-        ItemStack stack = ghost.getHoldItem();
-        if (stack.isEmpty() || !placeables.test(stack) || !(stack.getItem() instanceof BlockItem)) return false;
+        LivingEntity owner = ghost.getOwner();
+        if (owner == null) {
+            return false;
+        }
+        if (owner.position().distanceToSqr(Vec3.atCenterOf(targetPlacePos)) > maxOwnerDrift) {
+            return false;
+        }
 
-        if (!ghost.level().getBlockState(basePos.above()).canBeReplaced()) return false;
-        if (ghost.level().getMaxLocalRawBrightness(basePos.above()) > minLight) return false;
+        ItemStack heldStack = ghost.getHoldItem();
+        if (!isPlaceableBlockItem(heldStack)) {
+            return false;
+        }
 
-        if (ghost.getOwner() != null && ghost.distanceToSqr(ghost.getOwner()) > STOP_DIST) return false;
+        BlockItem blockItem = (BlockItem) heldStack.getItem();
 
-        return true;
+        return isValidPlacement(ghost.level(), targetPlacePos, blockItem);
     }
 
     @Override
     public void start() {
-        Vec3 to = goBackAfterPlacing(approachPos);
-        ghost.getNavigation().moveTo(to.x, to.y, to.z, approachSpeed);
-        ghost.getMoveControl().setWantedPosition(to.x, to.y, to.z, approachSpeed);
+        lastRepathTick = ghost.tickCount;
+
+        if (targetPlacePos == null) {
+            return;
+        }
+
+        moveToTarget();
     }
 
     @Override
     public void stop() {
-        basePos = null;
-        approachPos = null;
-        lastPos = null;
-        stuckTicks = 0;
-
         ghost.getNavigation().stop();
+        targetPlacePos = null;
 
-        nextTryTickk = ghost.tickCount + retryCooldown;
+        int desired = ghost.tickCount + retryCooldown;
+        if (nextTryTick < desired) {
+            nextTryTick = desired;
+        }
+        
     }
 
     @Override
     public void tick() {
-        if (basePos == null) return;
-
-        BlockPos up = basePos.above();
-        Vec3 u = new Vec3(up.getX() + 0.5, up.getY() + 0.5, up.getZ() + 0.5);
-
-        ghost.getLookControl().setLookAt(u.x, u.y, u.z);
-
-        if (lastPos != null) {
-            if (lastPos.distanceTo(ghost.position()) < 0.02D) stuckTicks++; else stuckTicks = 0;
-        }
-
-        lastPos = ghost.position();
-
-        Vec3 wanted = goBackAfterPlacing(approachPos);
-
-        if (stuckTicks > 8) {
-            ghost.getNavigation().moveTo(wanted.x, wanted.y, wanted.z, approachSpeed);
-            ghost.getMoveControl().setWantedPosition(wanted.x, wanted.y, wanted.z, approachSpeed);
-            stuckTicks = 0;
-        }
-
-        if (ghost.position().distanceTo(u) <= DIST_2_PLACE_TORCH && canSeePos(up)) {
-            place(up);
+        if (targetPlacePos == null) {
             return;
         }
 
-        if (ghost.position().distanceTo(wanted) > 0.25D) {
-            ghost.getNavigation().moveTo(wanted.x, wanted.y, wanted.z, approachSpeed);
-            ghost.getMoveControl().setWantedPosition(wanted.x, wanted.y, wanted.z, approachSpeed);
-        }
-
-    }
-
-    private void place(BlockPos up) {
-        ItemStack stack = ghost.getHoldItem();
-        if (stack.isEmpty() || !(stack.getItem() instanceof BlockItem blockItem)) { stop(); return; }
-
-        if (!ghost.level().getBlockState(up).canBeReplaced() || !blockItem.getBlock().defaultBlockState().canSurvive(ghost.level(), up)) {
+        LivingEntity owner = ghost.getOwner();
+        if (owner == null) {
             stop();
             return;
         }
 
-        ghost.triggerAnim("torch_place_controller", "torch_place");
+        if (!ghost.level().getBlockState(targetPlacePos).isAir()) {
+            stop();
+            return;
+        }
 
-        ghost.level().setBlock(up, blockItem.getBlock().defaultBlockState(), 3);
-        stack.shrink(1);
+        Vec3 center = Vec3.atCenterOf(targetPlacePos);
+        if (owner.position().distanceToSqr(center) > maxOwnerDrift) {
+            stop();
+            return;
+        }
 
-        if (stack.isEmpty()) ghost.setHoldItem(ItemStack.EMPTY);
+        double distSquare = ghost.position().distanceToSqr(center);
 
-        recentUp = up.immutable();
-        avoidLatest = ghost.tickCount + IGNORE_RECENT_TORCH;
+        if (distSquare <= (3.0D * 3.0D)) {
+            ghost.getLookControl().setLookAt(center.x, center.y, center.z);
+        }
 
-        stop();
+        double placeDistanceSquare = 1.4D * 1.4D;
+        if (distSquare <= placeDistanceSquare) {
+            ghost.getNavigation().stop();
+
+            if (canSee(targetPlacePos)) {
+                if (placeNow(targetPlacePos)) {
+                    stop();
+                }
+
+            }
+
+            return;
+        }
+
+        int ticksPerRepath = 12;
+        if (ghost.tickCount - lastRepathTick >= ticksPerRepath) {
+            lastRepathTick = ghost.tickCount;
+            moveToTarget();
+        }
+
     }
 
     @Override
@@ -185,43 +201,173 @@ public class GhostPlaceGoal extends Goal {
         return true;
     }
 
-    private Vec3 goBackAfterPlacing(Vec3 target) {
-        double d = target.subtract(ghost.position()).length();
-        if (d < 1.0E-3) return target;
+    private void moveToTarget() {
+        if (targetPlacePos == null) {
+            return;
+        }
 
-        return ghost.position().add(target.subtract(ghost.position()).scale(Math.max(0.0, d - GhostPlaceGoal.APPROACH_BACKSLASH) / d));
+        Vec3 movePos = Vec3.atCenterOf(targetPlacePos).add(0.0D, 0.1D, 0.0D);
+        ghost.getNavigation().moveTo(movePos.x, movePos.y, movePos.z, approachSpeed);
     }
 
-    private boolean canSeePos(BlockPos up) {
-        Vec3 target = new Vec3(up.getX() + 0.5, up.getY() + 0.5, up.getZ() + 0.5);
-        HitResult hit = ghost.level().clip(new ClipContext(ghost.getEyePosition(), target, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, ghost));
+    private boolean isPlaceableBlockItem(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+        if (!placeables.test(stack)) {
+            return false;
+        }
 
-        if (hit.getType() == HitResult.Type.MISS) return true;
-        if (hit instanceof BlockHitResult bhr) return bhr.getBlockPos().equals(up);
-
-        return false;
+        return stack.getItem() instanceof BlockItem;
     }
 
-    private BlockPos findBlock(Level level) {
-        for (int dy = 0; dy <= 4; dy++) {
-            BlockPos pos = new BlockPos(Mth.floor(ghost.getX()), Mth.floor(ghost.getY()) - 1 - dy, Mth.floor(ghost.getZ()));
-            if (!level.getBlockState(pos).isAir()) {
-                BlockPos[] possiblePositions = new BlockPos[] { pos, pos.east(), pos.west(), pos.north(), pos.south() };
-                for (BlockPos b : possiblePositions) {
-                    BlockPos up = b.above();
+    private boolean isValidPlacement(Level level, BlockPos placePos, BlockItem blockItem) {
+        if (!level.getBlockState(placePos).isAir()) {
+            return false;
+        }
 
-                    if (isRecentlyPlacedInA(up)) continue;
-                    if (!preference.test(level.getBlockState(b))) continue;
-                    if (!level.getBlockState(up).canBeReplaced()) continue;
-                    if (level.getMaxLocalRawBrightness(up) > minLight) continue;
-
-                    return b;
-                }
+        if (lastPlacedPos != null) {
+            int dx = Math.abs(placePos.getX() - lastPlacedPos.getX());
+            int dy = Math.abs(placePos.getY() - lastPlacedPos.getY());
+            int dz = Math.abs(placePos.getZ() - lastPlacedPos.getZ());
+            if (dx <= 1 && dy <= 1 && dz <= 1) {
+                return false;
             }
 
         }
 
-        return null;
+        if (level.getMaxLocalRawBrightness(placePos) > minLight) {
+            return false;
+        }
+
+        BlockPos basePos = placePos.below();
+        BlockState baseState = level.getBlockState(basePos);
+        if (baseState.isAir()) {
+            return false;
+        }
+        if (!preference.test(baseState)) {
+            return false;
+        }
+
+        return blockItem.getBlock().defaultBlockState().canSurvive(level, placePos);
+    }
+
+    private boolean placeNow(BlockPos placePos) {
+        ItemStack heldStack = ghost.getHoldItem();
+        if (!isPlaceableBlockItem(heldStack)) {
+            return false;
+        }
+
+        BlockItem blockItem = (BlockItem) heldStack.getItem();
+        if (!isValidPlacement(ghost.level(), placePos, blockItem)) {
+            return false;
+        }
+
+        ghost.triggerAnim("torch_place_controller", "torch_place");
+
+        ghost.level().setBlock(placePos, blockItem.getBlock().defaultBlockState(), 3);
+        heldStack.shrink(1);
+
+        if (heldStack.isEmpty()) {
+            ghost.setHoldItem(ItemStack.EMPTY);
+        }
+
+        lastPlacedPos = placePos.immutable();
+        nextTryTick = ghost.tickCount + retryCooldown;
+
+        return true;
+    }
+
+    private boolean canSee(BlockPos placePos) {
+        Vec3 targetPosition = Vec3.atCenterOf(placePos);
+        HitResult hitResult = ghost.level().clip(
+                new ClipContext(
+                        ghost.getEyePosition(),
+                        targetPosition,
+                        ClipContext.Block.COLLIDER,
+                        ClipContext.Fluid.NONE,
+                        ghost
+                )
+
+        );
+
+        if (hitResult.getType() == HitResult.Type.MISS) {
+            return true;
+        }
+        if (hitResult instanceof BlockHitResult blockHitResult) {
+            return blockHitResult.getBlockPos().equals(placePos);
+        }
+
+        return false;
+    }
+
+    @Nullable
+    private BlockPos findDarkPlacePosNearOwner(Level level, LivingEntity owner, BlockItem blockItem) {
+        Vec3 forward = owner.getDeltaMovement();
+        forward = new Vec3(forward.x, 0.0D, forward.z);
+        if (forward.lengthSqr() < 0.0005D) {
+            Vec3 look = owner.getLookAngle();
+            forward = new Vec3(look.x, 0.0D, look.z);
+        }
+        if (forward.lengthSqr() > 0.0001D) {
+            forward = forward.normalize();
+        }
+
+        BlockPos bestPosition = null;
+        double bestScore = Double.POSITIVE_INFINITY;
+
+        BlockPos centerPosition = owner.blockPosition();
+        int searchRadius = 4;
+        for (int dx = -searchRadius; dx <= searchRadius; dx++) {
+            for (int dz = -searchRadius; dz <= searchRadius; dz++) {
+                int searchRadiusDown = 4;
+                for (int down = 1; down <= searchRadiusDown; down++) {
+                    BlockPos basePos = centerPosition.offset(dx, -down, dz);
+                    BlockState baseState = level.getBlockState(basePos);
+                    if (baseState.isAir()) {
+                        continue;
+                    }
+                    if (!preference.test(baseState)) {
+                        continue;
+                    }
+
+                    BlockPos placePosition = basePos.above();
+                    if (!level.getBlockState(placePosition).isAir()) {
+                        continue;
+                    }
+
+                    int light = level.getMaxLocalRawBrightness(placePosition);
+                    if (light > minLight) {
+                        continue;
+                    }
+
+                    if (!blockItem.getBlock().defaultBlockState().canSurvive(level, placePosition)) {
+                        continue;
+                    }
+
+                    Vec3 toPosition = Vec3.atCenterOf(placePosition).subtract(owner.position());
+                    Vec3 toPositionFlat = new Vec3(toPosition.x, 0.0D, toPosition.z);
+                    double distanceToPosition = toPositionFlat.length();
+
+                    double behindPenalty = 0D;
+                    if (forward.lengthSqr() > 0.0001D && toPositionFlat.lengthSqr() > 0.0001D) {
+                        double normalized = forward.dot(toPositionFlat.normalize());
+                        behindPenalty = (1.0D - normalized) * 2.0D;
+                    }
+
+                    double score = (light * 1000.0D) + (distanceToPosition * 25.0D) + (behindPenalty * 200.0D);
+
+                    if (score < bestScore) {
+                        bestScore = score;
+                        bestPosition = placePosition;
+                    }
+                }
+
+            }
+
+        }
+
+        return bestPosition;
     }
 
 }

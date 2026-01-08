@@ -17,7 +17,9 @@ public final class GhostOwnerTracker {
 
     private static final GhostOwnerTracker instance = new GhostOwnerTracker();
 
-    private GhostOwnerTracker() { ;; }
+    private GhostOwnerTracker() {
+        ;;
+    }
 
     public static GhostOwnerTracker getInstance() {
         return instance;
@@ -26,7 +28,7 @@ public final class GhostOwnerTracker {
     public void addGhost(AbstractGhostEntity ghost) {
         UUID ownerUUID = ghost.getOwnerUUID();
         if (ownerUUID != null) {
-            owner_to_ghost.computeIfAbsent(ownerUUID, k -> ConcurrentHashMap.newKeySet()).add(ghost.getUUID());
+            owner_to_ghost.computeIfAbsent(ownerUUID, uuid -> ConcurrentHashMap.newKeySet()).add(ghost.getUUID());
         }
 
     }
