@@ -17,5 +17,7 @@
 
   "entity.ghosts.client_message.interaction_0": "%1$s is now sitting down",
   "entity.ghosts.client_message.interaction_1": "%1$s is now following you",
-  "entity.ghosts.client_message.interaction_2": "%1$s is now wandering around"
+  "entity.ghosts.client_message.interaction_2": "%1$s is now wandering around",
+
+  "creativetab.ghosts.title": "Ghosts"
 }

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/door_top_right",
+  "textures": {
+    "bottom": "ghosts:block/haunted_door_bottom",
+    "top": "ghosts:block/haunted_door_top"
+  }
+}
