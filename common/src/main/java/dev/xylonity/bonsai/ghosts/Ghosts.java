@@ -22,6 +22,7 @@ public class Ghosts {
         GhostsEntities.init();
         GhostsSounds.init();
         GhostsTreeDecoratorTypes.init();
+        GhostsTrunkPlacerTypes.init();
         GhostsFoliagePlacers.init();
     }
 

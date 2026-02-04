@@ -34,7 +34,7 @@
       "upper_size": 1
     },
     "trunk_placer": {
-      "type": "minecraft:straight_trunk_placer",
+      "type": "ghosts:haunted_foliage",
       "base_height": 5,
       "height_rand_a": 0,
       "height_rand_b": 1

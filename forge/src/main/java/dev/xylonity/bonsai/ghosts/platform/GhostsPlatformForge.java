@@ -14,6 +14,7 @@ import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerType;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
+import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacer;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacerType;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.registries.RegistryObject;
@@ -71,8 +72,8 @@ public class GhostsPlatformForge implements GhostsPlatform {
     }
 
     @Override
-    public <X extends TrunkPlacerType<?>> Supplier<X> registerTrunkPlacer(String id, Supplier<X> item) {
-        return null;
+    public <U extends TrunkPlacer> Supplier<TrunkPlacerType<U>> registerTrunkPlacer(String id, Codec<U> codec) {
+        return GhostsForge.TRUNK_PLACER_TYPES.register(id, () -> new TrunkPlacerType<>(codec));
     }
 
     @Override
