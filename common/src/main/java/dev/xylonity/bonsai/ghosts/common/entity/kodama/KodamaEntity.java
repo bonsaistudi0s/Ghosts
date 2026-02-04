@@ -42,6 +42,7 @@ public class KodamaEntity extends PassiveEntity {
     private final RawAnimation RATTLE_2 = RawAnimation.begin().thenPlay("rattle_2");
     private final RawAnimation WALK = RawAnimation.begin().thenPlay("walk");
     private final RawAnimation IDLE = RawAnimation.begin().thenPlay("idle");
+    private final RawAnimation BARTER = RawAnimation.begin().thenPlay("barter");
 
     private static final EntityDataAccessor<Integer> VARIANT = SynchedEntityData.defineId(KodamaEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> RATTLING_TICKS = SynchedEntityData.defineId(KodamaEntity.class, EntityDataSerializers.INT);

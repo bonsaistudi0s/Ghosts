@@ -22,8 +22,11 @@ public class HauntedTrunkPlacer extends StraightTrunkPlacer {
 
     public static final Codec<HauntedTrunkPlacer> CODEC = RecordCodecBuilder.create((instance) -> trunkPlacerParts(instance).apply(instance, HauntedTrunkPlacer::new));
 
+    private boolean hasSpawnedEye;
+
     public HauntedTrunkPlacer(int i, int j, int k) {
         super(i, j, k);
+        this.hasSpawnedEye = false;
     }
 
     @Override
@@ -38,8 +41,9 @@ public class HauntedTrunkPlacer extends StraightTrunkPlacer {
         for (int i = 0; i < freeTreeHeight; ++i) {
             final BlockPos currentPosition = pos.above(i);
 
-            if (random.nextFloat() < 0.1f) {
+            if (random.nextFloat() < 0.1f && !hasSpawnedEye) {
                 blockSetter.accept(currentPosition, GhostsBlocks.HAUNTED_EYE_LOG.get().defaultBlockState());
+                this.hasSpawnedEye = true;
             }
             else {
                 this.placeLog(level, blockSetter, random, currentPosition, config);

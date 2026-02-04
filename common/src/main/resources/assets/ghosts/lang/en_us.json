@@ -15,6 +15,15 @@
   "ghosts.mini_ghost_death": "Small Ghost dies",
   "ghosts.mini_ghost_hurt": "Small Ghost hurts",
 
+  "block.ghosts.haunted_sapling": "Haunted Sapling",
+  "block.ghosts.haunted_log": "Haunted Log",
+  "block.ghosts.haunted_planks": "Haunted Planks",
+  "block.ghosts.haunted_stairs": "Haunted Stairs",
+  "block.ghosts.haunted_leaves": "Haunted Leaves",
+  "block.ghosts.haunted_eye_log": "Haunted Eye Log",
+  "block.ghosts.haunted_door": "Haunted Door",
+  "block.ghosts.calibrated_haunted_eye_log": "Calibrated Haunted Eye Log",
+
   "entity.ghosts.client_message.interaction_0": "%1$s is now sitting down",
   "entity.ghosts.client_message.interaction_1": "%1$s is now following you",
   "entity.ghosts.client_message.interaction_2": "%1$s is now wandering around",

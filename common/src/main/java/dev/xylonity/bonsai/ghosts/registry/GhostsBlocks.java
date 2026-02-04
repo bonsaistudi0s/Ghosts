@@ -1,9 +1,7 @@
 package dev.xylonity.bonsai.ghosts.registry;
 
 import dev.xylonity.bonsai.ghosts.Ghosts;
-import dev.xylonity.bonsai.ghosts.common.block.HauntedDoor;
-import dev.xylonity.bonsai.ghosts.common.block.HauntedSapling;
-import dev.xylonity.bonsai.ghosts.common.block.HauntedStair;
+import dev.xylonity.bonsai.ghosts.common.block.*;
 import dev.xylonity.bonsai.ghosts.configurations.tree.HauntedTreeGrower;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -19,7 +17,8 @@ public class GhostsBlocks {
     public static final Supplier<Block> HAUNTED_STAIRS = register("haunted_stairs", () -> new HauntedStair(Blocks.ACACIA_STAIRS.defaultBlockState(), BlockBehaviour.Properties.copy(Blocks.ACACIA_STAIRS)));
     public static final Supplier<Block> HAUNTED_LOG = register("haunted_log", () -> new RotatedPillarBlock(BlockBehaviour.Properties.copy(Blocks.ACACIA_LOG)));
     public static final Supplier<Block> HAUNTED_LEAVES = register("haunted_leaves", () -> new LeavesBlock(BlockBehaviour.Properties.copy(Blocks.ACACIA_LEAVES).lightLevel(value -> 3)));
-    public static final Supplier<Block> HAUNTED_EYE_LOG = register("haunted_eye_log", () -> new RotatedPillarBlock(BlockBehaviour.Properties.copy(Blocks.ACACIA_LOG)));
+    public static final Supplier<Block> HAUNTED_EYE_LOG = register("haunted_eye_log", () -> new HauntedEyeBlock(BlockBehaviour.Properties.copy(Blocks.ACACIA_PLANKS)));
+    public static final Supplier<Block> CALIBRATED_HAUNTED_EYE_LOG = register("calibrated_haunted_eye_log", () -> new CalibratedHauntedEyeBlock(BlockBehaviour.Properties.copy(Blocks.ACACIA_PLANKS)));
     public static final Supplier<Block> HAUNTED_DOOR = register("haunted_door", () -> new HauntedDoor(BlockBehaviour.Properties.copy(Blocks.ACACIA_DOOR), BlockSetType.ACACIA));
 
     public static final Supplier<Block> HAUNTED_SAPLING = register("haunted_sapling", () -> new HauntedSapling(new HauntedTreeGrower(), BlockBehaviour.Properties.copy(Blocks.ACACIA_SAPLING)));

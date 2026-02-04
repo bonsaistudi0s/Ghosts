@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "ghosts:block/calibrated_haunted_eye_front",
+    "north": "ghosts:block/calibrated_haunted_eye_front",
+    "south": "ghosts:block/calibrated_haunted_eye_back_off",
+    "east": "ghosts:block/calibrated_haunted_eye_right_side",
+    "west": "ghosts:block/calibrated_haunted_eye_left_side",
+    "up": "ghosts:block/calibrated_haunted_eye_top_1",
+    "down": "ghosts:block/calibrated_haunted_eye_bottom"
+  }
+}

@@ -3,7 +3,7 @@
   "textures": {
     "end": "ghosts:block/haunted_log_top",
     "side": "ghosts:block/haunted_log",
-    "front": "ghosts:block/haunted_eye"
+    "front": "ghosts:block/haunted_eye_active"
   },
   "elements": [
     {
