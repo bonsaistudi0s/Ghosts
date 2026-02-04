@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "ghosts:item/haunted_sapling"
+    "layer0": "ghosts:block/haunted_sapling"
   }
 }

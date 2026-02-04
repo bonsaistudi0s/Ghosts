@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/leaves",
+  "textures": {
+    "all": "ghosts:block/haunted_leaves_3"
+  }
+}

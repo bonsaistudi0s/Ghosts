@@ -1,7 +1,10 @@
 {
   "variants": {
-    "": {
-      "model": "ghosts:block/haunted_leaves"
-    }
+    "": [
+      { "model": "ghosts:block/haunted_leaves_0", "weight": 3 },
+      { "model": "ghosts:block/haunted_leaves_1", "weight": 3 },
+      { "model": "ghosts:block/haunted_leaves_2", "weight": 2 },
+      { "model": "ghosts:block/haunted_leaves_3", "weight": 2 }
+    ]
   }
 }
