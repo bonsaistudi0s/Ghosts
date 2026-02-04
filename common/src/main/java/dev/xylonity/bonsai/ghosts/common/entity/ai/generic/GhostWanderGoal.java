@@ -22,7 +22,7 @@ public class GhostWanderGoal extends Goal {
     private final boolean checkNoActionTime;
     private final float lerp;
 
-    private Vec3 targetPos;
+    protected Vec3 targetPos;
 
     public GhostWanderGoal(AbstractGhostEntity ghost, double speedModifier, int interval, boolean checkNoActionTime, float lerpFactor) {
         this.ghost = ghost;

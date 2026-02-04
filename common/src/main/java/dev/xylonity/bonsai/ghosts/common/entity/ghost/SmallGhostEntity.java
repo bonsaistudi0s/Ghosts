@@ -75,6 +75,11 @@ public class SmallGhostEntity extends AbstractGhostEntity {
             public boolean canUse() {
                 return super.canUse() && !getIsSleeping();
             }
+
+            @Override
+            public void start() {
+                this.targetPos = new Vec3(wantedX, wantedY, wantedZ);
+            }
         });
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
@@ -301,8 +306,6 @@ public class SmallGhostEntity extends AbstractGhostEntity {
     private void moveToPos(Vec3 target, double speed, float lerp) {
         Vec3 tetha = target.subtract(this.position());
         if (tetha.length() < 1.0E-3) return;
-
-        this.noPhysics = true;
 
         Vec3 vel = tetha.scale(1.0 / tetha.length()).scale(speed);
         Vec3 v = this.getDeltaMovement();

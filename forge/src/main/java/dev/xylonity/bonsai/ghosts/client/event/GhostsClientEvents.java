@@ -4,7 +4,10 @@ import dev.xylonity.bonsai.ghosts.Ghosts;
 import dev.xylonity.bonsai.ghosts.client.entity.render.GhostRenderer;
 import dev.xylonity.bonsai.ghosts.client.entity.render.KodamaRenderer;
 import dev.xylonity.bonsai.ghosts.client.entity.render.SmallGhostRenderer;
+import dev.xylonity.bonsai.ghosts.registry.GhostsBlocks;
 import dev.xylonity.bonsai.ghosts.registry.GhostsEntities;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -19,6 +22,9 @@ public class GhostsClientEvents {
         EntityRenderers.register(GhostsEntities.GHOST.get(), GhostRenderer::new);
         EntityRenderers.register(GhostsEntities.SMALL_GHOST.get(), SmallGhostRenderer::new);
         EntityRenderers.register(GhostsEntities.KODAMA.get(), KodamaRenderer::new);
+
+        ItemBlockRenderTypes.setRenderLayer(GhostsBlocks.HAUNTED_DOOR.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(GhostsBlocks.HAUNTED_SAPLING.get(), RenderType.cutout());
     }
 
 }

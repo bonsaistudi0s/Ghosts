@@ -6,9 +6,15 @@ import dev.xylonity.bonsai.ghosts.common.biome.GhostsSpawnBiomeModifier;
 import dev.xylonity.bonsai.ghosts.config.ConfigManager;
 import dev.xylonity.bonsai.ghosts.config.GhostsConfig;
 import dev.xylonity.bonsai.ghosts.proxy.IProxy;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerType;
+import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -22,7 +28,11 @@ public class GhostsForge {
 
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, Ghosts.MOD_ID);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Ghosts.MOD_ID);
+    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Ghosts.MOD_ID);
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_TAB = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Ghosts.MOD_ID);
     public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, Ghosts.MOD_ID);
+    public static final DeferredRegister<TreeDecoratorType<?>> TREE_DECORATOR_TYPES = DeferredRegister.create(ForgeRegistries.TREE_DECORATOR_TYPES, Ghosts.MOD_ID);
+    public static final DeferredRegister<FoliagePlacerType<?>> FOLIAGE_TYPES = DeferredRegister.create(ForgeRegistries.FOLIAGE_PLACER_TYPES, Ghosts.MOD_ID);
 
     public static final IProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
 
@@ -34,7 +44,12 @@ public class GhostsForge {
 
         ENTITIES.register(modBusEvent);
         ITEMS.register(modBusEvent);
+        BLOCKS.register(modBusEvent);
+        CREATIVE_TAB.register(modBusEvent);
         SOUNDS.register(modBusEvent);
+
+        TREE_DECORATOR_TYPES.register(modBusEvent);
+        FOLIAGE_TYPES.register(modBusEvent);
 
         GhostsSpawnBiomeModifier.BIOME_MODIFIER.register(modBusEvent);
 

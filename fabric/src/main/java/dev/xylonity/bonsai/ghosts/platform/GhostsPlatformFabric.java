@@ -1,13 +1,16 @@
 package dev.xylonity.bonsai.ghosts.platform;
 
 import dev.xylonity.bonsai.ghosts.Ghosts;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.level.block.Block;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -20,6 +23,16 @@ public class GhostsPlatformFabric implements GhostsPlatform {
     @Override
     public <X extends Item> Supplier<X> registerItem(String id, Supplier<X> item) {
         return registerSupplier(BuiltInRegistries.ITEM, id, item);
+    }
+
+    @Override
+    public <X extends Block> Supplier<X> registerBlock(String id, Supplier<X> block) {
+        return registerSupplier(BuiltInRegistries.BLOCK, id, block);
+    }
+
+    @Override
+    public <X extends CreativeModeTab> Supplier<X> registerCreativeTab(String id, Supplier<X> creativeModeTab) {
+        return registerSupplier(BuiltInRegistries.CREATIVE_MODE_TAB, id, creativeModeTab);
     }
 
     @Override
@@ -45,6 +58,11 @@ public class GhostsPlatformFabric implements GhostsPlatform {
     @Override
     public <X extends SoundEvent> Supplier<X> registerSound(String id, Supplier<X> sound) {
         return registerSupplier(BuiltInRegistries.SOUND_EVENT, id, sound);
+    }
+
+    @Override
+    public CreativeModeTab.Builder creativeTabBuilder() {
+        return FabricItemGroup.builder();
     }
 
     private static <T, R extends Registry<? super T>> Supplier<T> registerSupplier(R registry, String id, Supplier<T> factory) {

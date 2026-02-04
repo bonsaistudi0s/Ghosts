@@ -1,20 +1,28 @@
 package dev.xylonity.bonsai.ghosts.common.event;
 
 import dev.xylonity.bonsai.ghosts.Ghosts;
+import dev.xylonity.bonsai.ghosts.common.datagen.GhostsWorldgenProvider;
 import dev.xylonity.bonsai.ghosts.common.entity.ghost.GhostEntity;
 import dev.xylonity.bonsai.ghosts.common.entity.ghost.SmallGhostEntity;
 import dev.xylonity.bonsai.ghosts.common.entity.kodama.KodamaEntity;
 import dev.xylonity.bonsai.ghosts.registry.GhostsEntities;
 import dev.xylonity.bonsai.ghosts.registry.GhostsItems;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
+import java.util.concurrent.CompletableFuture;
 
 @Mod.EventBusSubscriber(modid = Ghosts.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class GhostsServerEvents {
@@ -34,12 +42,12 @@ public class GhostsServerEvents {
     }
 
     @SubscribeEvent
-    public static void onCreativeModeTabs(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
-            event.accept(GhostsItems.GHOST_SPAWN_EGG);
-            event.accept(GhostsItems.SMALL_GHOST_SPAWN_EGG);
-            event.accept(GhostsItems.KODAMA_SPAWN_EGG);
-        }
+    public static void gatherData(GatherDataEvent event) {
+        DataGenerator generator = event.getGenerator();
+        PackOutput packOutput = generator.getPackOutput();
+        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+
+        generator.addProvider(event.includeServer(), new GhostsWorldgenProvider(packOutput, lookupProvider));
     }
 
 }
