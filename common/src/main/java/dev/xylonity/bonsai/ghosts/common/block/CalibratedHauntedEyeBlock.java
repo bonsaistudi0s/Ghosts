@@ -1,5 +1,6 @@
 package dev.xylonity.bonsai.ghosts.common.block;
 
+import dev.xylonity.bonsai.ghosts.common.blockentity.CalibratedHauntedEyeBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -11,6 +12,8 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DirectionalBlock;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -21,7 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class CalibratedHauntedEyeBlock extends DirectionalBlock {
+public class CalibratedHauntedEyeBlock extends DirectionalBlock implements EntityBlock {
 
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
     private static final double MAX_DETECTION_DISTANCE = 15.0;
@@ -155,6 +158,11 @@ public class CalibratedHauntedEyeBlock extends DirectionalBlock {
     @Override
     public int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
         return getSignal(state, level, pos, side);
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return new CalibratedHauntedEyeBlockEntity(blockPos, blockState);
     }
 
 }

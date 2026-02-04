@@ -3,6 +3,7 @@ package dev.xylonity.bonsai.ghosts.platform;
 import com.mojang.serialization.Codec;
 import dev.xylonity.bonsai.ghosts.Ghosts;
 import dev.xylonity.bonsai.ghosts.GhostsForge;
+import dev.xylonity.bonsai.ghosts.registry.GhostsBlockEntities;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.*;
@@ -10,6 +11,8 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerType;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
@@ -17,7 +20,6 @@ import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorTy
 import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacer;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacerType;
 import net.minecraftforge.common.ForgeSpawnEggItem;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -42,8 +44,13 @@ public class GhostsPlatformForge implements GhostsPlatform {
     }
 
     @Override
+    public <X extends BlockEntity> Supplier<BlockEntityType<X>> registerBlockEntity(String id, GhostsBlockEntities.BlockEntityFactory<X> supplier, Supplier<Block> block) {
+        return GhostsForge.BLOCKENTITIES.register(id, () -> BlockEntityType.Builder.of(supplier::create, block.get()).build(null));
+    }
+
+    @Override
     public <X extends CreativeModeTab> Supplier<X> registerCreativeTab(String id, Supplier<X> creativeModeTab) {
-        return GhostsForge.CREATIVE_TAB.register(id, creativeModeTab);
+        return GhostsForge.CREATIVE_TABS.register(id, creativeModeTab);
     }
 
     @Override

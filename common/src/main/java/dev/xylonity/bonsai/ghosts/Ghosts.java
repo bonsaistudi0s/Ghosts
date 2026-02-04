@@ -18,6 +18,7 @@ public class Ghosts {
     public static void init() {
         GhostsItems.init();
         GhostsBlocks.init();
+        GhostsBlockEntities.init();
         GhostsCreativeTabs.init();
         GhostsEntities.init();
         GhostsSounds.init();
