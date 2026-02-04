@@ -19,6 +19,7 @@ public class GhostsCreativeTabs {
                                 output.accept(GhostsBlocks.HAUNTED_SAPLING.get());
                                 output.accept(GhostsBlocks.HAUNTED_LOG.get());
                                 output.accept(GhostsBlocks.HAUNTED_PLANKS.get());
+                                output.accept(GhostsBlocks.HAUNTED_STAIRS.get());
                                 output.accept(GhostsBlocks.HAUNTED_LEAVES.get());
                                 output.accept(GhostsBlocks.HAUNTED_EYE_LOG.get());
                                 //output.accept(GhostsBlocks.HAUNTED_DOOR.get());
