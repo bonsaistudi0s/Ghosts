@@ -18,17 +18,17 @@ public class KodamaModel extends GeoModel<KodamaEntity> {
 
     @Override
     public ResourceLocation getModelResource(KodamaEntity animatable) {
-        return new ResourceLocation(Ghosts.MOD_ID, "geo/kodama_" + animatable.getVariant() + ".geo.json");
+        return Ghosts.of("geo/kodama_" + animatable.getVariant() + ".geo.json");
     }
 
     @Override
     public ResourceLocation getTextureResource(KodamaEntity animatable) {
-        return new ResourceLocation(Ghosts.MOD_ID, "textures/entity/kodama_" + animatable.getVariant() + ".png");
+        return Ghosts.of("textures/entity/kodama_" + animatable.getVariant() + ".png");
     }
 
     @Override
     public ResourceLocation getAnimationResource(KodamaEntity animatable) {
-        return new ResourceLocation(Ghosts.MOD_ID, "animations/kodama.animation.json");
+        return Ghosts.of("animations/kodama.animation.json");
     }
 
     @Override

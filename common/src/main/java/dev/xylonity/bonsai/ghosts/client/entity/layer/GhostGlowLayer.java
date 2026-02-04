@@ -23,7 +23,7 @@ public class GhostGlowLayer extends GeoRenderLayer<GhostEntity> {
 
     @Override
     public void render(PoseStack poseStack, GhostEntity animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-        RenderType glowRenderType = RenderType.entityTranslucentEmissive(new ResourceLocation(Ghosts.MOD_ID, "textures/entity/ghost_glowmask.png"));
+        RenderType glowRenderType = RenderType.entityTranslucentEmissive(Ghosts.of("textures/entity/ghost_glowmask.png"));
         VertexConsumer glowBuffer = bufferSource.getBuffer(glowRenderType);
 
         getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, glowRenderType, glowBuffer, partialTick, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1f);

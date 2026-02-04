@@ -9,17 +9,17 @@ public class GhostModel extends GeoModel<GhostEntity> {
 
     @Override
     public ResourceLocation getModelResource(GhostEntity object) {
-        return new ResourceLocation(Ghosts.MOD_ID, "geo/ghost.geo.json");
+        return Ghosts.of("geo/ghost.geo.json");
     }
 
     @Override
     public ResourceLocation getTextureResource(GhostEntity object) {
-        return new ResourceLocation(Ghosts.MOD_ID, "textures/entity/ghost.png");
+        return Ghosts.of("textures/entity/ghost.png");
     }
 
     @Override
     public ResourceLocation getAnimationResource(GhostEntity animatable) {
-        return new ResourceLocation(Ghosts.MOD_ID, "animations/ghost.animation.json");
+        return Ghosts.of("animations/ghost.animation.json");
     }
 
 }

@@ -9,17 +9,17 @@ public class SmallGhostModel extends GeoModel<SmallGhostEntity> {
 
     @Override
     public ResourceLocation getModelResource(SmallGhostEntity object) {
-        return new ResourceLocation(Ghosts.MOD_ID, "geo/small_ghost.geo.json");
+        return Ghosts.of("geo/small_ghost.geo.json");
     }
 
     @Override
     public ResourceLocation getTextureResource(SmallGhostEntity object) {
-        return new ResourceLocation(Ghosts.MOD_ID, "textures/entity/small_ghost.png");
+        return Ghosts.of("textures/entity/small_ghost.png");
     }
 
     @Override
     public ResourceLocation getAnimationResource(SmallGhostEntity animatable) {
-        return new ResourceLocation(Ghosts.MOD_ID, "animations/small_ghost.animation.json");
+        return Ghosts.of("animations/small_ghost.animation.json");
     }
 
 }
