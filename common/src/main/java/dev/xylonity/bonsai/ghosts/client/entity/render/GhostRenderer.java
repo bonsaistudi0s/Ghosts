@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.AbstractSkullBlock;
+import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
@@ -74,11 +75,36 @@ public class GhostRenderer extends BaseGhostRenderer<GhostEntity> {
         if ("mushroom_red".equals(bone.getName()) || "mushroom_brown".equals(bone.getName())) {
             ItemStack head = animatable.getItemBySlot(EquipmentSlot.HEAD);
 
-            if ("mushroom_red".equals(bone.getName()) && !isRedMush(head)) return;
-            if ("mushroom_brown".equals(bone.getName()) && !isBrownMush(head)) return;
+            if ("mushroom_red".equals(bone.getName())) {
+                if (!isRedMush(head)) {
+                    return;
+                }
+                else {
+                    super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, 1);
+                    return;
+                }
+
+            }
+
+            if ("mushroom_brown".equals(bone.getName())) {
+                if (!isBrownMush(head)) {
+                    return;
+                }
+                else {
+                    super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, 1);
+                    return;
+                }
+
+            }
+
         }
 
         super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+    }
+
+    @Override
+    public void actuallyRender(PoseStack poseStack, GhostEntity animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, 0.65f);
     }
 
     private static boolean isRedMush(ItemStack s) {
