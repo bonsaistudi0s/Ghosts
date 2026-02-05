@@ -6,6 +6,7 @@ import dev.xylonity.bonsai.ghosts.common.biome.GhostsSpawnBiomeModifier;
 import dev.xylonity.bonsai.ghosts.config.ConfigManager;
 import dev.xylonity.bonsai.ghosts.config.GhostsConfig;
 import dev.xylonity.bonsai.ghosts.proxy.IProxy;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
@@ -32,6 +33,7 @@ public class GhostsForge {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Ghosts.MOD_ID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCKENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Ghosts.MOD_ID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Ghosts.MOD_ID);
+    public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Ghosts.MOD_ID);
     public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, Ghosts.MOD_ID);
     public static final DeferredRegister<TreeDecoratorType<?>> TREE_DECORATOR_TYPES = DeferredRegister.create(ForgeRegistries.TREE_DECORATOR_TYPES, Ghosts.MOD_ID);
     public static final DeferredRegister<TrunkPlacerType<?>> TRUNK_PLACER_TYPES = DeferredRegister.create(Registries.TRUNK_PLACER_TYPE, Ghosts.MOD_ID);
@@ -48,6 +50,7 @@ public class GhostsForge {
         ENTITIES.register(modBusEvent);
         ITEMS.register(modBusEvent);
         BLOCKS.register(modBusEvent);
+        PARTICLES.register(modBusEvent);
         BLOCKENTITIES.register(modBusEvent);
         CREATIVE_TABS.register(modBusEvent);
         SOUNDS.register(modBusEvent);

@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import dev.xylonity.bonsai.ghosts.Ghosts;
 import dev.xylonity.bonsai.ghosts.GhostsForge;
 import dev.xylonity.bonsai.ghosts.registry.GhostsBlockEntities;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.*;
@@ -41,6 +43,11 @@ public class GhostsPlatformForge implements GhostsPlatform {
         registerItem(id, () -> new BlockItem(blockSupplier.get(), new Item.Properties()));
 
         return blockSupplier;
+    }
+
+    @Override
+    public <T extends ParticleType<?>> Supplier<T> registerParticle(String id, boolean overrideLimiter) {
+        return GhostsForge.PARTICLES.register(id, () -> (T) new SimpleParticleType(overrideLimiter));
     }
 
     @Override

@@ -2,6 +2,7 @@ package dev.xylonity.bonsai.ghosts.platform;
 
 import com.mojang.serialization.Codec;
 import dev.xylonity.bonsai.ghosts.registry.GhostsBlockEntities;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.item.CreativeModeTab;
@@ -27,6 +28,7 @@ public interface GhostsPlatform {
     <X extends Block> Supplier<X> registerBlock(String id, Supplier<X> block);
     <X extends BlockEntity> Supplier<BlockEntityType<X>> registerBlockEntity(String id, GhostsBlockEntities.BlockEntityFactory<X> supplier, Supplier<Block> block);
     <X extends CreativeModeTab> Supplier<X> registerCreativeTab(String id, Supplier<X> creativeModeTab);
+    <T extends ParticleType<?>> Supplier<T> registerParticle(String id, boolean overrideLimiter);
     <T extends Item, X extends LivingEntity> Supplier<T> registerSpawnEgg(String id, Supplier<? extends EntityType<? extends Mob>> entity, int color1, int color2, Item.Properties properties);
     <X extends Entity> Supplier<EntityType<X>> registerEntity(String name, EntityType.EntityFactory<X> entity, MobCategory category, float width, float height, @Nullable List<Consumer<EntityType.Builder<X>>> properties);
     <X extends SoundEvent> Supplier<X> registerSound(String id, Supplier<X> sound);
