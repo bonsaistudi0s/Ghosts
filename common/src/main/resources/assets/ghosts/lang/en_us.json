@@ -30,5 +30,11 @@
   "entity.ghosts.client_message.interaction_1": "%1$s is now following you",
   "entity.ghosts.client_message.interaction_2": "%1$s is now wandering around",
 
+  "entity.ghosts.haunted_boat": "Haunted Boat",
+  "entity.ghosts.haunted_chest_boat": "Haunted Boat with Chest",
+
+  "item.ghosts.haunted_boat": "Haunted Boat",
+  "item.ghosts.haunted_chest_boat": "Haunted Chest Boat",
+
   "creativetab.ghosts.title": "Ghosts"
 }

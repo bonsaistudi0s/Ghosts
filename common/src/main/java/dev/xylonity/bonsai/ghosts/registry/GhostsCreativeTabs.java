@@ -23,9 +23,12 @@ public class GhostsCreativeTabs {
                                 output.accept(GhostsBlocks.HAUNTED_TRAPDOOR.get());
                                 output.accept(GhostsBlocks.HAUNTED_STAIRS.get());
                                 output.accept(GhostsBlocks.HAUNTED_LEAVES.get());
+                                output.accept(GhostsBlocks.HAUNTED_LEAVES.get());
                                 output.accept(GhostsBlocks.HAUNTED_EYE_LOG.get());
                                 output.accept(GhostsBlocks.HAUNTED_DOOR.get());
                                 output.accept(GhostsBlocks.CALIBRATED_HAUNTED_EYE.get());
+                                output.accept(GhostsItems.HAUNTED_BOAT.get());
+                                output.accept(GhostsItems.HAUNTED_CHEST_BOAT.get());
                                 output.accept(GhostsItems.GHOST_SPAWN_EGG.get());
                                 output.accept(GhostsItems.SMALL_GHOST_SPAWN_EGG.get());
                                 output.accept(GhostsItems.KODAMA_SPAWN_EGG.get());
