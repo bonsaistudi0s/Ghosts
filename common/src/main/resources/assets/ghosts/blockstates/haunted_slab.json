@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "ghosts:block/haunted_slab"
+    },
+    "type=double": {
+      "model": "ghosts:block/haunted_planks"
+    },
+    "type=top": {
+      "model": "ghosts:block/haunted_slab_top"
+    }
+  }
+}

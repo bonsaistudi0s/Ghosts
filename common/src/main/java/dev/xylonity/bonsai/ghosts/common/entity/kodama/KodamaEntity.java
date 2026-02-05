@@ -82,8 +82,31 @@ public class KodamaEntity extends PassiveEntity {
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new PanicGoal(this, 1.5F));
-        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0F));
+        this.goalSelector.addGoal(1, new PanicGoal(this, 1.5F) {
+            @Override
+            public void start() {
+                super.start();
+                if (isBartering()) {
+                    setBarterTicks(0);
+                    spawnAtLocation(new ItemStack(Items.AMETHYST_SHARD));
+                }
+
+            }
+
+        });
+
+        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0F) {
+            @Override
+            public boolean canUse() {
+                if (isBartering() || getRattlingTicks() > 0) {
+                    return false;
+                }
+
+                return super.canUse();
+            }
+
+        });
+
         this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F, 1f));
         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
     }
@@ -188,11 +211,6 @@ public class KodamaEntity extends PassiveEntity {
             }
 
             if (getRattlingTicks() > 0) setRattlingTicks(getRattlingTicks() - 1);
-
-            if (getRattlingTicks() > 0 || isBartering()) {
-                getNavigation().stop();
-                setPos(currentPos);
-            }
 
             if (getBarterTicks() > 0) {
                 setBarterTicks(getBarterTicks() + 1);

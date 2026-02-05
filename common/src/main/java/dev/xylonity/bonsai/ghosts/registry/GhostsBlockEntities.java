@@ -17,7 +17,7 @@ public class GhostsBlockEntities {
     public static final Supplier<BlockEntityType<CalibratedHauntedEyeBlockEntity>> CALIBRATED_HAUNTED_EYE =
             register("calibrated_haunted_eye",
                     CalibratedHauntedEyeBlockEntity::new,
-                    GhostsBlocks.CALIBRATED_HAUNTED_EYE_LOG
+                    GhostsBlocks.CALIBRATED_HAUNTED_EYE
             );
 
     private static <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String id, BlockEntityFactory<T> supplier, Supplier<Block> block) {
