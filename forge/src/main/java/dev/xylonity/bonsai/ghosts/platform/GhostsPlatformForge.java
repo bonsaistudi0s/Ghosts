@@ -91,11 +91,6 @@ public class GhostsPlatformForge implements GhostsPlatform {
     }
 
     @Override
-    public <U extends TreeDecorator> Supplier<TreeDecoratorType<U>> registerTreeDecorator(String id, Codec<U> codec) {
-        return GhostsForge.TREE_DECORATOR_TYPES.register(id, () -> new TreeDecoratorType<>(codec));
-    }
-
-    @Override
     public <U extends FoliagePlacer> Supplier<FoliagePlacerType<U>> registerFoliagePlacer(String id, Codec<U> codec) {
         return GhostsForge.FOLIAGE_TYPES.register(id, () -> new FoliagePlacerType<>(codec));
     }

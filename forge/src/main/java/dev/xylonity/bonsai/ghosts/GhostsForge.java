@@ -35,7 +35,6 @@ public class GhostsForge {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Ghosts.MOD_ID);
     public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Ghosts.MOD_ID);
     public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, Ghosts.MOD_ID);
-    public static final DeferredRegister<TreeDecoratorType<?>> TREE_DECORATOR_TYPES = DeferredRegister.create(ForgeRegistries.TREE_DECORATOR_TYPES, Ghosts.MOD_ID);
     public static final DeferredRegister<TrunkPlacerType<?>> TRUNK_PLACER_TYPES = DeferredRegister.create(Registries.TRUNK_PLACER_TYPE, Ghosts.MOD_ID);
     public static final DeferredRegister<FoliagePlacerType<?>> FOLIAGE_TYPES = DeferredRegister.create(ForgeRegistries.FOLIAGE_PLACER_TYPES, Ghosts.MOD_ID);
 
@@ -55,7 +54,6 @@ public class GhostsForge {
         CREATIVE_TABS.register(modBusEvent);
         SOUNDS.register(modBusEvent);
 
-        TREE_DECORATOR_TYPES.register(modBusEvent);
         TRUNK_PLACER_TYPES.register(modBusEvent);
         FOLIAGE_TYPES.register(modBusEvent);
 

@@ -33,7 +33,6 @@ public interface GhostsPlatform {
     <X extends Entity> Supplier<EntityType<X>> registerEntity(String name, EntityType.EntityFactory<X> entity, MobCategory category, float width, float height, @Nullable List<Consumer<EntityType.Builder<X>>> properties);
     <X extends SoundEvent> Supplier<X> registerSound(String id, Supplier<X> sound);
     <U extends TrunkPlacer> Supplier<TrunkPlacerType<U>> registerTrunkPlacer(String id, Codec<U> codec);
-    <U extends TreeDecorator> Supplier<TreeDecoratorType<U>> registerTreeDecorator(String id, Codec<U> codec);
     <U extends FoliagePlacer> Supplier<FoliagePlacerType<U>> registerFoliagePlacer(String id, Codec<U> codec);
 
     CreativeModeTab.Builder creativeTabBuilder();
