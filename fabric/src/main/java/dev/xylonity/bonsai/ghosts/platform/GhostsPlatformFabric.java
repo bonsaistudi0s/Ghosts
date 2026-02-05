@@ -1,16 +1,28 @@
 package dev.xylonity.bonsai.ghosts.platform;
 
+import com.mojang.serialization.Codec;
 import dev.xylonity.bonsai.ghosts.Ghosts;
+import dev.xylonity.bonsai.ghosts.GhostsFabric;
+import dev.xylonity.bonsai.ghosts.registry.GhostsBlockEntities;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerType;
+import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacer;
+import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacerType;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -27,12 +39,26 @@ public class GhostsPlatformFabric implements GhostsPlatform {
 
     @Override
     public <X extends Block> Supplier<X> registerBlock(String id, Supplier<X> block) {
-        return registerSupplier(BuiltInRegistries.BLOCK, id, block);
+        Supplier<X> blockSupplier = registerSupplier(BuiltInRegistries.BLOCK, id, block);
+
+        registerItem(id, () -> new BlockItem(blockSupplier.get(), new Item.Properties()));
+
+        return blockSupplier;
+    }
+
+    @Override
+    public <X extends BlockEntity> Supplier<BlockEntityType<X>> registerBlockEntity(String id, GhostsBlockEntities.BlockEntityFactory<X> supplier, Supplier<Block> block) {
+        return () -> BlockEntityType.Builder.of(supplier::create, block.get()).build(null);
     }
 
     @Override
     public <X extends CreativeModeTab> Supplier<X> registerCreativeTab(String id, Supplier<X> creativeModeTab) {
         return registerSupplier(BuiltInRegistries.CREATIVE_MODE_TAB, id, creativeModeTab);
+    }
+
+    @Override
+    public <T extends ParticleType<?>> Supplier<T> registerParticle(String id, boolean overrideLimiter) {
+        return registerSupplier(BuiltInRegistries.PARTICLE_TYPE, id, () -> (T) FabricParticleTypes.simple());
     }
 
     @Override
@@ -58,6 +84,16 @@ public class GhostsPlatformFabric implements GhostsPlatform {
     @Override
     public <X extends SoundEvent> Supplier<X> registerSound(String id, Supplier<X> sound) {
         return registerSupplier(BuiltInRegistries.SOUND_EVENT, id, sound);
+    }
+
+    @Override
+    public <U extends TrunkPlacer> Supplier<TrunkPlacerType<U>> registerTrunkPlacer(String id, Codec<U> codec) {
+        return registerSupplier(BuiltInRegistries.TRUNK_PLACER_TYPE, id, () -> new TrunkPlacerType<>(codec));
+    }
+
+    @Override
+    public <U extends FoliagePlacer> Supplier<FoliagePlacerType<U>> registerFoliagePlacer(String id, Codec<U> codec) {
+        return registerSupplier(BuiltInRegistries.FOLIAGE_PLACER_TYPE, id, () -> new FoliagePlacerType<>(codec));
     }
 
     @Override
