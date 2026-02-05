@@ -34,7 +34,7 @@ public class KodamaModel extends GeoModel<KodamaEntity> {
     @Override
     public void setCustomAnimations(KodamaEntity animatable, long instanceId, AnimationState<KodamaEntity> animationState) {
         CoreGeoBone head = getAnimationProcessor().getBone("head");
-        if (head == null) {
+        if (head == null || animatable.isBartering()) {
             return;
         }
 

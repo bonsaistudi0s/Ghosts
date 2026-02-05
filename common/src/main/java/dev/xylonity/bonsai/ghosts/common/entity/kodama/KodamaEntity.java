@@ -1,17 +1,23 @@
 package dev.xylonity.bonsai.ghosts.common.entity.kodama;
 
 import dev.xylonity.bonsai.ghosts.common.entity.PassiveEntity;
+import dev.xylonity.bonsai.ghosts.registry.GhostsBlocks;
 import dev.xylonity.bonsai.ghosts.registry.GhostsSounds;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -20,6 +26,9 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.AbstractGolem;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.Vec3;
@@ -34,6 +43,9 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class KodamaEntity extends PassiveEntity {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -46,14 +58,17 @@ public class KodamaEntity extends PassiveEntity {
 
     private static final EntityDataAccessor<Integer> VARIANT = SynchedEntityData.defineId(KodamaEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> RATTLING_TICKS = SynchedEntityData.defineId(KodamaEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> BARTER_TICKS = SynchedEntityData.defineId(KodamaEntity.class, EntityDataSerializers.INT);
 
     private static final int ANIMATION_RATTLING_TICKS = 38;
+    private static final int ANIMATION_BARTER_TICKS = 50;
 
     private float flashAlpha;
     private int rattleAnimationType;
 
     public KodamaEntity(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
+        this.noCulling = true;
         this.flashAlpha = 0;
     }
 
@@ -78,6 +93,7 @@ public class KodamaEntity extends PassiveEntity {
         super.defineSynchedData();
         this.entityData.define(VARIANT, 0);
         this.entityData.define(RATTLING_TICKS, 0);
+        this.entityData.define(BARTER_TICKS, 0);
     }
 
     public void setFlashAlpha(float flashAlpha) {
@@ -104,8 +120,47 @@ public class KodamaEntity extends PassiveEntity {
         return this.entityData.get(RATTLING_TICKS);
     }
 
+    public void setBarterTicks(int ticks) {
+        this.entityData.set(BARTER_TICKS, ticks);
+    }
+
+    public int getBarterTicks() {
+        return this.entityData.get(BARTER_TICKS);
+    }
+
+    public boolean isBartering() {
+        return getBarterTicks() > 0;
+    }
+
     protected boolean shouldPanic() {
         return this.getLastHurtByMob() != null || this.isFreezing() || this.isOnFire();
+    }
+
+    @Override
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        ItemStack inHand = player.getItemInHand(hand);
+        if (inHand.is(Items.AMETHYST_SHARD)) {
+
+            if (isBartering()) {
+                return InteractionResult.SUCCESS;
+            }
+
+            if (!level().isClientSide) {
+                if (!player.getAbilities().instabuild) {
+                    inHand.shrink(1);
+                }
+
+                this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.AMETHYST_SHARD));
+
+                setBarterTicks(1);
+
+                level().playSound(null, blockPosition(), GhostsSounds.KODAMA_IDLE.get(), SoundSource.NEUTRAL, 0.7f, 1.2f);
+            }
+
+            return InteractionResult.SUCCESS;
+        }
+
+        return super.mobInteract(player, hand);
     }
 
     @Override
@@ -134,13 +189,59 @@ public class KodamaEntity extends PassiveEntity {
 
             if (getRattlingTicks() > 0) setRattlingTicks(getRattlingTicks() - 1);
 
-            if (getRattlingTicks() > 0) {
+            if (getRattlingTicks() > 0 || isBartering()) {
                 getNavigation().stop();
                 setPos(currentPos);
             }
 
+            if (getBarterTicks() > 0) {
+                setBarterTicks(getBarterTicks() + 1);
+            }
+
+            if (getBarterTicks() == ANIMATION_BARTER_TICKS) {
+                doBarter();
+                setBarterTicks(0);
+            }
+
         }
 
+    }
+
+    private void doBarter() {
+        this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+
+        ItemStack sapling = getRandomSaplingStack();
+        if (!sapling.isEmpty()) {
+            this.spawnAtLocation(sapling, 0.35F);
+            level().playSound(null, blockPosition(), GhostsSounds.KODAMA_RATTLE.get(), SoundSource.NEUTRAL, 0.8f, 1.0f);
+        }
+        else {
+            this.spawnAtLocation(new ItemStack(GhostsBlocks.HAUNTED_SAPLING.get()), 0.35F);
+        }
+
+    }
+
+    private ItemStack getRandomSaplingStack() {
+        List<Item> items = new ArrayList<>();
+        BuiltInRegistries.ITEM.getTag(ItemTags.SAPLINGS).ifPresent(named -> {
+            named.forEach(holder -> {
+                Item item = holder.value();
+
+                if (item == Items.AZALEA || item == Items.FLOWERING_AZALEA) {
+                    return;
+                }
+
+                items.add(item);
+            });
+
+        });
+
+        if (items.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+
+        Item picked = items.get(level().random.nextInt(items.size()));
+        return new ItemStack(picked);
     }
 
     private void startRattling(float chance) {
@@ -224,7 +325,10 @@ public class KodamaEntity extends PassiveEntity {
             rattleAnimationType = level().random.nextInt(2);
         }
 
-        if (getRattlingTicks() > 0) {
+        if (getBarterTicks() > 0) {
+            event.setAnimation(BARTER);
+        }
+        else if (getRattlingTicks() > 0) {
             event.setAnimation(rattleAnimationType == 0 ? RATTLE : RATTLE_2);
         }
         else if (event.isMoving()) {
