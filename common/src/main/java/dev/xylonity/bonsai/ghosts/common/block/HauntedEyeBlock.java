@@ -17,8 +17,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.AABB;
 
-import javax.annotation.Nullable;
-
 public class HauntedEyeBlock extends HorizontalDirectionalBlock {
 
     public static final BooleanProperty POWERED = BooleanProperty.create("powered");
@@ -40,7 +38,6 @@ public class HauntedEyeBlock extends HorizontalDirectionalBlock {
         return CODEC;
     }
 
-    @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());

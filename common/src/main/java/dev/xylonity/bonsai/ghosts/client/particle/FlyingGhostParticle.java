@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 
-import javax.annotation.Nonnull;
 import java.util.Random;
 
 public class FlyingGhostParticle extends TextureSheetParticle {
@@ -50,7 +49,7 @@ public class FlyingGhostParticle extends TextureSheetParticle {
     }
 
     @Override
-    public @Nonnull ParticleRenderType getRenderType() {
+    public ParticleRenderType getRenderType() {
         return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
@@ -83,7 +82,7 @@ public class FlyingGhostParticle extends TextureSheetParticle {
             this.sprites = spriteSet;
         }
 
-        public Particle createParticle(@Nonnull SimpleParticleType particleType, @Nonnull ClientLevel level, double x, double y, double z, double dx, double dy, double dz) {
+        public Particle createParticle(SimpleParticleType particleType, ClientLevel level, double x, double y, double z, double dx, double dy, double dz) {
             return new FlyingGhostParticle(level, x, y, z, this.sprites, dx, dy, dz);
         }
 

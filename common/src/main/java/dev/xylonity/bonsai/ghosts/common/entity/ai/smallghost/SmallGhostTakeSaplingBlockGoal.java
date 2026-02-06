@@ -10,7 +10,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
 import java.util.EnumSet;
 
 public class SmallGhostTakeSaplingBlockGoal extends Goal {
@@ -22,7 +21,6 @@ public class SmallGhostTakeSaplingBlockGoal extends Goal {
 
     private int nextScanTick;
 
-    @Nullable
     private BlockPos targetPos;
 
     public SmallGhostTakeSaplingBlockGoal(SmallGhostEntity ghost, int scanRadius, double speed, float lerp) {
@@ -150,7 +148,6 @@ public class SmallGhostTakeSaplingBlockGoal extends Goal {
 
     }
 
-    @Nullable
     private BlockPos findSaplingBlock() {
         BlockPos origin = ghost.blockPosition();
 

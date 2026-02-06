@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class CalibratedHauntedEyeBlock extends DirectionalBlock implements EntityBlock {
@@ -169,7 +168,7 @@ public class CalibratedHauntedEyeBlock extends DirectionalBlock implements Entit
     }
 
     @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new CalibratedHauntedEyeBlockEntity(blockPos, blockState);
     }
 

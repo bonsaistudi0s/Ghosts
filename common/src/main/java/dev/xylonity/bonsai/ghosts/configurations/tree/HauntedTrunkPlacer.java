@@ -15,7 +15,6 @@ import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacerType;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -31,12 +30,12 @@ public class HauntedTrunkPlacer extends StraightTrunkPlacer {
     }
 
     @Override
-    protected @Nonnull TrunkPlacerType<?> type() {
+    protected TrunkPlacerType<?> type() {
         return GhostsTrunkPlacerTypes.HAUNTED_TRUNK_PLACER.get();
     }
 
     @Override
-    public @Nonnull List<FoliagePlacer.FoliageAttachment> placeTrunk(@Nonnull LevelSimulatedReader level, @Nonnull BiConsumer<BlockPos, BlockState> blockSetter, @Nonnull RandomSource random, int freeTreeHeight, BlockPos pos, @Nonnull TreeConfiguration config) {
+    public List<FoliagePlacer.FoliageAttachment> placeTrunk(LevelSimulatedReader level, BiConsumer<BlockPos, BlockState> blockSetter, RandomSource random, int freeTreeHeight, BlockPos pos, TreeConfiguration config) {
         setDirtAt(level, blockSetter, random, pos.below(), config);
 
         for (int i = 0; i < freeTreeHeight; ++i) {

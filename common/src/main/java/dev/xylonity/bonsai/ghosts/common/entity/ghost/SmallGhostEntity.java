@@ -47,8 +47,6 @@ import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.*;
 
-import javax.annotation.Nullable;
-
 public class SmallGhostEntity extends AbstractGhostEntity {
 
     private static final EntityDataAccessor<Integer> DATA_ID_TYPE_VARIANT = SynchedEntityData.defineId(SmallGhostEntity.class, EntityDataSerializers.INT);
@@ -341,19 +339,16 @@ public class SmallGhostEntity extends AbstractGhostEntity {
 
     }
 
-    @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
         return GhostsSounds.SMALL_GHOST_AMBIENT.get();
     }
 
-    @Nullable
     @Override
     protected SoundEvent getDeathSound() {
         return GhostsSounds.SMALL_GHOST_DEATH.get();
     }
 
-    @Nullable
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
         return GhostsSounds.SMALL_GHOST_HURT.get();

@@ -10,7 +10,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -24,7 +23,6 @@ public class SmallGhostPickupSaplingGoal extends Goal {
 
     private int nextScanTick;
 
-    @Nullable
     private ItemEntity targetItem;
 
     public SmallGhostPickupSaplingGoal(SmallGhostEntity ghost, double speed, float lerp, int scanRadius) {
@@ -163,7 +161,6 @@ public class SmallGhostPickupSaplingGoal extends Goal {
 
     }
 
-    @Nullable
     private ItemEntity findNearestSaplingItem() {
         Vec3 position = ghost.position();
         AABB box = new AABB(

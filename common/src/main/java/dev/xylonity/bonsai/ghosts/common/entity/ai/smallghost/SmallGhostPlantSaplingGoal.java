@@ -11,7 +11,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
 import java.util.EnumSet;
 
 public class SmallGhostPlantSaplingGoal extends Goal {
@@ -24,7 +23,6 @@ public class SmallGhostPlantSaplingGoal extends Goal {
 
     private int nextTryTick;
 
-    @Nullable
     private BlockPos targetPlacePos;
 
     public SmallGhostPlantSaplingGoal(SmallGhostEntity ghost, double speed, float lerp, int retryCooldown, int searchRadius) {
@@ -192,7 +190,6 @@ public class SmallGhostPlantSaplingGoal extends Goal {
         return blockItem.getBlock().defaultBlockState().canSurvive(ghost.level(), placePos);
     }
 
-    @Nullable
     private BlockPos findPlantPos() {
         BlockPos origin = ghost.blockPosition();
 

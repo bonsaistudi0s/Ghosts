@@ -14,7 +14,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.function.Predicate;
 
@@ -31,10 +30,8 @@ public class GhostPlaceGoal extends Goal {
     private int lastRepathTick;
     private final double maxOwnerDrift = 6.0D * 6.0D;
 
-    @Nullable
     private BlockPos targetPlacePos;
 
-    @Nullable
     private BlockPos lastPlacedPos;
 
     public GhostPlaceGoal(GhostEntity ghost, Ingredient placeables, Predicate<BlockState> pref, int lightThreshold, int retry, double speed) {
@@ -301,7 +298,6 @@ public class GhostPlaceGoal extends Goal {
         return false;
     }
 
-    @Nullable
     private BlockPos findDarkPlacePosNearOwner(Level level, LivingEntity owner, BlockItem blockItem) {
         Vec3 forward = owner.getDeltaMovement();
         forward = new Vec3(forward.x, 0.0D, forward.z);

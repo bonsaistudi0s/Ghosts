@@ -18,10 +18,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.state.BlockState;
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-
-import javax.annotation.Nonnull;
 
 public class CalibratedHauntedEyeGlowRenderer implements BlockEntityRenderer<CalibratedHauntedEyeBlockEntity> {
 
@@ -33,7 +30,7 @@ public class CalibratedHauntedEyeGlowRenderer implements BlockEntityRenderer<Cal
     }
 
     @Override
-    public void render(CalibratedHauntedEyeBlockEntity blockEntity, float partialTicks, @Nonnull PoseStack poseStack, @Nonnull MultiBufferSource buffers, int packedLight, int packedOverlay) {
+    public void render(CalibratedHauntedEyeBlockEntity blockEntity, float partialTicks, PoseStack poseStack, MultiBufferSource buffers, int packedLight, int packedOverlay) {
         BlockState state = blockEntity.getBlockState();
         if (!(state.getBlock() instanceof CalibratedHauntedEyeBlock)) {
             return;
