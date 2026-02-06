@@ -186,13 +186,31 @@ public class KodamaEntity extends PassiveEntity {
 
     @Override
     protected void pickUpItem(ItemEntity itemEntity) {
-        boolean wasAmethyst = itemEntity.getItem().is(Items.AMETHYST_SHARD);
+        ItemStack stack = itemEntity.getItem();
+        boolean isAmethyst = stack.is(Items.AMETHYST_SHARD);
 
+        if (!level().isClientSide && isAmethyst) {
+            if (stack.getCount() > 1) {
+                ItemStack one = stack.split(1);
+                itemEntity.setItem(stack);
+
+                this.setItemSlot(EquipmentSlot.MAINHAND, one);
+
+                if (!isBartering()) {
+                    setBarterTicks(1);
+                    level().playSound(null, blockPosition(), GhostsSounds.KODAMA_IDLE.get(), SoundSource.NEUTRAL, 0.7f, 1.2f);
+                }
+
+                return;
+            }
+
+        }
+
+        boolean wasAmethyst = stack.is(Items.AMETHYST_SHARD);
         super.pickUpItem(itemEntity);
 
         if (!level().isClientSide && wasAmethyst) {
             this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.AMETHYST_SHARD));
-
             if (!isBartering()) {
                 setBarterTicks(1);
                 level().playSound(null, blockPosition(), GhostsSounds.KODAMA_IDLE.get(), SoundSource.NEUTRAL, 0.7f, 1.2f);
