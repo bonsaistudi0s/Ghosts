@@ -19,6 +19,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
@@ -62,15 +63,15 @@ public class GhostsServerEvents {
 
         @SubscribeEvent
         public static void onBlockToolModification(BlockEvent.BlockToolModificationEvent event) {
-            //if (event.getToolAction() == ToolActions.AXE_STRIP) {
-            //    if (event.getState().is(GhostsBlocks.HAUNTED_LOG.get())) {
-            //        event.setFinalState(GhostsBlocks.STRIPPED_HAUNTED_LOG.get().defaultBlockState());
-            //    }
-            //    if (event.getState().is(GhostsBlocks.HAUNTED_EYE_LOG.get())) {
-            //        event.setFinalState(GhostsBlocks.STRIPPED_HAUNTED_LOG.get().defaultBlockState());
-            //    }
+            if (event.getItemAbility() == ItemAbilities.AXE_STRIP) {
+                if (event.getState().is(GhostsBlocks.HAUNTED_LOG.get())) {
+                    event.setFinalState(GhostsBlocks.STRIPPED_HAUNTED_LOG.get().defaultBlockState());
+                }
+                if (event.getState().is(GhostsBlocks.HAUNTED_EYE_LOG.get())) {
+                    event.setFinalState(GhostsBlocks.STRIPPED_HAUNTED_LOG.get().defaultBlockState());
+                }
 
-            //}
+            }
 
         }
 
