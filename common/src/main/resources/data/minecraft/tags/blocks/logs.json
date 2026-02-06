@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "ghosts:haunted_log",
+    "ghosts:stripped_haunted_log",
     "ghosts:haunted_eye_log"
   ]
 }

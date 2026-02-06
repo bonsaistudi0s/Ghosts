@@ -25,8 +25,8 @@ import java.util.function.Supplier;
 public interface GhostsPlatform {
 
     <X extends Item> Supplier<X> registerItem(String id, Supplier<X> item);
-    <X extends Block> Supplier<X> registerBlock(String id, Supplier<X> block);
-    <X extends BlockEntity> Supplier<BlockEntityType<X>> registerBlockEntity(String id, GhostsBlockEntities.BlockEntityFactory<X> supplier, Supplier<Block> block);
+    <X extends Block> Supplier<X> registerBlock(String id, Supplier<X> block, boolean registerItem);
+    <X extends BlockEntity> Supplier<BlockEntityType<X>> registerBlockEntity(String id, GhostsBlockEntities.BlockEntityFactory<X> supplier, Supplier<Block>... blocks);
     <X extends CreativeModeTab> Supplier<X> registerCreativeTab(String id, Supplier<X> creativeModeTab);
     <T extends ParticleType<?>> Supplier<T> registerParticle(String id, boolean overrideLimiter);
     <T extends Item, X extends LivingEntity> Supplier<T> registerSpawnEgg(String id, Supplier<? extends EntityType<? extends Mob>> entity, int color1, int color2, Item.Properties properties);

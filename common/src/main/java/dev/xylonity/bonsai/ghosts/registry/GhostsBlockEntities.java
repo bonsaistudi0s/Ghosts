@@ -2,6 +2,8 @@ package dev.xylonity.bonsai.ghosts.registry;
 
 import dev.xylonity.bonsai.ghosts.Ghosts;
 import dev.xylonity.bonsai.ghosts.common.blockentity.CalibratedHauntedEyeBlockEntity;
+import dev.xylonity.bonsai.ghosts.common.blockentity.HauntedHangingSignBlockEntity;
+import dev.xylonity.bonsai.ghosts.common.blockentity.HauntedSignBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -20,8 +22,22 @@ public class GhostsBlockEntities {
                     GhostsBlocks.CALIBRATED_HAUNTED_EYE
             );
 
-    private static <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String id, BlockEntityFactory<T> supplier, Supplier<Block> block) {
-        return Ghosts.PLATFORM.registerBlockEntity(id, supplier, block);
+    public static final Supplier<BlockEntityType<HauntedSignBlockEntity>> HAUNTED_SIGN =
+            register("haunted_sign",
+                    HauntedSignBlockEntity::new,
+                    GhostsBlocks.HAUNTED_SIGN,
+                    GhostsBlocks.HAUNTED_WALL_SIGN
+            );
+
+    public static final Supplier<BlockEntityType<HauntedHangingSignBlockEntity>> HAUNTED_HANGING_SIGN =
+            register("haunted_hanging_sign",
+                    HauntedHangingSignBlockEntity::new,
+                    GhostsBlocks.HAUNTED_HANGING_SIGN,
+                    GhostsBlocks.HAUNTED_WALL_HANGING_SIGN
+            );
+
+    private static <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String id, BlockEntityFactory<T> supplier, Supplier<Block>... blocks) {
+        return Ghosts.PLATFORM.registerBlockEntity(id, supplier, blocks);
     }
 
     @FunctionalInterface

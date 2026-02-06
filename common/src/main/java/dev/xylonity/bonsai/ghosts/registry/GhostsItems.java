@@ -6,9 +6,7 @@ import dev.xylonity.bonsai.ghosts.common.item.HauntedBoatItem;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.item.BoatItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.*;
 
 import java.util.function.Supplier;
 
@@ -22,6 +20,10 @@ public class GhostsItems {
 
     public static final Supplier<Item> HAUNTED_BOAT = registerItem("haunted_boat", () -> new HauntedBoatItem(new Item.Properties(), false, HauntedBoat.Type.HAUNTED));
     public static final Supplier<Item> HAUNTED_CHEST_BOAT = registerItem("haunted_chest_boat", () -> new HauntedBoatItem(new Item.Properties(), true, HauntedBoat.Type.HAUNTED));
+
+    public static final Supplier<Item> HAUNTED_SIGN = registerItem("haunted_sign", () -> new SignItem(new Item.Properties().stacksTo(16), GhostsBlocks.HAUNTED_SIGN.get(), GhostsBlocks.HAUNTED_WALL_SIGN.get()));
+    public static final Supplier<Item> HAUNTED_HANGING_SIGN = registerItem("haunted_hanging_sign", () -> new HangingSignItem(GhostsBlocks.HAUNTED_HANGING_SIGN.get(), GhostsBlocks.HAUNTED_WALL_HANGING_SIGN.get(), new Item.Properties().stacksTo(16)));
+
 
     private static <T extends Item, X extends LivingEntity> Supplier<T> registerSpawnEgg(String id, Supplier<? extends EntityType<? extends Mob>> entity, int color1, int color2, Item.Properties properties) {
         return Ghosts.PLATFORM.registerSpawnEgg(id, entity, color1, color2, properties);

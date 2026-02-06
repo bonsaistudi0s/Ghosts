@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import dev.xylonity.bonsai.ghosts.Ghosts;
 import dev.xylonity.bonsai.ghosts.GhostsForge;
 import dev.xylonity.bonsai.ghosts.registry.GhostsBlockEntities;
+import dev.xylonity.bonsai.ghosts.registry.GhostsBlocks;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
@@ -12,6 +13,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.SignItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -24,6 +26,7 @@ import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacerType;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -37,10 +40,12 @@ public class GhostsPlatformForge implements GhostsPlatform {
     }
 
     @Override
-    public <X extends Block> Supplier<X> registerBlock(String id, Supplier<X> block) {
+    public <X extends Block> Supplier<X> registerBlock(String id, Supplier<X> block, boolean registerItem) {
         Supplier<X> blockSupplier = GhostsForge.BLOCKS.register(id, block);
 
-        registerItem(id, () -> new BlockItem(blockSupplier.get(), new Item.Properties()));
+        if (registerItem) {
+            registerItem(id, () -> new BlockItem(blockSupplier.get(), new Item.Properties()));
+        }
 
         return blockSupplier;
     }
@@ -51,8 +56,15 @@ public class GhostsPlatformForge implements GhostsPlatform {
     }
 
     @Override
-    public <X extends BlockEntity> Supplier<BlockEntityType<X>> registerBlockEntity(String id, GhostsBlockEntities.BlockEntityFactory<X> supplier, Supplier<Block> block) {
-        return GhostsForge.BLOCKENTITIES.register(id, () -> BlockEntityType.Builder.of(supplier::create, block.get()).build(null));
+    public <X extends BlockEntity> Supplier<BlockEntityType<X>> registerBlockEntity(String id, GhostsBlockEntities.BlockEntityFactory<X> supplier, Supplier<Block>... blocks) {
+        return GhostsForge.BLOCKENTITIES.register(id, () -> {
+            Block[] blockArray = Arrays.stream(blocks)
+                    .map(Supplier::get)
+                    .toArray(Block[]::new);
+
+            return BlockEntityType.Builder.of(supplier::create, blockArray).build(null);
+        });
+
     }
 
     @Override

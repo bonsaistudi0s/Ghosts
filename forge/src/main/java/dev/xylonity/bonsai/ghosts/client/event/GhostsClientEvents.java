@@ -7,18 +7,23 @@ import dev.xylonity.bonsai.ghosts.client.entity.render.KodamaRenderer;
 import dev.xylonity.bonsai.ghosts.client.entity.render.SmallGhostRenderer;
 import dev.xylonity.bonsai.ghosts.client.entity.render.blockentity.CalibratedHauntedEyeGlowRenderer;
 import dev.xylonity.bonsai.ghosts.client.particle.FlyingGhostParticle;
+import dev.xylonity.bonsai.ghosts.common.blockentity.HauntedSignBlockEntity;
 import dev.xylonity.bonsai.ghosts.common.entity.boat.HauntedBoat;
 import dev.xylonity.bonsai.ghosts.registry.GhostsBlockEntities;
 import dev.xylonity.bonsai.ghosts.registry.GhostsBlocks;
 import dev.xylonity.bonsai.ghosts.registry.GhostsEntities;
 import dev.xylonity.bonsai.ghosts.registry.GhostsParticles;
+import dev.xylonity.bonsai.ghosts.tag.GhostsWoodTypes;
 import net.minecraft.client.model.BoatModel;
 import net.minecraft.client.model.ChestBoatModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.renderer.blockentity.HangingSignRenderer;
+import net.minecraft.client.renderer.blockentity.SignRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -44,7 +49,11 @@ public class GhostsClientEvents {
         ItemBlockRenderTypes.setRenderLayer(GhostsBlocks.HAUNTED_SAPLING.get(), RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(GhostsBlocks.HAUNTED_TRAPDOOR.get(), RenderType.cutout());
 
+        Sheets.addWoodType(GhostsWoodTypes.HAUNTED);
+
         BlockEntityRenderers.register(GhostsBlockEntities.CALIBRATED_HAUNTED_EYE.get(), CalibratedHauntedEyeGlowRenderer::new);
+        BlockEntityRenderers.register(GhostsBlockEntities.HAUNTED_SIGN.get(), SignRenderer::new);
+        BlockEntityRenderers.register(GhostsBlockEntities.HAUNTED_HANGING_SIGN.get(), HangingSignRenderer::new);
     }
 
     @SubscribeEvent
