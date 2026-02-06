@@ -91,6 +91,7 @@ public class KodamaEntity extends PassiveEntity {
                 if (isBartering()) {
                     setBarterTicks(0);
                     spawnAtLocation(new ItemStack(Items.AMETHYST_SHARD));
+                    setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
                 }
 
             }
@@ -185,11 +186,11 @@ public class KodamaEntity extends PassiveEntity {
 
     @Override
     protected void pickUpItem(ItemEntity itemEntity) {
-        ItemStack stack = itemEntity.getItem();
+        boolean wasAmethyst = itemEntity.getItem().is(Items.AMETHYST_SHARD);
 
         super.pickUpItem(itemEntity);
 
-        if (!level().isClientSide && stack.is(Items.AMETHYST_SHARD)) {
+        if (!level().isClientSide && wasAmethyst) {
             this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.AMETHYST_SHARD));
 
             if (!isBartering()) {
@@ -230,7 +231,6 @@ public class KodamaEntity extends PassiveEntity {
 
     @Override
     public void tick() {
-        Vec3 currentPos = position();
 
         super.tick();
 

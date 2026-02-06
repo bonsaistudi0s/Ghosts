@@ -66,9 +66,13 @@ public class FlyingGhostParticle extends TextureSheetParticle {
 
         float offset = Mth.sin(this.age * this.floatSpeed) * this.floatAmplitude;
 
-        this.y = this.startY + offset;
+        this.xo = this.x;
+        this.yo = this.y;
+        this.zo = this.z;
 
         this.yd = 0.0;
+
+        this.setPos(this.x, this.startY + offset, this.z);
     }
 
     public static class Provider implements ParticleProvider<SimpleParticleType> {
