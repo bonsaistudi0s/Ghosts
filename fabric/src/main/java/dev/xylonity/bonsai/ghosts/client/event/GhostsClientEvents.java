@@ -43,8 +43,6 @@ public class GhostsClientEvents {
         BlockRenderLayerMap.INSTANCE.putBlock(GhostsBlocks.HAUNTED_SAPLING.get(), RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(GhostsBlocks.HAUNTED_TRAPDOOR.get(), RenderType.cutout());
 
-        WoodTypeRegistry.register(Ghosts.of("haunted"), BlockSetType.ACACIA);
-
         BlockEntityRendererRegistry.register(
                 GhostsBlockEntities.CALIBRATED_HAUNTED_EYE.get(),
                 CalibratedHauntedEyeGlowRenderer::new
@@ -68,6 +66,7 @@ public class GhostsClientEvents {
                     new ModelLayerLocation(Ghosts.of("chest_boat/" + type.getName()), "main"),
                     ChestBoatModel::createBodyModel
             );
+
         }
 
         ParticleFactoryRegistry.getInstance().register(GhostsParticles.FLYING_GHOST.get(), FlyingGhostParticle.Provider::new);

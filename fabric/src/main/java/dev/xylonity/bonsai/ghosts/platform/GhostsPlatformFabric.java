@@ -5,6 +5,7 @@ import dev.xylonity.bonsai.ghosts.Ghosts;
 import dev.xylonity.bonsai.ghosts.GhostsFabric;
 import dev.xylonity.bonsai.ghosts.registry.GhostsBlockEntities;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.object.builder.v1.block.type.WoodTypeRegistry;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
@@ -19,12 +20,15 @@ import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerType;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacer;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacerType;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -38,17 +42,26 @@ public class GhostsPlatformFabric implements GhostsPlatform {
     }
 
     @Override
-    public <X extends Block> Supplier<X> registerBlock(String id, Supplier<X> block) {
+    public <X extends Block> Supplier<X> registerBlock(String id, Supplier<X> block, boolean registerItem) {
         Supplier<X> blockSupplier = registerSupplier(BuiltInRegistries.BLOCK, id, block);
 
-        registerItem(id, () -> new BlockItem(blockSupplier.get(), new Item.Properties()));
+        if (registerItem) {
+            registerItem(id, () -> new BlockItem(blockSupplier.get(), new Item.Properties()));
+        }
 
         return blockSupplier;
     }
 
     @Override
-    public <X extends BlockEntity> Supplier<BlockEntityType<X>> registerBlockEntity(String id, GhostsBlockEntities.BlockEntityFactory<X> supplier, Supplier<Block> block) {
-        return () -> BlockEntityType.Builder.of(supplier::create, block.get()).build(null);
+    public <X extends BlockEntity> Supplier<BlockEntityType<X>> registerBlockEntity(String id, GhostsBlockEntities.BlockEntityFactory<X> supplier, Supplier<Block>... blocks) {
+        return registerSupplier(BuiltInRegistries.BLOCK_ENTITY_TYPE, id, () -> {
+            Block[] blockArray = Arrays.stream(blocks)
+                    .map(Supplier::get)
+                    .toArray(Block[]::new);
+
+            return BlockEntityType.Builder.of(supplier::create, blockArray).build(null);
+        });
+
     }
 
     @Override
@@ -94,6 +107,11 @@ public class GhostsPlatformFabric implements GhostsPlatform {
     @Override
     public <U extends FoliagePlacer> Supplier<FoliagePlacerType<U>> registerFoliagePlacer(String id, Codec<U> codec) {
         return registerSupplier(BuiltInRegistries.FOLIAGE_PLACER_TYPE, id, () -> new FoliagePlacerType<>(codec));
+    }
+
+    @Override
+    public WoodType registerWoodType(ResourceLocation id, BlockSetType setType) {
+        return WoodTypeRegistry.register(id, setType);
     }
 
     @Override

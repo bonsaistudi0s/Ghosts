@@ -3,6 +3,7 @@ package dev.xylonity.bonsai.ghosts.platform;
 import com.mojang.serialization.Codec;
 import dev.xylonity.bonsai.ghosts.registry.GhostsBlockEntities;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.item.CreativeModeTab;
@@ -10,6 +11,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerType;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
@@ -34,6 +37,8 @@ public interface GhostsPlatform {
     <X extends SoundEvent> Supplier<X> registerSound(String id, Supplier<X> sound);
     <U extends TrunkPlacer> Supplier<TrunkPlacerType<U>> registerTrunkPlacer(String id, Codec<U> codec);
     <U extends FoliagePlacer> Supplier<FoliagePlacerType<U>> registerFoliagePlacer(String id, Codec<U> codec);
+
+    WoodType registerWoodType(ResourceLocation id, BlockSetType setType);
 
     CreativeModeTab.Builder creativeTabBuilder();
 

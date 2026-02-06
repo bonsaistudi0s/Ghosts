@@ -49,8 +49,6 @@ public class GhostsClientEvents {
         ItemBlockRenderTypes.setRenderLayer(GhostsBlocks.HAUNTED_SAPLING.get(), RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(GhostsBlocks.HAUNTED_TRAPDOOR.get(), RenderType.cutout());
 
-        Sheets.addWoodType(GhostsWoodTypes.HAUNTED);
-
         BlockEntityRenderers.register(GhostsBlockEntities.CALIBRATED_HAUNTED_EYE.get(), CalibratedHauntedEyeGlowRenderer::new);
         BlockEntityRenderers.register(GhostsBlockEntities.HAUNTED_SIGN.get(), SignRenderer::new);
         BlockEntityRenderers.register(GhostsBlockEntities.HAUNTED_HANGING_SIGN.get(), HangingSignRenderer::new);

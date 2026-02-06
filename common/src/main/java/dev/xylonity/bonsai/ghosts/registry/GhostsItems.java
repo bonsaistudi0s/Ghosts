@@ -24,7 +24,6 @@ public class GhostsItems {
     public static final Supplier<Item> HAUNTED_SIGN = registerItem("haunted_sign", () -> new SignItem(new Item.Properties().stacksTo(16), GhostsBlocks.HAUNTED_SIGN.get(), GhostsBlocks.HAUNTED_WALL_SIGN.get()));
     public static final Supplier<Item> HAUNTED_HANGING_SIGN = registerItem("haunted_hanging_sign", () -> new HangingSignItem(GhostsBlocks.HAUNTED_HANGING_SIGN.get(), GhostsBlocks.HAUNTED_WALL_HANGING_SIGN.get(), new Item.Properties().stacksTo(16)));
 
-
     private static <T extends Item, X extends LivingEntity> Supplier<T> registerSpawnEgg(String id, Supplier<? extends EntityType<? extends Mob>> entity, int color1, int color2, Item.Properties properties) {
         return Ghosts.PLATFORM.registerSpawnEgg(id, entity, color1, color2, properties);
     }

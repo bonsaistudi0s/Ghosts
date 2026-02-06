@@ -17,6 +17,8 @@ import net.minecraft.world.item.SignItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerType;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
@@ -105,6 +107,13 @@ public class GhostsPlatformForge implements GhostsPlatform {
     @Override
     public <U extends FoliagePlacer> Supplier<FoliagePlacerType<U>> registerFoliagePlacer(String id, Codec<U> codec) {
         return GhostsForge.FOLIAGE_TYPES.register(id, () -> new FoliagePlacerType<>(codec));
+    }
+
+    @Override
+    public WoodType registerWoodType(ResourceLocation id, BlockSetType setType) {
+        WoodType type = new WoodType(id.toString(), setType);
+        WoodType.register(type);
+        return type;
     }
 
     @Override
