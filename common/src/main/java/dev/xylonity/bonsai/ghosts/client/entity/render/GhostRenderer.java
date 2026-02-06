@@ -6,6 +6,7 @@ import dev.xylonity.bonsai.ghosts.client.entity.layer.GhostGlowLayer;
 import dev.xylonity.bonsai.ghosts.client.entity.model.GhostModel;
 import dev.xylonity.bonsai.ghosts.client.entity.render.core.BaseGhostRenderer;
 import dev.xylonity.bonsai.ghosts.common.entity.ghost.GhostEntity;
+import dev.xylonity.bonsai.ghosts.util.GhostsColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -16,6 +17,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.AbstractSkullBlock;
+import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.ItemArmorGeoLayer;
@@ -69,15 +71,42 @@ public class GhostRenderer extends BaseGhostRenderer<GhostEntity> {
     }
 
     @Override
-    public void renderRecursively(PoseStack poseStack, GhostEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
+    public void renderRecursively(PoseStack poseStack, GhostEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int color) {
+        GhostsColor parsedColor = GhostsColor.parse(color);
         if ("mushroom_red".equals(bone.getName()) || "mushroom_brown".equals(bone.getName())) {
             ItemStack head = animatable.getItemBySlot(EquipmentSlot.HEAD);
 
-            if ("mushroom_red".equals(bone.getName()) && !isRedMush(head)) return;
-            if ("mushroom_brown".equals(bone.getName()) && !isBrownMush(head)) return;
+            if ("mushroom_red".equals(bone.getName())) {
+                if (!isRedMush(head)) {
+                    return;
+                }
+                else {
+                    super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, new GhostsColor(parsedColor.red, parsedColor.green, parsedColor.blue, 1).toInt());
+                    return;
+                }
+
+            }
+
+            if ("mushroom_brown".equals(bone.getName())) {
+                if (!isBrownMush(head)) {
+                    return;
+                }
+                else {
+                    super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, new GhostsColor(parsedColor.red, parsedColor.green, parsedColor.blue, 1).toInt());
+                    return;
+                }
+
+            }
+
         }
 
-        super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
+        super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, new GhostsColor(parsedColor.red, parsedColor.green, parsedColor.blue, parsedColor.alpha).toInt());
+    }
+
+    @Override
+    public void actuallyRender(PoseStack poseStack, GhostEntity animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int color) {
+        GhostsColor parsedColor = GhostsColor.parse(color);
+        super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, new GhostsColor(parsedColor.red, parsedColor.green, parsedColor.blue, 0.65f).toInt());
     }
 
     private static boolean isRedMush(ItemStack s) {

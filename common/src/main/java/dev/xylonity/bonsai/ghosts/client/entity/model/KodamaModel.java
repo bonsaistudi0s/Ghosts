@@ -18,23 +18,23 @@ public class KodamaModel extends GeoModel<KodamaEntity> {
 
     @Override
     public ResourceLocation getModelResource(KodamaEntity animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Ghosts.MOD_ID, "geo/kodama_" + animatable.getVariant() + ".geo.json");
+        return Ghosts.of("geo/kodama_" + animatable.getVariant() + ".geo.json");
     }
 
     @Override
     public ResourceLocation getTextureResource(KodamaEntity animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Ghosts.MOD_ID, "textures/entity/kodama_" + animatable.getVariant() + ".png");
+        return Ghosts.of("textures/entity/kodama_" + animatable.getVariant() + ".png");
     }
 
     @Override
     public ResourceLocation getAnimationResource(KodamaEntity animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Ghosts.MOD_ID, "animations/kodama.animation.json");
+        return Ghosts.of("animations/kodama.animation.json");
     }
 
     @Override
     public void setCustomAnimations(KodamaEntity animatable, long instanceId, AnimationState<KodamaEntity> animationState) {
         GeoBone head = getAnimationProcessor().getBone("head");
-        if (head == null) {
+        if (head == null || animatable.isBartering()) {
             return;
         }
 

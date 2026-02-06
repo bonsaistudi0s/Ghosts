@@ -1,0 +1,22 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "ghosts:block/haunted_log_top",
+    "side": "ghosts:block/haunted_log",
+    "front": "ghosts:block/haunted_eye"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 16],
+      "faces": {
+        "north": { "uv": [0, 0, 16, 16], "texture": "#front" },
+        "south": { "uv": [0, 0, 16, 16], "texture": "#side" },
+        "east": { "uv": [0, 0, 16, 16], "texture": "#side" },
+        "west": { "uv": [0, 0, 16, 16], "texture": "#side" },
+        "up": { "uv": [0, 0, 16, 16], "texture": "#end" },
+        "down": { "uv": [0, 0, 16, 16], "texture": "#end" }
+      }
+    }
+  ]
+}

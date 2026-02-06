@@ -3,6 +3,9 @@ package dev.xylonity.bonsai.ghosts.common.entity.ghost;
 import dev.xylonity.bonsai.ghosts.common.entity.AbstractGhostEntity;
 import dev.xylonity.bonsai.ghosts.common.entity.ai.control.GhostMoveControl;
 import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.GhostWanderGoal;
+import dev.xylonity.bonsai.ghosts.common.entity.ai.smallghost.SmallGhostPickupSaplingGoal;
+import dev.xylonity.bonsai.ghosts.common.entity.ai.smallghost.SmallGhostPlantSaplingGoal;
+import dev.xylonity.bonsai.ghosts.common.entity.ai.smallghost.SmallGhostTakeSaplingBlockGoal;
 import dev.xylonity.bonsai.ghosts.common.entity.variant.SmallGhostVariant;
 import dev.xylonity.bonsai.ghosts.registry.GhostsSounds;
 import net.minecraft.core.BlockPos;
@@ -14,10 +17,16 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -35,12 +44,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.*;
-import software.bernie.geckolib.animation.AnimationState;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 public class SmallGhostEntity extends AbstractGhostEntity {
 
@@ -64,10 +71,20 @@ public class SmallGhostEntity extends AbstractGhostEntity {
 
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
+
+        this.goalSelector.addGoal(2, new SmallGhostPlantSaplingGoal(this, 0.43D, 0.1f, 60, 8));
+        this.goalSelector.addGoal(3, new SmallGhostTakeSaplingBlockGoal(this, 10, 0.43D, 0.1f));
+        this.goalSelector.addGoal(4, new SmallGhostPickupSaplingGoal(this, 0.43D, 0.1f, 10));
+
         this.goalSelector.addGoal(9, new GhostWanderGoal(this, 0.43f) {
             @Override
             public boolean canUse() {
                 return super.canUse() && !getIsSleeping();
+            }
+
+            @Override
+            public void start() {
+                this.targetPos = new Vec3(wantedX, wantedY, wantedZ);
             }
         });
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Player.class, 6.0F));
@@ -178,6 +195,7 @@ public class SmallGhostEntity extends AbstractGhostEntity {
         if (!this.getIsSleeping()) {
             super.push(entity);
         }
+
     }
 
     @Override
@@ -185,6 +203,7 @@ public class SmallGhostEntity extends AbstractGhostEntity {
         if (!this.getIsSleeping()) {
             super.doPush(entity);
         }
+
     }
 
     @Override
@@ -197,7 +216,19 @@ public class SmallGhostEntity extends AbstractGhostEntity {
         super.tick();
         this.setNoGravity(true);
 
-        if (level().isClientSide) return;
+        if (level().isClientSide) {
+            return;
+        }
+
+        if (!getHoldItem().isEmpty() && getHoldItem().is(ItemTags.SAPLINGS)) {
+            if (getIsSleeping()) {
+                setIsSleeping(false);
+            }
+            if (getCdFullHide() > 0) {
+                setCdFullHide(0);
+            }
+
+        }
 
         if (getIsSleeping() && getCdFullHide() == 36) {
             BlockPos targetBlock = this.blockPosition().below();
@@ -220,15 +251,25 @@ public class SmallGhostEntity extends AbstractGhostEntity {
 
         SmallGhostVariant variant = getVariant();
         if (variant == SmallGhostVariant.PLANT) {
-            BlockState belowBlockState = level().getBlockState(this.blockPosition().below());
-            if (!level().isDay() && (belowBlockState.is(Blocks.GRASS_BLOCK) || belowBlockState.is(Blocks.DIRT))) {
-                if (!getIsSleeping())
-                    setCdFullHide(36);
 
-                setIsSleeping(true);
-            } else {
+            if (getHoldItem().isEmpty()) {
+                BlockState belowBlockState = level().getBlockState(this.blockPosition().below());
+                if (!level().isDay() && (belowBlockState.is(Blocks.GRASS_BLOCK) || belowBlockState.is(Blocks.DIRT))) {
+                    if (!getIsSleeping()) {
+                        setCdFullHide(36);
+                    }
+
+                    setIsSleeping(true);
+                }
+                else {
+                    setIsSleeping(false);
+                }
+
+            }
+            else {
                 setIsSleeping(false);
             }
+
         }
 
         if (this.noPhysics && this.getDeltaMovement().lengthSqr() < 1.0E-4) {
@@ -253,49 +294,11 @@ public class SmallGhostEntity extends AbstractGhostEntity {
 
         }
 
-        //tryPickupItems();
     }
-
-    //private void tryPickupItems() {
-    //    var level = level();
-
-    //    if (level.isClientSide || this.tickCount % 20 != 0 || !getHoldItem().isEmpty() || this.getIsSleeping())
-    //        return;
-
-    //    List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(this.blockPosition().offset(-10, -10, -10), this.blockPosition().offset(10, 10, 10)));
-
-    //    if (items.isEmpty() || getHoldItem().getCount() >= 64)
-    //        return;
-
-    //    items.forEach(itemEntity -> {
-    //        ItemStack itemStack = itemEntity.getItem();
-    //        if (!itemStack.is(ItemTags.SAPLINGS))
-    //            return;
-
-    //        double distSqr = this.blockPosition().distToCenterSqr(itemEntity.blockPosition().getX(), itemEntity.blockPosition().getY(), itemEntity.blockPosition().getZ());
-    //        if (distSqr <= 1) {
-    //            ItemStack pickupCopy = itemStack.copy();
-
-    //            if (itemStack.getCount() > 1) {
-    //                itemStack.shrink(1);
-    //                pickupCopy.setCount(1);
-    //                this.take(itemEntity, 1);
-    //            } else {
-    //                itemEntity.discard();
-    //            }
-
-    //            setHoldItem(pickupCopy);
-    //        } else {
-    //            moveToPos(new Vec3(itemEntity.getX(), itemEntity.getY(), itemEntity.getZ()), 0.35D, 0.1f);
-    //        }
-    //    });
-    //}
 
     private void moveToPos(Vec3 target, double speed, float lerp) {
         Vec3 tetha = target.subtract(this.position());
         if (tetha.length() < 1.0E-3) return;
-
-        this.noPhysics = true;
 
         Vec3 vel = tetha.scale(1.0 / tetha.length()).scale(speed);
         Vec3 v = this.getDeltaMovement();
@@ -331,9 +334,11 @@ public class SmallGhostEntity extends AbstractGhostEntity {
         }
         if (compoundTag.contains("IsSleeping")) {
             this.setIsSleeping(compoundTag.getBoolean("IsSleeping"));
-        } else if (compoundTag.contains("IsHiding")) {
+        }
+        else if (compoundTag.contains("IsHiding")) {
             this.setIsSleeping(compoundTag.getBoolean("IsHiding"));
         }
+
     }
 
     @Nullable
@@ -355,7 +360,7 @@ public class SmallGhostEntity extends AbstractGhostEntity {
     }
 
     @Override
-    public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, SpawnGroupData spawnGroupData) {
         setVariant(level.getRandom().nextBoolean() ? SmallGhostVariant.PLANT : SmallGhostVariant.NORMAL);
         return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
     }
@@ -363,21 +368,23 @@ public class SmallGhostEntity extends AbstractGhostEntity {
     private <E extends GeoAnimatable> PlayState bodyAC(AnimationState<E> event) {
         if (event.isMoving() && !getIsSleeping()) {
             event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_move"));
-
             return PlayState.CONTINUE;
         }
 
         if (getIsSleeping()) {
-            if (getCdFullHide() > 0)
+            if (getCdFullHide() > 0) {
                 event.getController().setAnimation(RawAnimation.begin().thenPlay("ghost_bury"));
-            else
+            }
+            else {
                 event.getController().setAnimation(RawAnimation.begin().thenPlay("mini_ghost_buried"));
+            }
 
             return PlayState.CONTINUE;
         }
 
-        if (!getIsSleeping() && !event.isMoving())
+        if (!getIsSleeping() && !event.isMoving()) {
             event.getController().setAnimation(RawAnimation.begin().thenLoop("ghost_idle"));
+        }
 
         return PlayState.CONTINUE;
     }
@@ -385,7 +392,8 @@ public class SmallGhostEntity extends AbstractGhostEntity {
     private <E extends GeoAnimatable> PlayState armsAC(AnimationState<E> event) {
         if (!getHoldItem().isEmpty()) {
             event.getController().setAnimation(RawAnimation.begin().thenLoop("mini_ghost_arms_hold"));
-        } else {
+        }
+        else {
             event.getController().setAnimation(RawAnimation.begin().thenLoop(event.isMoving() ? "ghost_move_arms" : "ghost_idle_arms"));
         }
 

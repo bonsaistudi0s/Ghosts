@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "ghosts:item/haunted_chest_boat_item"
+  }
+}

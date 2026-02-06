@@ -3,7 +3,6 @@ package dev.xylonity.bonsai.ghosts.client.entity.render.core;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import dev.xylonity.bonsai.ghosts.util.GhostsColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -19,7 +18,7 @@ import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.util.RenderUtil;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 public class BaseGhostRenderer<T extends LivingEntity & GeoEntity> extends GeoEntityRenderer<T> {
 
@@ -28,7 +27,7 @@ public class BaseGhostRenderer<T extends LivingEntity & GeoEntity> extends GeoEn
     }
 
     @Override
-    public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
+    public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int color) {
         ItemStack stack = animatable.getItemBySlot(EquipmentSlot.MAINHAND);
 
         // If the item in hand isn't empty ('item' bone is a dummy anchor)
@@ -50,7 +49,7 @@ public class BaseGhostRenderer<T extends LivingEntity & GeoEntity> extends GeoEn
             buffer = bufferSource.getBuffer(renderType);
         }
 
-        super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
+        super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, color);
     }
 
     @Override

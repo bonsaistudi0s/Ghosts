@@ -22,7 +22,7 @@ public class KodamaGlowLayer extends GeoRenderLayer<KodamaEntity> {
 
     @Override
     public void render(PoseStack poseStack, KodamaEntity animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-        RenderType glowRenderType = RenderType.entityTranslucent(ResourceLocation.fromNamespaceAndPath(Ghosts.MOD_ID, "textures/entity/kodama_" + animatable.getVariant() + ".png"));
+        RenderType glowRenderType = RenderType.entityTranslucent(Ghosts.of("textures/entity/kodama_" + animatable.getVariant() + ".png"));
         VertexConsumer glowBuffer = bufferSource.getBuffer(glowRenderType);
 
         float baseAlpha = 0.525f + 0.125f * (float) Math.sin(((animatable.tickCount + partialTick) / 80f) * (float) (2 * Math.PI));

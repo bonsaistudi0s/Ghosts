@@ -9,7 +9,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import java.util.EnumSet;
 
 public class GhostWanderGoal extends Goal {
@@ -22,7 +22,7 @@ public class GhostWanderGoal extends Goal {
     private final boolean checkNoActionTime;
     private final float lerp;
 
-    private Vec3 targetPos;
+    protected Vec3 targetPos;
 
     public GhostWanderGoal(AbstractGhostEntity ghost, double speedModifier, int interval, boolean checkNoActionTime, float lerpFactor) {
         this.ghost = ghost;

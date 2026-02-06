@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "planks",
+  "ingredients": [
+    {
+      "tag": "ghosts:haunted_wood"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "id": "ghosts:haunted_planks"
+  }
+}
