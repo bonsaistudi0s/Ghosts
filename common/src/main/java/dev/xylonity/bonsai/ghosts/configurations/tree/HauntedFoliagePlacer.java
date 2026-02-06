@@ -31,14 +31,15 @@ public class HauntedFoliagePlacer extends BlobFoliagePlacer {
     @Override
     protected void createFoliage(LevelSimulatedReader level, FoliageSetter blockSetter, RandomSource random, TreeConfiguration config, int maxFreeTreeHeight, FoliageAttachment attachment, int foliageHeight, int foliageRadius, int offset) {
         int baseRadius = foliageRadius + attachment.radiusOffset();
-        this.placeLeavesRow(level, blockSetter, random, config, attachment.pos(), baseRadius, offset, attachment.doubleTrunk());
-        this.placeLeavesRow(level, blockSetter, random, config, attachment.pos(), baseRadius, offset + 1, attachment.doubleTrunk());
+
+        this.placeLeavesRow(level, blockSetter, random, config, attachment.pos(), baseRadius, -1, attachment.doubleTrunk());
+        this.placeLeavesRow(level, blockSetter, random, config, attachment.pos(), baseRadius, 0, attachment.doubleTrunk());
 
         int topRadius = Math.max(baseRadius - 1, 0);
-        this.placeLeavesRow(level, blockSetter, random, config, attachment.pos(), topRadius, offset + 2, attachment.doubleTrunk());
+        this.placeLeavesRow(level, blockSetter, random, config, attachment.pos(), topRadius, 1, attachment.doubleTrunk());
 
         BlockPos centerPos = attachment.pos();
-        for (int i = offset; i <= offset + 1; ++i) {
+        for (int i = -1; i <= 0; ++i) {
             BlockPos layerPos = centerPos.above(i);
             for (int x = -baseRadius; x <= baseRadius; ++x) {
                 for (int z = -baseRadius; z <= baseRadius; ++z) {

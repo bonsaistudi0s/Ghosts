@@ -22,6 +22,11 @@ public class GhostsServerEvents {
                 GhostsBlocks.HAUNTED_LOG.get(),
                 GhostsBlocks.STRIPPED_HAUNTED_LOG.get()
         );
+        StrippableBlockRegistry.register(
+                GhostsBlocks.HAUNTED_EYE_LOG.get(),
+                GhostsBlocks.STRIPPED_HAUNTED_LOG.get()
+        );
+
     }
 
 }

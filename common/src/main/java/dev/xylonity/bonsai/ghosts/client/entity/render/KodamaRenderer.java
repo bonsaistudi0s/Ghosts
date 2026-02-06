@@ -37,13 +37,11 @@ public class KodamaRenderer extends GeoEntityRenderer<KodamaEntity> {
             poseStack.pushPose();
             this.moveToBone(poseStack, bone);
 
-            poseStack.scale(0.4F, 0.4F, 0.4F);
-
             poseStack.mulPose(Axis.YP.rotationDegrees(180));
             poseStack.mulPose(Axis.ZN.rotationDegrees(90));
-            poseStack.mulPose(Axis.XN.rotationDegrees(140));
+            poseStack.mulPose(Axis.XN.rotationDegrees(180));
 
-            poseStack.translate(0, -0.3, 0);
+            poseStack.translate(0.3, 0, -0.13);
 
             // Item cast
             Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.GROUND, packedLight, packedOverlay, poseStack, bufferSource, animatable.level(), 0);

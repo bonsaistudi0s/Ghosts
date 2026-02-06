@@ -23,7 +23,7 @@ public class GhostsConfiguredFeatures {
         context.register(HAUNTED_TREE, new ConfiguredFeature<>(Feature.TREE,
                 new GhostsTreeConfigurationBuilder(
                         BlockStateProvider.simple(GhostsBlocks.HAUNTED_LOG.get()),
-                        new HauntedTrunkPlacer(5, 0, 1),
+                        new HauntedTrunkPlacer(5, 0, 2),
                         BlockStateProvider.simple(GhostsBlocks.HAUNTED_LEAVES.get()),
                         new HauntedFoliagePlacer(ConstantInt.of(2), ConstantInt.of(0), 2),
                         new TwoLayersFeatureSize(1, 0, 1)

@@ -40,17 +40,24 @@ public class CalibratedHauntedEyeGlowRenderer implements BlockEntityRenderer<Cal
         }
 
         int power = state.getValue(CalibratedHauntedEyeBlock.POWER);
-        ResourceLocation texture = (power > 0) ? GLOW_ON : GLOW_OFF;
+        Direction frontDirection = state.getValue(CalibratedHauntedEyeBlock.FACING);
 
+        renderFrontGlow(poseStack, buffers, power, frontDirection);
+
+        if (power > 0) {
+            renderTopGlow(poseStack, buffers, power, frontDirection);
+        }
+
+    }
+
+    private void renderFrontGlow(PoseStack poseStack, MultiBufferSource buffers, int power, Direction frontDirection) {
+        ResourceLocation texture = (power > 0) ? GLOW_ON : GLOW_OFF;
         TextureAtlasSprite sprite = Minecraft.getInstance()
                 .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
                 .apply(texture);
 
         int fullBright = LightTexture.pack(15, 15);
-
         VertexConsumer vertexConsumer = buffers.getBuffer(RenderType.translucent());
-
-        Direction frontDirection = state.getValue(CalibratedHauntedEyeBlock.FACING);
 
         poseStack.pushPose();
 
@@ -108,8 +115,102 @@ public class CalibratedHauntedEyeGlowRenderer implements BlockEntityRenderer<Cal
         poseStack.popPose();
     }
 
+    private void renderTopGlow(PoseStack poseStack, MultiBufferSource buffers, int power, Direction frontDirection) {
+        ResourceLocation texture;
+        if (power <= 4) {
+            texture = Ghosts.of("block/calibrated_haunted_eye_top_2_glow");
+        }
+        else if (power <= 6) {
+            texture = Ghosts.of("block/calibrated_haunted_eye_top_3_glow");
+        }
+        else if (power <= 8) {
+            texture = Ghosts.of("block/calibrated_haunted_eye_top_4_glow");
+        }
+        else if (power <= 10) {
+            texture = Ghosts.of("block/calibrated_haunted_eye_top_5_glow");
+        }
+        else {
+            texture = Ghosts.of("block/calibrated_haunted_eye_top_6_glow");
+        }
+
+        TextureAtlasSprite sprite = Minecraft.getInstance()
+                .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+                .apply(texture);
+
+        int fullBright = LightTexture.pack(15, 15);
+        VertexConsumer vertexConsumer = buffers.getBuffer(RenderType.translucent());
+
+        poseStack.pushPose();
+        poseStack.translate(0.5, 0.5, 0.5);
+
+        rotateTopForFacing(poseStack, frontDirection);
+
+        poseStack.scale(1.001f, 1.001f, 1.001f);
+        poseStack.translate(-0.5, -0.5, -0.5);
+
+        Matrix4f lastPose = poseStack.last().pose();
+        Matrix3f normalMatrix = poseStack.last().normal();
+
+        float u0 = sprite.getU0();
+        float u1 = sprite.getU1();
+        float v0 = sprite.getV0();
+        float v1 = sprite.getV1();
+
+        float x0 = 0f;
+        float z0 = 0f;
+        float x1 = 1f;
+        float z1 = 1f;
+        float y = 1.001f;
+
+        vertexConsumer.vertex(lastPose, x0, y, z0)
+                .color(1f, 1f, 1f, 1f)
+                .uv(u0, v0)
+                .overlayCoords(OverlayTexture.NO_OVERLAY)
+                .uv2(fullBright)
+                .normal(normalMatrix, 0f, 1f, 0f)
+                .endVertex();
+
+        vertexConsumer.vertex(lastPose, x0, y, z1)
+                .color(1f, 1f, 1f, 1f)
+                .uv(u0, v1)
+                .overlayCoords(OverlayTexture.NO_OVERLAY)
+                .uv2(fullBright)
+                .normal(normalMatrix, 0f, 1f, 0f)
+                .endVertex();
+
+        vertexConsumer.vertex(lastPose, x1, y, z1)
+                .color(1f, 1f, 1f, 1f)
+                .uv(u1, v1)
+                .overlayCoords(OverlayTexture.NO_OVERLAY)
+                .uv2(fullBright)
+                .normal(normalMatrix, 0f, 1f, 0f)
+                .endVertex();
+
+        vertexConsumer.vertex(lastPose, x1, y, z0)
+                .color(1f, 1f, 1f, 1f)
+                .uv(u1, v0)
+                .overlayCoords(OverlayTexture.NO_OVERLAY)
+                .uv2(fullBright)
+                .normal(normalMatrix, 0f, 1f, 0f)
+                .endVertex();
+
+        poseStack.popPose();
+    }
+
     private static void rotateFromNorthTo(PoseStack poseStack, Direction direction) {
         switch (direction) {
+            case NORTH -> { ;; }
+            case SOUTH -> poseStack.mulPose(Axis.YP.rotationDegrees(180f));
+            case EAST -> poseStack.mulPose(Axis.YP.rotationDegrees(270f));
+            case WEST -> poseStack.mulPose(Axis.YP.rotationDegrees(90f));
+            case UP -> poseStack.mulPose(Axis.XP.rotationDegrees(90f));
+            case DOWN -> poseStack.mulPose(Axis.XP.rotationDegrees(-90f));
+        }
+
+    }
+
+    private static void rotateTopForFacing(PoseStack poseStack, Direction facing) {
+        switch (facing) {
             case NORTH -> { ;; }
             case SOUTH -> poseStack.mulPose(Axis.YP.rotationDegrees(180f));
             case EAST -> poseStack.mulPose(Axis.YP.rotationDegrees(270f));

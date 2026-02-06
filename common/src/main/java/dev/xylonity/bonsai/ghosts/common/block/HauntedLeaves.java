@@ -15,7 +15,7 @@ public class HauntedLeaves extends LeavesBlock {
 
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
-        if (random.nextFloat() < 0.999) {
+        if (random.nextFloat() < 0.9995) {
             return;
         }
 

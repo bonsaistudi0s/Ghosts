@@ -41,7 +41,7 @@ public class HauntedTrunkPlacer extends StraightTrunkPlacer {
         for (int i = 0; i < freeTreeHeight; ++i) {
             final BlockPos currentPosition = pos.above(i);
 
-            if (random.nextFloat() < 0.1f && !hasSpawnedEye) {
+            if (random.nextFloat() < 0.2f && !hasSpawnedEye) {
                 blockSetter.accept(currentPosition, GhostsBlocks.HAUNTED_EYE_LOG.get().defaultBlockState());
                 this.hasSpawnedEye = true;
             }

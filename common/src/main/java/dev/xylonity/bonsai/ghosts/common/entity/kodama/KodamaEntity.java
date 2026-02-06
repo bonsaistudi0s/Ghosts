@@ -25,6 +25,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.AbstractGolem;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -70,6 +71,7 @@ public class KodamaEntity extends PassiveEntity {
         super(entityType, level);
         this.noCulling = true;
         this.flashAlpha = 0;
+        setCanPickUpLoot(true);
     }
 
     public static AttributeSupplier.Builder setAttributes() {
@@ -103,6 +105,15 @@ public class KodamaEntity extends PassiveEntity {
                 }
 
                 return super.canUse();
+            }
+
+            @Override
+            public boolean canContinueToUse() {
+                if (isBartering() || getRattlingTicks() > 0) {
+                    return false;
+                }
+
+                return super.canContinueToUse();
             }
 
         });
@@ -157,6 +168,37 @@ public class KodamaEntity extends PassiveEntity {
 
     protected boolean shouldPanic() {
         return this.getLastHurtByMob() != null || this.isFreezing() || this.isOnFire();
+    }
+
+    @Override
+    public boolean wantsToPickUp(ItemStack stack) {
+        if (isBartering() || getRattlingTicks() > 0 || shouldPanic() || !onGround()) {
+            return false;
+        }
+
+        if (!this.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty()) {
+            return false;
+        }
+
+        return stack.is(Items.AMETHYST_SHARD);
+    }
+
+    @Override
+    protected void pickUpItem(ItemEntity itemEntity) {
+        ItemStack stack = itemEntity.getItem();
+
+        super.pickUpItem(itemEntity);
+
+        if (!level().isClientSide && stack.is(Items.AMETHYST_SHARD)) {
+            this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.AMETHYST_SHARD));
+
+            if (!isBartering()) {
+                setBarterTicks(1);
+                level().playSound(null, blockPosition(), GhostsSounds.KODAMA_IDLE.get(), SoundSource.NEUTRAL, 0.7f, 1.2f);
+            }
+
+        }
+
     }
 
     @Override

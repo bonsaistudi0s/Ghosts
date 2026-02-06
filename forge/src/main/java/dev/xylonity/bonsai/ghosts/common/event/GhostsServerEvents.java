@@ -66,6 +66,9 @@ public class GhostsServerEvents {
                 if (event.getState().is(GhostsBlocks.HAUNTED_LOG.get())) {
                     event.setFinalState(GhostsBlocks.STRIPPED_HAUNTED_LOG.get().defaultBlockState());
                 }
+                if (event.getState().is(GhostsBlocks.HAUNTED_EYE_LOG.get())) {
+                    event.setFinalState(GhostsBlocks.STRIPPED_HAUNTED_LOG.get().defaultBlockState());
+                }
 
             }
 
