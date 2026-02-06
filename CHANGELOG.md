@@ -1,0 +1,11 @@
+# 1.3.0
+- Added a brand-new creative tab for the mod's items
+- Now the entities spawn eggs aren't added automatically to the vanilla's creative mode tabs
+- Added haunted tree
+- Added calibrated haunted eye block, that outputs a redstone signal if there is an entity in front of it
+- Fixed z fighting on the small ghost plant texture
+- Made regular ghosts slightly more transparent
+- Now small ghosts do not phase through blocks
+- Kodama can now barter interacting with it with an amethyst shard. They'll drop a random sapling (item tagged as such)
+- Fixed a case where kodama head will start tweaking after rendering it while being nearby
+- Fixed small ghost red hurt overlay not showing up on its body
