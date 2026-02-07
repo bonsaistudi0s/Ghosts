@@ -1,5 +1,5 @@
 # 1.3.1
-- Fixed a bug in fabric caused by an incorrect registry in the permutation of the eye log to its stripped variant
+- Fixed a crash in fabric caused by an incorrect registry in the permutation of the eye log to its stripped variant
 
 # 1.3.0
 - Added a brand-new creative tab for the mod's items
