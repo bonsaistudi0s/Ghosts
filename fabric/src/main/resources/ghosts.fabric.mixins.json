@@ -4,7 +4,9 @@
   "package": "dev.xylonity.bonsai.ghosts.mixin",
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
+  "mixins": [
+    "AxeItemMixin"
+  ],
   "client": [
   ],
   "server": [],
