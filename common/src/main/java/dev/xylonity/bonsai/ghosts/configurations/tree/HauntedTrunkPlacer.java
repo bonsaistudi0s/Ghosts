@@ -7,9 +7,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xylonity.bonsai.ghosts.registry.GhostsBlocks;
 import dev.xylonity.bonsai.ghosts.registry.GhostsTrunkPlacerTypes;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
@@ -36,13 +38,15 @@ public class HauntedTrunkPlacer extends StraightTrunkPlacer {
 
     @Override
     public List<FoliagePlacer.FoliageAttachment> placeTrunk(LevelSimulatedReader level, BiConsumer<BlockPos, BlockState> blockSetter, RandomSource random, int freeTreeHeight, BlockPos pos, TreeConfiguration config) {
+        this.hasSpawnedEye = false;
         setDirtAt(level, blockSetter, random, pos.below(), config);
 
         for (int i = 0; i < freeTreeHeight; ++i) {
             final BlockPos currentPosition = pos.above(i);
 
-            if (random.nextFloat() < 0.2f && !hasSpawnedEye) {
-                blockSetter.accept(currentPosition, GhostsBlocks.HAUNTED_EYE_LOG.get().defaultBlockState());
+            if (random.nextFloat() < 0.10f && !hasSpawnedEye) {
+                final Direction direction = Direction.Plane.HORIZONTAL.getRandomDirection(random);
+                blockSetter.accept(currentPosition, GhostsBlocks.HAUNTED_EYE_LOG.get().defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, direction));
                 this.hasSpawnedEye = true;
             }
             else {
