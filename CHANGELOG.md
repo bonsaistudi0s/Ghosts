@@ -8,7 +8,6 @@
 - Fixed an issue in Fabric where the haunted boat would have the texture of the oak boat
 - Fixed an issue in Fabric where the haunted eye log would only spawn on the first tree of all those generated in that game session
 
-
 # 1.3.1
 - Fixed a crash in fabric caused by an incorrect registry in the permutation of the eye log to its stripped variant
 
