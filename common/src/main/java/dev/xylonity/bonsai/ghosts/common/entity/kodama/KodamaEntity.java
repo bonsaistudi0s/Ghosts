@@ -347,25 +347,9 @@ public class KodamaEntity extends PassiveEntity {
     }
 
     public static boolean checkKodamaSpawnRules(EntityType<? extends Animal> kodama, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
-        return isDarkEnoughToSpawn(level, pos, random) && checkMobSpawnRules(kodama, level, spawnType, pos, random);
-    }
-
-    public static boolean isDarkEnoughToSpawn(ServerLevelAccessor level, BlockPos pos, RandomSource random) {
-        if (level.getBrightness(LightLayer.SKY, pos) > random.nextInt(32)) {
-            return false;
-        }
-        else {
-            DimensionType dimensiontype = level.dimensionType();
-            int i = dimensiontype.monsterSpawnBlockLightLimit();
-            if (i < 15 && level.getBrightness(LightLayer.BLOCK, pos) > i) {
-                return false;
-            }
-            else {
-                int j = level.getLevel().isThundering() ? level.getMaxLocalRawBrightness(pos, 10) : level.getMaxLocalRawBrightness(pos);
-                return j <= dimensiontype.monsterSpawnLightTest().sample(random);
-            }
-        }
-
+        long dayTime = level.getLevel().getDayTime() % 24000;
+        boolean isNight = dayTime >= 13000 && dayTime <= 23000;
+        return isNight && checkMobSpawnRules(kodama, level, spawnType, pos, random);
     }
 
     @Override
