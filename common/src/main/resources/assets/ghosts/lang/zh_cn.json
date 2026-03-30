@@ -1,0 +1,47 @@
+{
+  "item.ghosts.ghost_spawn_egg": "幽灵刷怪蛋",
+  "entity.ghosts.ghost": "幽灵",
+
+  "item.ghosts.small_ghost_spawn_egg": "小幽灵刷怪蛋",
+  "entity.ghosts.small_ghost": "小幽灵",
+
+  "item.ghosts.kodama_spawn_egg": "木灵刷怪蛋",
+  "entity.ghosts.kodama": "木灵",
+
+  "ghosts.ghost_ambient": "幽灵：嗖嗖",
+  "ghosts.ghost_death": "幽灵：死亡",
+  "ghosts.ghost_hurt": "幽灵：受伤",
+  "ghosts.mini_ghost_ambient": "小幽灵：嗖嗖",
+  "ghosts.mini_ghost_death": "小幽灵：死亡",
+  "ghosts.mini_ghost_hurt": "小幽灵：受伤",
+
+  "block.ghosts.haunted_sapling": "缠灵树树苗",
+  "block.ghosts.haunted_log": "缠灵木原木",
+  "block.ghosts.stripped_haunted_log": "去皮缠灵木原木",
+  "block.ghosts.haunted_planks": "缠灵木木板",
+  "block.ghosts.haunted_slab": "缠灵木台阶",
+  "block.ghosts.haunted_stairs": "缠灵木楼梯",
+  "block.ghosts.haunted_leaves": "缠灵树树叶",
+  "block.ghosts.haunted_eye_log": "缠灵木眼原木",
+  "block.ghosts.haunted_door": "缠灵木门",
+  "block.ghosts.haunted_trapdoor": "缠灵木活板门",
+  "block.ghosts.haunted_fence": "缠灵木栅栏",
+  "block.ghosts.haunted_fence_gate": "缠灵木栅栏门",
+  "block.ghosts.haunted_button": "缠灵木按钮",
+  "block.ghosts.haunted_sign": "缠灵木告示牌",
+  "block.ghosts.haunted_hanging_sign": "悬挂式缠灵木告示牌",
+  "block.ghosts.haunted_pressure_plate": "缠灵木压力板",
+  "block.ghosts.calibrated_haunted_eye": "校频缠灵木眼",
+
+  "entity.ghosts.client_message.interaction_0": "%1$s坐下",
+  "entity.ghosts.client_message.interaction_1": "%1$s跟随着你",
+  "entity.ghosts.client_message.interaction_2": "%1$s自由徘徊",
+
+  "entity.ghosts.haunted_boat": "缠灵木船",
+  "entity.ghosts.haunted_chest_boat": "缠灵木运输船",
+
+  "item.ghosts.haunted_boat": "缠灵木船",
+  "item.ghosts.haunted_chest_boat": "缠灵木运输船",
+
+  "creativetab.ghosts.title": "幽灵"
+}
