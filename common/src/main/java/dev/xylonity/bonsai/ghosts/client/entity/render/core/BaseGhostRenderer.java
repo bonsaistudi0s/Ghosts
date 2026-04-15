@@ -29,7 +29,8 @@ public class BaseGhostRenderer<T extends LivingEntity & GeoEntity> extends GeoEn
         ItemStack stack = animatable.getItemBySlot(EquipmentSlot.MAINHAND);
 
         // If the item in hand isn't empty ('item' bone is a dummy anchor)
-        if (!stack.isEmpty() && bone.getName().equals("item")) {
+        // renderStatic invalidates the active BufferBuilder, causing a client crash because sibling bones still hold the original buffer reference
+        if (!stack.isEmpty() && bone.getName().equals("item") && !isReRender) {
             poseStack.pushPose();
             this.moveToBone(poseStack, bone);
 
