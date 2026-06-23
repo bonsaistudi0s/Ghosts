@@ -356,7 +356,10 @@ public class KodamaEntity extends PassiveEntity {
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
         if (getVariant() == 0) {
-            setVariant(level.getLevel().random.nextInt(4) + 1);
+            // Do not use the world's BitRandomSource here: finalizeSpawn can run on C2ME (or other)
+            // parallel worldgen worker threads, which is not thread-safe for server-level random.
+            long variantSeed = this.blockPosition().asLong() ^ level.getLevel().getSeed();
+            setVariant(RandomSource.create(variantSeed).nextInt(4) + 1);
         }
 
         return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
