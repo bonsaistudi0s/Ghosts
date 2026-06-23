@@ -1,3 +1,6 @@
+# 1.3.3
+- Added Simplified Chinese translations (by Junnaturefox)
+
 # 1.3.2
 - Reduced spawn rate for ghosts and seedling ghosts
 - Changed the name of the small ghost to seedling ghost
