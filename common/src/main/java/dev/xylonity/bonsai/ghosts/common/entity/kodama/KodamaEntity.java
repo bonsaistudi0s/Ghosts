@@ -360,7 +360,8 @@ public class KodamaEntity extends PassiveEntity {
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason, SpawnGroupData spawnData, CompoundTag dataTag) {
         if (getVariant() == 0) {
-            setVariant(level.getLevel().random.nextInt(4) + 1);
+            long variantSeed = this.blockPosition().asLong() ^ level.getLevel().getSeed();
+            setVariant(RandomSource.create(variantSeed).nextInt(4) + 1);
         }
 
         return super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);

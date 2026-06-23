@@ -1,5 +1,6 @@
 # 1.3.3
 - Added Simplified Chinese translations (by Junnaturefox)
+- Fixed a case where kodama wouldn't spawn caused by c2me
 
 # 1.3.2
 - Reduced spawn rate for ghosts and seedling ghosts
