@@ -1,3 +1,6 @@
+# 1.3.4
+- Fixed a case where haunted leaves loot tables where incorrectly prompted (fix by landmaster)
+
 # 1.3.3
 - Fixed a crash that occurred with clients connected to a dedicated server when rendering a ghost with the vanilla glow effect
 
