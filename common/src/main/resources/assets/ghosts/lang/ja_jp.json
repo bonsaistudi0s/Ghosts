@@ -1,0 +1,48 @@
+{
+  "_comment":"1.3.3 Neoforge-1.21.1",
+  "item.ghosts.ghost_spawn_egg": "おばけのスポーンエッグ",
+  "entity.ghosts.ghost": "おばけ",
+
+  "item.ghosts.small_ghost_spawn_egg": "双葉のおばけのスポーンエッグ",
+  "entity.ghosts.small_ghost": "双葉のおばけ",
+
+  "item.ghosts.kodama_spawn_egg": "こだまのスポーンエッグ",
+  "entity.ghosts.kodama": "こだま",
+
+  "ghosts.ghost_ambient": "おばけが飛び交う",
+  "ghosts.ghost_death": "おばけが死ぬ",
+  "ghosts.ghost_hurt": "おばけがダメージを受ける",
+  "ghosts.mini_ghost_ambient": "双葉のおばけが飛び交う",
+  "ghosts.mini_ghost_death": "双葉のおばけが死ぬ",
+  "ghosts.mini_ghost_hurt": "双葉のおばけがダメージを受ける",
+
+  "block.ghosts.haunted_sapling": "おばけの苗木",
+  "block.ghosts.haunted_log": "おばけの原木",
+  "block.ghosts.stripped_haunted_log": "樹皮を剥いだおばけの原木",
+  "block.ghosts.haunted_planks": "おばけの板材",
+  "block.ghosts.haunted_slab": "おばけのハーフブロック",
+  "block.ghosts.haunted_stairs": "おばけの階段",
+  "block.ghosts.haunted_leaves": "おばけの葉",
+  "block.ghosts.haunted_eye_log": "おばけの目の原木",
+  "block.ghosts.haunted_door": "おばけのドア",
+  "block.ghosts.haunted_trapdoor": "おばけのトラップドア",
+  "block.ghosts.haunted_fence": "おばけのフェンス",
+  "block.ghosts.haunted_fence_gate": "おばけのフェンスゲート",
+  "block.ghosts.haunted_button": "おばけのボタン",
+  "block.ghosts.haunted_sign": "おばけの看板",
+  "block.ghosts.haunted_hanging_sign": "おばけの釣り看板",
+  "block.ghosts.haunted_pressure_plate": "おばけの感圧板",
+  "block.ghosts.calibrated_haunted_eye": "調律されたおばけの目",
+
+  "entity.ghosts.client_message.interaction_0": "%1$sは座っている",
+  "entity.ghosts.client_message.interaction_1": "%1$sは追従している",
+  "entity.ghosts.client_message.interaction_2": "%1$sは周りをうろついている",
+
+  "entity.ghosts.haunted_boat": "おばけのボート",
+  "entity.ghosts.haunted_chest_boat": "チェスト付きのおばけのボート",
+
+  "item.ghosts.haunted_boat": "おばけのボート",
+  "item.ghosts.haunted_chest_boat": "チェスト付きのおばけのボート",
+
+  "creativetab.ghosts.title": "Ghosts"
+}
