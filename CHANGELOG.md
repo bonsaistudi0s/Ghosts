@@ -1,6 +1,8 @@
 # 1.3.4
 - Now all ghosts can be healed using glow berries
+- Haunted saplings can now be placed in flower pots
 - Fixed a case where a glow berry wasn't consumed when healing a tamed ghost
+- Fixed missing crafting recipes for the haunted button and haunted pressure plate
 
 # 1.3.3
 - Added Simplified Chinese translations (by Junnaturefox)

@@ -41,6 +41,7 @@ public class GhostsClientEvents {
 
         BlockRenderLayerMap.INSTANCE.putBlock(GhostsBlocks.HAUNTED_DOOR.get(), RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(GhostsBlocks.HAUNTED_SAPLING.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(GhostsBlocks.POTTED_HAUNTED_SAPLING.get(), RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(GhostsBlocks.HAUNTED_TRAPDOOR.get(), RenderType.cutout());
 
         BlockEntityRendererRegistry.register(

@@ -39,6 +39,7 @@ public class GhostsBlocks {
     public static final Supplier<Block> HAUNTED_FENCE_GATE = register("haunted_fence_gate", () -> new FenceGateBlock(BlockBehaviour.Properties.copy(Blocks.ACACIA_PLANKS), WoodType.ACACIA));
 
     public static final Supplier<Block> HAUNTED_SAPLING = register("haunted_sapling", () -> new HauntedSapling(new HauntedTreeGrower(), BlockBehaviour.Properties.copy(Blocks.ACACIA_SAPLING)));
+    public static final Supplier<Block> POTTED_HAUNTED_SAPLING = register("potted_haunted_sapling", () -> new FlowerPotBlock(HAUNTED_SAPLING.get(), BlockBehaviour.Properties.copy(Blocks.POTTED_ACACIA_SAPLING)), false);
 
     private static <T extends Block> Supplier<T> register(String id, Supplier<T> block) {
         return Ghosts.PLATFORM.registerBlock(id, block, true);
