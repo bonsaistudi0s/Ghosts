@@ -20,6 +20,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -309,6 +311,15 @@ public class SmallGhostEntity extends AbstractGhostEntity {
         this.setDeltaMovement(Mth.lerp(lerp, v.x, vel.x), Mth.lerp(lerp, v.y, vel.y), Mth.lerp(lerp, v.z, vel.z));
 
         this.getLookControl().setLookAt(target.x, target.y, target.z);
+    }
+
+    @Override
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (tryHealWithGlowBerries(player, player.getItemInHand(hand))) {
+            return InteractionResult.sidedSuccess(level().isClientSide);
+        }
+
+        return super.mobInteract(player, hand);
     }
 
     @Override
