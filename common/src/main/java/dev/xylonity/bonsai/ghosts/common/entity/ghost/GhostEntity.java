@@ -205,8 +205,8 @@ public class GhostEntity extends AbstractGhostEntity {
         if (isTame() && player == getOwner()) {
             if (player.isShiftKeyDown()) {
                 // Healing
-                if (stack.getItem() == Items.GLOW_BERRIES && getHealth() < getMaxHealth()) {
-                    this.heal(4f);
+                if (tryHealWithGlowBerries(player, stack)) {
+                    return InteractionResult.SUCCESS;
                 }
                 // Armor equipped
                 else if (this.getItemBySlot(EquipmentSlot.HEAD).isEmpty() && (getEquipmentSlotForItem(stack) == EquipmentSlot.HEAD || stack.is(Items.BROWN_MUSHROOM) || stack.is(Items.RED_MUSHROOM))) {

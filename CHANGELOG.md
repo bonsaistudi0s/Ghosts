@@ -1,3 +1,7 @@
+# 1.3.5
+- Now all ghosts can be healed using glow berries
+- Fixed a case where a glow berry wasn't consumed when healing a tamed ghost
+
 # 1.3.4
 - Added Simplified Chinese translations (by Junnaturefox)
 - Fixed a case where haunted leaves loot tables where incorrectly prompted (fix by landmaster)

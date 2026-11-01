@@ -16,8 +16,10 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -141,6 +143,23 @@ public abstract class AbstractGhostEntity extends TamableAnimal implements GeoEn
     public boolean hurt(DamageSource source, float amount) {
         if (source.is(DamageTypes.IN_WALL)) return false;
         return super.hurt(source, amount);
+    }
+
+    protected boolean tryHealWithGlowBerries(Player player, ItemStack stack) {
+        if (!stack.is(Items.GLOW_BERRIES) || getHealth() >= getMaxHealth()) {
+            return false;
+        }
+
+        if (!level().isClientSide) {
+            this.heal(4F);
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+
+            this.gameEvent(GameEvent.EAT, this);
+        }
+
+        return true;
     }
 
     public void setMainInteraction(int interaction) {
