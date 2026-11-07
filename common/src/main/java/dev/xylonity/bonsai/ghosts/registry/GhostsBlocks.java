@@ -26,7 +26,7 @@ public class GhostsBlocks {
     public static final Supplier<Block> HAUNTED_LEAVES = register("haunted_leaves", () -> new HauntedLeaves(BlockBehaviour.Properties.copy(Blocks.ACACIA_LEAVES).lightLevel(value -> 7)));
     public static final Supplier<Block> HAUNTED_BUTTON = register("haunted_button", () -> new HauntedButton(BlockBehaviour.Properties.copy(Blocks.ACACIA_BUTTON), BlockSetType.ACACIA, 20, false));
     public static final Supplier<Block> HAUNTED_PRESSURE_PLATE = register("haunted_pressure_plate", () -> new HauntedPressurePlateBlock(PressurePlateBlock.Sensitivity.EVERYTHING, BlockBehaviour.Properties.of().mapColor(Blocks.ACACIA_PLANKS.defaultMapColor()).forceSolidOn().instrument(NoteBlockInstrument.BASS).noCollission().strength(0.5F).ignitedByLava().pushReaction(PushReaction.DESTROY), BlockSetType.ACACIA));
-    public static final Supplier<Block> HAUNTED_EYE_LOG = register("haunted_eye_log", () -> new HauntedEyeBlock(BlockBehaviour.Properties.copy(Blocks.ACACIA_PLANKS).lightLevel(value -> 6)));
+    public static final Supplier<Block> HAUNTED_EYE_LOG = register("haunted_eye_log", () -> new HauntedEyeBlock(BlockBehaviour.Properties.copy(Blocks.ACACIA_PLANKS).lightLevel(value -> 8)));
     public static final Supplier<Block> CALIBRATED_HAUNTED_EYE = register("calibrated_haunted_eye", () -> new CalibratedHauntedEyeBlock(BlockBehaviour.Properties.copy(Blocks.ACACIA_PLANKS)));
     public static final Supplier<Block> HAUNTED_DOOR = register("haunted_door", () -> new HauntedDoor(BlockBehaviour.Properties.copy(Blocks.ACACIA_DOOR), BlockSetType.ACACIA));
 

@@ -1,5 +1,6 @@
 package dev.xylonity.bonsai.ghosts.registry;
 
+import dev.xylonity.bonsai.ghosts.common.entity.ghost.GhostEntity;
 import dev.xylonity.bonsai.ghosts.common.entity.kodama.KodamaEntity;
 import dev.xylonity.bonsai.ghosts.config.GhostsConfig;
 import dev.xylonity.bonsai.ghosts.config.SpawnConfig;
@@ -37,7 +38,7 @@ public class GhostsSpawns {
                 KODAMA_SPAWN_CONFIG.maxCount
         );
 
-        SpawnPlacements.register(GhostsEntities.GHOST.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, TamableAnimal::checkMobSpawnRules);
+        SpawnPlacements.register(GhostsEntities.GHOST.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, GhostEntity::checkGhostSpawnRules);
         SpawnPlacements.register(GhostsEntities.SMALL_GHOST.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, TamableAnimal::checkMobSpawnRules);
         SpawnPlacements.register(GhostsEntities.KODAMA.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, KodamaEntity::checkKodamaSpawnRules);
     }

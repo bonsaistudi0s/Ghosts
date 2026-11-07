@@ -1,3 +1,15 @@
+# 1.4.0
+- Added new spawn egg textures for the ghost, the seedling ghost and the kodama
+- Rebalanced spawns so that kodama are more common than ghosts and seedling ghosts
+- Kodama now also populates forests when chunks are generated, regardless of the time of the day (afterwards they still only spawn naturally at night)
+- Kodama can now spawn in every forest biome
+- Ghosts no longer spawn during the day
+- Ghosts and seedling ghosts now take knockback
+- Tamed ghosts now try to stay within 30 blocks of where they were set to wander
+- Increased the haunted eye log light level from 6 to 8
+- Renamed the remaining references to the small ghost as seedling ghost
+- Fixed the haunted hanging sign opening the regular sign edit screen (and using its text line size) instead of the hanging sign one
+
 # 1.3.4
 - Now all ghosts can be healed using glow berries
 - Haunted saplings can now be placed in flower pots

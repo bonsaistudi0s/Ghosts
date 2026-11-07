@@ -110,8 +110,7 @@ public class SmallGhostEntity extends AbstractGhostEntity {
         return AbstractGolem.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 10)
                 .add(Attributes.FLYING_SPEED, 0.3F)
-                .add(Attributes.MOVEMENT_SPEED, 0.3F)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
+                .add(Attributes.MOVEMENT_SPEED, 0.3F);
     }
 
     @Override

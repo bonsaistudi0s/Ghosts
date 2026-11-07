@@ -349,7 +349,8 @@ public class KodamaEntity extends PassiveEntity {
     public static boolean checkKodamaSpawnRules(EntityType<? extends Animal> kodama, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
         long dayTime = level.getLevel().getDayTime() % 24000;
         boolean isNight = dayTime >= 13000 && dayTime <= 23000;
-        return isNight && checkMobSpawnRules(kodama, level, spawnType, pos, random);
+        boolean ignoresTime = spawnType == MobSpawnType.CHUNK_GENERATION || spawnType == MobSpawnType.SPAWNER;
+        return (isNight || ignoresTime) && checkMobSpawnRules(kodama, level, spawnType, pos, random);
     }
 
     @Override
@@ -380,6 +381,7 @@ public class KodamaEntity extends PassiveEntity {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
         controllerRegistrar.add(new AnimationController<>(this, "controller", 2, this::predicate));
+        controllerRegistrar.add(new AnimationController<>(this, "barter_controller", 4, this::barterPredicate));
     }
 
     private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> event) {
@@ -388,10 +390,7 @@ public class KodamaEntity extends PassiveEntity {
             rattleAnimationType = level().random.nextInt(2);
         }
 
-        if (getBarterTicks() > 0) {
-            event.setAnimation(BARTER);
-        }
-        else if (getRattlingTicks() > 0) {
+        if (getRattlingTicks() > 0) {
             event.setAnimation(rattleAnimationType == 0 ? RATTLE : RATTLE_2);
         }
         else if (event.isMoving()) {
@@ -402,6 +401,17 @@ public class KodamaEntity extends PassiveEntity {
         }
 
         return PlayState.CONTINUE;
+    }
+
+    private <T extends GeoAnimatable> PlayState barterPredicate(AnimationState<T> event) {
+        if (getBarterTicks() > 0) {
+            event.setAnimation(BARTER);
+            return PlayState.CONTINUE;
+        }
+
+        event.getController().forceAnimationReset();
+
+        return PlayState.STOP;
     }
 
 }
