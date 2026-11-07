@@ -26,7 +26,7 @@ public class GhostsBlocks {
     public static final Supplier<Block> HAUNTED_LEAVES = register("haunted_leaves", () -> new HauntedLeaves(BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES).lightLevel(value -> 7)));
     public static final Supplier<Block> HAUNTED_BUTTON = register("haunted_button", () -> new HauntedButton(BlockSetType.ACACIA, 20, BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_BUTTON)));
     public static final Supplier<Block> HAUNTED_PRESSURE_PLATE = register("haunted_pressure_plate", () -> new HauntedPressurePlateBlock(BlockSetType.ACACIA, BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_PRESSURE_PLATE)));
-    public static final Supplier<Block> HAUNTED_EYE_LOG = register("haunted_eye_log", () -> new HauntedEyeBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_PLANKS).lightLevel(value -> 6)));
+    public static final Supplier<Block> HAUNTED_EYE_LOG = register("haunted_eye_log", () -> new HauntedEyeBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_PLANKS).lightLevel(value -> 8)));
     public static final Supplier<Block> CALIBRATED_HAUNTED_EYE = register("calibrated_haunted_eye", () -> new CalibratedHauntedEyeBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_PLANKS)));
     public static final Supplier<Block> HAUNTED_DOOR = register("haunted_door", () -> new HauntedDoor(BlockSetType.ACACIA, BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_DOOR)));
 

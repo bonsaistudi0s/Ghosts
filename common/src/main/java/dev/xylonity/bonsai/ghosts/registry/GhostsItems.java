@@ -17,9 +17,9 @@ public class GhostsItems {
 
     public static void init() { ;; }
 
-    public static final Supplier<SpawnEggItem> GHOST_SPAWN_EGG = registerSpawnEgg("ghost_spawn_egg", GhostsEntities.GHOST, 0xA5FFFF, 0x783D7C, new Item.Properties());
-    public static final Supplier<SpawnEggItem> SMALL_GHOST_SPAWN_EGG = registerSpawnEgg("small_ghost_spawn_egg", GhostsEntities.SMALL_GHOST, 0xA5FFFF, 0x00FF00, new Item.Properties());
-    public static final Supplier<SpawnEggItem> KODAMA_SPAWN_EGG = registerSpawnEgg("kodama_spawn_egg", GhostsEntities.KODAMA, 0xe8ead7, 0x92a8a5, new Item.Properties());
+    public static final Supplier<SpawnEggItem> GHOST_SPAWN_EGG = registerSpawnEgg("ghost_spawn_egg", GhostsEntities.GHOST, 0xFFFFFF, 0xFFFFFF, new Item.Properties());
+    public static final Supplier<SpawnEggItem> SMALL_GHOST_SPAWN_EGG = registerSpawnEgg("small_ghost_spawn_egg", GhostsEntities.SMALL_GHOST, 0xFFFFFF, 0xFFFFFF, new Item.Properties());
+    public static final Supplier<SpawnEggItem> KODAMA_SPAWN_EGG = registerSpawnEgg("kodama_spawn_egg", GhostsEntities.KODAMA, 0xFFFFFF, 0xFFFFFF, new Item.Properties());
 
     public static final Supplier<Item> HAUNTED_BOAT = registerItem("haunted_boat", () -> new HauntedBoatItem(new Item.Properties(), false, HauntedBoat.Type.HAUNTED));
     public static final Supplier<Item> HAUNTED_CHEST_BOAT = registerItem("haunted_chest_boat", () -> new HauntedBoatItem(new Item.Properties(), true, HauntedBoat.Type.HAUNTED));

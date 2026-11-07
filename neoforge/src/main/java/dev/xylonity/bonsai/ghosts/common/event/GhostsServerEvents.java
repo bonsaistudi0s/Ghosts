@@ -42,7 +42,7 @@ public class GhostsServerEvents {
 
         @SubscribeEvent
         public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
-            event.register(GhostsEntities.GHOST.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, TamableAnimal::checkMobSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+            event.register(GhostsEntities.GHOST.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, GhostEntity::checkGhostSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
             event.register(GhostsEntities.SMALL_GHOST.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, TamableAnimal::checkMobSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
             event.register(GhostsEntities.KODAMA.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, KodamaEntity::checkKodamaSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }

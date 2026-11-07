@@ -1,6 +1,7 @@
 package dev.xylonity.bonsai.ghosts.common.entity;
 
 import dev.xylonity.bonsai.ghosts.util.GhostOwnerTracker;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -25,6 +26,8 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import org.jetbrains.annotations.Nullable;
+
 public abstract class AbstractGhostEntity extends TamableAnimal implements GeoEntity {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -36,6 +39,11 @@ public abstract class AbstractGhostEntity extends TamableAnimal implements GeoEn
     private long forcedChunk = Long.MIN_VALUE;
 
     private boolean isTracked;
+
+    public static final int WANDER_RADIUS = 30;
+
+    @Nullable
+    private BlockPos wanderAnchor;
 
     public AbstractGhostEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
@@ -106,6 +114,7 @@ public abstract class AbstractGhostEntity extends TamableAnimal implements GeoEn
         int interaction = (getMainInteraction() + 1) % 3;
 
         setOrderedToSit(interaction == 0);
+        this.wanderAnchor = interaction == 2 ? this.blockPosition() : null;
 
         if (player != null) {
             switch (interaction) {
@@ -170,16 +179,33 @@ public abstract class AbstractGhostEntity extends TamableAnimal implements GeoEn
         return this.entityData.get(MAIN_INTERACTION);
     }
 
+    @Nullable
+    public BlockPos getWanderAnchor() {
+        return isTame() && getMainInteraction() == 2 ? this.wanderAnchor : null;
+    }
+
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.setMainInteraction(compound.getInt("MainInteraction"));
+
+        if (compound.contains("WanderAnchor")) {
+            this.wanderAnchor = BlockPos.of(compound.getLong("WanderAnchor"));
+        }
+        else if (getMainInteraction() == 2) {
+            this.wanderAnchor = this.blockPosition();
+        }
+
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("MainInteraction", getMainInteraction());
+
+        if (this.wanderAnchor != null) {
+            compound.putLong("WanderAnchor", this.wanderAnchor.asLong());
+        }
     }
 
     public ItemStack getHoldItem() {

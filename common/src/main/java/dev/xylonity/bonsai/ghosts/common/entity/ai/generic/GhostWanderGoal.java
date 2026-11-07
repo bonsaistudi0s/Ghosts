@@ -9,6 +9,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
+import org.jetbrains.annotations.Nullable;
 import java.util.EnumSet;
 
 public class GhostWanderGoal extends Goal {
@@ -47,7 +48,7 @@ public class GhostWanderGoal extends Goal {
             if (!allow) return false;
         }
 
-        if (!forceTrigger) {
+        if (!forceTrigger && !isOutsideWanderArea()) {
             if (checkNoActionTime && ghost.getNoActionTime() >= 100) return false;
             if (ghost.getRandom().nextInt(reducedTickDelay(interval)) != 0) return false;
         }
@@ -62,22 +63,66 @@ public class GhostWanderGoal extends Goal {
         return true;
     }
 
+    @Nullable
     protected Vec3 getPosition() {
         Vec3 origin = ghost.position();
+        BlockPos anchor = ghost.getWanderAnchor();
+        Vec3 home = anchor != null ? Vec3.atCenterOf(anchor) : null;
+
+        if (home != null && isOutsideRadius(origin, home)) {
+            return getPositionTowards(origin, home);
+        }
 
         for (int i = 0; i < 12; i++) {
             double dx = (ghost.getRandom().nextDouble() * 2 - 1) * 4;
             double dz = (ghost.getRandom().nextDouble() * 2 - 1) * 4;
             double dy = (ghost.getRandom().nextDouble() * 2 - 1);
 
-            Vec3 c = origin.add(dx, dy, dz);
-            c = new Vec3(c.x, Mth.clamp(c.y, ghost.level().getMinBuildHeight() + 1, ghost.level().getMaxBuildHeight() - 1), c.z);
+            Vec3 c = clampHeight(origin.add(dx, dy, dz));
 
+            if (home != null && isOutsideRadius(c, home)) continue;
             if (!isSafePosition(c)) continue;
             return c;
         }
 
         return null;
+    }
+
+    @Nullable
+    private Vec3 getPositionTowards(Vec3 origin, Vec3 target) {
+        Vec3 delta = target.subtract(origin);
+        double dist = delta.length();
+        Vec3 dir = delta.scale(1.0 / dist);
+
+        for (int i = 0; i < 12; i++) {
+            final double step = Math.min(dist, 4 + ghost.getRandom().nextDouble() * 4);
+            final double jx = (ghost.getRandom().nextDouble() * 2 - 1) * 1.5;
+            final double jy = (ghost.getRandom().nextDouble() * 2 - 1);
+            final double jz = (ghost.getRandom().nextDouble() * 2 - 1) * 1.5;
+
+            Vec3 c = clampHeight(origin.add(dir.scale(step)).add(jx, jy, jz));
+
+            if (!isSafePosition(c)) {
+                continue;
+            }
+
+            return c;
+        }
+
+        return null;
+    }
+
+    private Vec3 clampHeight(Vec3 pos) {
+        return new Vec3(pos.x, Mth.clamp(pos.y, ghost.level().getMinBuildHeight() + 1, ghost.level().getMaxBuildHeight() - 1), pos.z);
+    }
+
+    private boolean isOutsideWanderArea() {
+        BlockPos anchor = ghost.getWanderAnchor();
+        return anchor != null && isOutsideRadius(ghost.position(), Vec3.atCenterOf(anchor));
+    }
+
+    private static boolean isOutsideRadius(Vec3 pos, Vec3 home) {
+        return pos.distanceToSqr(home) > (double) AbstractGhostEntity.WANDER_RADIUS * AbstractGhostEntity.WANDER_RADIUS;
     }
 
     private boolean isSafePosition(Vec3 pos) {
