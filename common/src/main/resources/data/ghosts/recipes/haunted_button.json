@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "group": "wooden_button",
+  "ingredients": [
+    {
+      "item": "ghosts:haunted_planks"
+    }
+  ],
+  "result": {
+    "item": "ghosts:haunted_button"
+  }
+}

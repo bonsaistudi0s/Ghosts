@@ -2,8 +2,8 @@
   "item.ghosts.ghost_spawn_egg": "幽灵刷怪蛋",
   "entity.ghosts.ghost": "幽灵",
 
-  "item.ghosts.small_ghost_spawn_egg": "小幽灵刷怪蛋",
-  "entity.ghosts.small_ghost": "小幽灵",
+  "item.ghosts.small_ghost_spawn_egg": "幼苗幽灵刷怪蛋",
+  "entity.ghosts.small_ghost": "幼苗幽灵",
 
   "item.ghosts.kodama_spawn_egg": "木灵刷怪蛋",
   "entity.ghosts.kodama": "木灵",
@@ -11,11 +11,12 @@
   "ghosts.ghost_ambient": "幽灵：嗖嗖",
   "ghosts.ghost_death": "幽灵：死亡",
   "ghosts.ghost_hurt": "幽灵：受伤",
-  "ghosts.mini_ghost_ambient": "小幽灵：嗖嗖",
-  "ghosts.mini_ghost_death": "小幽灵：死亡",
-  "ghosts.mini_ghost_hurt": "小幽灵：受伤",
+  "ghosts.mini_ghost_ambient": "幼苗幽灵：嗖嗖",
+  "ghosts.mini_ghost_death": "幼苗幽灵：死亡",
+  "ghosts.mini_ghost_hurt": "幼苗幽灵：受伤",
 
   "block.ghosts.haunted_sapling": "缠灵树树苗",
+  "block.ghosts.potted_haunted_sapling": "盆栽缠灵树树苗",
   "block.ghosts.haunted_log": "缠灵木原木",
   "block.ghosts.stripped_haunted_log": "去皮缠灵木原木",
   "block.ghosts.haunted_planks": "缠灵木木板",

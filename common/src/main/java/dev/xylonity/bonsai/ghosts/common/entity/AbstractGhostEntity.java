@@ -1,6 +1,7 @@
 package dev.xylonity.bonsai.ghosts.common.entity;
 
 import dev.xylonity.bonsai.ghosts.util.GhostOwnerTracker;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -13,13 +14,17 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
+
+import javax.annotation.Nullable;
 
 public abstract class AbstractGhostEntity extends TamableAnimal implements GeoEntity {
 
@@ -32,6 +37,11 @@ public abstract class AbstractGhostEntity extends TamableAnimal implements GeoEn
     private long forcedChunk = Long.MIN_VALUE;
 
     private boolean isTracked;
+
+    public static final int WANDER_RADIUS = 30;
+
+    @Nullable
+    private BlockPos wanderAnchor;
 
     public AbstractGhostEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
@@ -97,6 +107,7 @@ public abstract class AbstractGhostEntity extends TamableAnimal implements GeoEn
         int interaction = (getMainInteraction() + 1) % 3;
 
         setOrderedToSit(interaction == 0);
+        this.wanderAnchor = interaction == 2 ? this.blockPosition() : null;
 
         if (player != null) {
             switch (interaction) {
@@ -136,6 +147,23 @@ public abstract class AbstractGhostEntity extends TamableAnimal implements GeoEn
         return super.hurt(source, amount);
     }
 
+    protected boolean tryHealWithGlowBerries(Player player, ItemStack stack) {
+        if (!stack.is(Items.GLOW_BERRIES) || getHealth() >= getMaxHealth()) {
+            return false;
+        }
+
+        if (!level().isClientSide) {
+            this.heal(4F);
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+
+            this.gameEvent(GameEvent.EAT, this);
+        }
+
+        return true;
+    }
+
     public void setMainInteraction(int interaction) {
         this.entityData.set(MAIN_INTERACTION, interaction);
     }
@@ -144,16 +172,33 @@ public abstract class AbstractGhostEntity extends TamableAnimal implements GeoEn
         return this.entityData.get(MAIN_INTERACTION);
     }
 
+    @Nullable
+    public BlockPos getWanderAnchor() {
+        return isTame() && getMainInteraction() == 2 ? this.wanderAnchor : null;
+    }
+
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.setMainInteraction(compound.getInt("MainInteraction"));
+
+        if (compound.contains("WanderAnchor")) {
+            this.wanderAnchor = BlockPos.of(compound.getLong("WanderAnchor"));
+        }
+        else if (getMainInteraction() == 2) {
+            this.wanderAnchor = this.blockPosition();
+        }
+
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("MainInteraction", getMainInteraction());
+
+        if (this.wanderAnchor != null) {
+            compound.putLong("WanderAnchor", this.wanderAnchor.asLong());
+        }
     }
 
     public ItemStack getHoldItem() {

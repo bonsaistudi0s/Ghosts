@@ -47,6 +47,7 @@ public class GhostsClientEvents {
 
         ItemBlockRenderTypes.setRenderLayer(GhostsBlocks.HAUNTED_DOOR.get(), RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(GhostsBlocks.HAUNTED_SAPLING.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(GhostsBlocks.POTTED_HAUNTED_SAPLING.get(), RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(GhostsBlocks.HAUNTED_TRAPDOOR.get(), RenderType.cutout());
 
         BlockEntityRenderers.register(GhostsBlockEntities.CALIBRATED_HAUNTED_EYE.get(), CalibratedHauntedEyeGlowRenderer::new);

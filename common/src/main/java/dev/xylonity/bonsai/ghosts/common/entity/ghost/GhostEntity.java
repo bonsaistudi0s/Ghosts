@@ -5,12 +5,14 @@ import dev.xylonity.bonsai.ghosts.common.entity.ai.control.GhostMoveControl;
 import dev.xylonity.bonsai.ghosts.common.entity.ai.generic.*;
 import dev.xylonity.bonsai.ghosts.registry.GhostsSounds;
 import dev.xylonity.bonsai.ghosts.tag.GhostsTags;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -80,8 +82,13 @@ public class GhostEntity extends AbstractGhostEntity {
         return AbstractGolem.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 20)
                 .add(Attributes.FLYING_SPEED, 0.3F)
-                .add(Attributes.MOVEMENT_SPEED, 0.3F)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
+                .add(Attributes.MOVEMENT_SPEED, 0.3F);
+    }
+
+    public static boolean checkGhostSpawnRules(EntityType<? extends TamableAnimal> ghost, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
+        long dayTime = level.getLevel().getDayTime() % 24000;
+        boolean isNight = dayTime >= 13000 && dayTime <= 23000;
+        return (isNight || spawnType == MobSpawnType.SPAWNER) && checkMobSpawnRules(ghost, level, spawnType, pos, random);
     }
 
     protected void registerGoals() {
@@ -205,8 +212,8 @@ public class GhostEntity extends AbstractGhostEntity {
         if (isTame() && player == getOwner()) {
             if (player.isShiftKeyDown()) {
                 // Healing
-                if (stack.getItem() == Items.GLOW_BERRIES && getHealth() < getMaxHealth()) {
-                    this.heal(4f);
+                if (tryHealWithGlowBerries(player, stack)) {
+                    return InteractionResult.SUCCESS;
                 }
                 // Armor equipped
                 else if (this.getItemBySlot(EquipmentSlot.HEAD).isEmpty() && (Mob.getEquipmentSlotForItem(stack) == EquipmentSlot.HEAD || stack.is(Items.BROWN_MUSHROOM) || stack.is(Items.RED_MUSHROOM))) {
